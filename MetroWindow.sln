@@ -1,0 +1,29 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MetroWindow", "MetroWindow\MetroWindow.vcxproj", "{98B40FF1-7F77-4015-9CBE-D1679F76C35D}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MetroWindowDemo", "MetroWindowDemo\MetroWindowDemo.vcxproj", "{9935B1E3-D957-485B-ABD1-4BA7B72CF7D4}"
+	ProjectSection(ProjectDependencies) = postProject
+		{98B40FF1-7F77-4015-9CBE-D1679F76C35D} = {98B40FF1-7F77-4015-9CBE-D1679F76C35D}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{98B40FF1-7F77-4015-9CBE-D1679F76C35D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{98B40FF1-7F77-4015-9CBE-D1679F76C35D}.Debug|Win32.Build.0 = Debug|Win32
+		{98B40FF1-7F77-4015-9CBE-D1679F76C35D}.Release|Win32.ActiveCfg = Release|Win32
+		{98B40FF1-7F77-4015-9CBE-D1679F76C35D}.Release|Win32.Build.0 = Release|Win32
+		{9935B1E3-D957-485B-ABD1-4BA7B72CF7D4}.Debug|Win32.ActiveCfg = Debug|Win32
+		{9935B1E3-D957-485B-ABD1-4BA7B72CF7D4}.Debug|Win32.Build.0 = Debug|Win32
+		{9935B1E3-D957-485B-ABD1-4BA7B72CF7D4}.Release|Win32.ActiveCfg = Release|Win32
+		{9935B1E3-D957-485B-ABD1-4BA7B72CF7D4}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
