@@ -44,7 +44,6 @@ private:
 	BOOL ModifyWindowStyle(LONG removeStyle, LONG addStyle);
 	BOOL PaintNonClientArea(HRGN hrgnUpdate);
 	void DrawWindowFrame(HDC hdc, RECT bounds, SIZE borderSize, int captionHeight);
-    void DrawWindowFrameMask(HDC hdc, RECT bounds, COLORREF color);
     void DrawCaptionTitle(HDC hdc, LPWSTR title, RECT bounds, COLORREF color);
     void DrawThemeCaptionTitleEx(HDC hdc, LPCWSTR title, RECT bounds, COLORREF color);
 	void UpdateCaptionButtons();

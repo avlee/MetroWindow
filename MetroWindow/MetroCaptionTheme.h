@@ -25,8 +25,11 @@ public:
 	void SetCaptionColor(COLORREF captionColor);
 
     COLORREF ActiveBorderColor() { return _activeBorder; }
+
+    COLORREF InactiveCaptionColor() { return _inactiveCaptionColor; }
     COLORREF InactiveBorderColor() { return _inactiveBorder; }
     COLORREF CaptionTextColor() { return _captionTextColor; }
+    COLORREF InactiveCaptionTextColor() { return _inactiveCaptionTextColor; }
     COLORREF ButtonHoverColor() { return _buttonHoverColor; }
     COLORREF ButtonPressColor() { return _buttonPressColor; }
     HBITMAP MinimizeButton() { return _minimizeButtonImage; }
@@ -53,9 +56,11 @@ private:
 	ThemeColorStyle _colorStyle;
 
     COLORREF _captionColor;
+    COLORREF _inactiveCaptionColor;
     COLORREF _activeBorder;
     COLORREF _inactiveBorder;
     COLORREF _captionTextColor;
+    COLORREF _inactiveCaptionTextColor;
     COLORREF _buttonHoverColor;
     COLORREF _buttonPressColor;
 };

@@ -163,7 +163,6 @@ LRESULT CMetroWindow::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPara
 
 LRESULT CMetroWindow::OnNcActivate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
-    TRACE("\r\nOnNcActivate");
     // Despite MSDN's documentation of lParam not being used,
     // calling DefWindowProc with lParam set to -1 causes Windows not to draw over the caption.
     LRESULT lRes = ::DefWindowProc(GetHWnd(), uMsg, wParam, -1);
@@ -704,29 +703,8 @@ BOOL CMetroWindow::PaintNonClientArea(HRGN hrgnUpdate)
                 HBITMAP hbmOld = (HBITMAP)::SelectObject(hdcPaint, hbmPaint);
                 ::SetViewportOrgEx(hdcPaint, -rectWindow.left, -rectWindow.top, NULL);
 
-                if (!_isNonClientAreaActive && !_isFullScreen)
-                {
-                    HDC hdcPaint1 = ::CreateCompatibleDC(hdc);
-                    HBITMAP hbmPaint1 = ::CreateCompatibleBitmap(hdc, rectWindow.Width(), rectWindow.Height());
-                    HBITMAP hbmOld1 = (HBITMAP)::SelectObject(hdcPaint1, hbmPaint1);
-
-                    // paint
-                    DrawWindowFrame(hdcPaint1, rectWindow, borderSize, captionHeight);
-
-                    ::BitBlt(hdcPaint, rectWindow.left, rectWindow.top, rectWindow.Width(), rectWindow.Height(),
-                        hdcPaint1, 0, 0, SRCCOPY);
-                    
-                    ::SelectObject(hdcPaint1, hbmOld1);
-                    ::DeleteObject(hbmPaint1);
-                    ::DeleteDC(hdcPaint1);
-
-                    DrawWindowFrameMask(hdcPaint, rectWindow, _captionTheme.GetCaptionColor());
-                }
-                else
-                {
-                    // paint
-                    DrawWindowFrame(hdcPaint, rectWindow, borderSize, captionHeight);
-                }
+                // paint
+                DrawWindowFrame(hdcPaint, rectWindow, borderSize, captionHeight);
 
                 ::BitBlt(hdc, rectWindow.left, rectWindow.top, rectWindow.Width(), rectWindow.Height(),
                     hdcPaint, 0, 0, SRCCOPY);
@@ -764,11 +742,13 @@ void CMetroWindow::DrawWindowFrame(HDC hdc, RECT bounds, SIZE borderSize, int ca
     captionBounds.Height(borderSize.cy + captionHeight);
 
     CRect textBounds = captionBounds;
+    
+    COLORREF captionColor = (!_isNonClientAreaActive && !_isFullScreen) ?
+        _captionTheme.InactiveCaptionColor() : _captionTheme.GetCaptionColor();
 
     // clear frame area
     COLORREF backColor = (_useThickFrame || isMaxisized)
-        ? _captionTheme.GetCaptionColor()
-        : RGB(255,255,255);
+        ? captionColor : RGB(255,255,255);
 
     FillSolidRect(hdc, &windowBounds, backColor);
 
@@ -807,7 +787,7 @@ void CMetroWindow::DrawWindowFrame(HDC hdc, RECT bounds, SIZE borderSize, int ca
             fillRect.InflateRect(-frameBorderWidth, -frameBorderWidth);
         }
 
-        FillSolidRect(hdc, &fillRect, _captionTheme.GetCaptionColor());
+        FillSolidRect(hdc, &fillRect, captionColor);
     }
 
     // Caculate caption icons size
@@ -840,14 +820,16 @@ void CMetroWindow::DrawWindowFrame(HDC hdc, RECT bounds, SIZE borderSize, int ca
         int titleLen = ::GetWindowTextW(GetHWnd(), title, 255);
         if (titleLen > 0 && !textBounds.IsRectNull() && !textBounds.IsRectEmpty())
         {
+            COLORREF captionTextColor = (!_isNonClientAreaActive && !_isFullScreen) ?
+                _captionTheme.InactiveCaptionTextColor() : _captionTheme.CaptionTextColor();
             if (_isDwmEnabled && _isUxThemeSupported)
             {
-                DrawThemeCaptionTitleEx(hdc, title, textBounds, _captionTheme.CaptionTextColor());
+                DrawThemeCaptionTitleEx(hdc, title, textBounds, captionTextColor);
             }
             else
             {
                 // Draw text using GDI (Whidbey feature).
-                DrawCaptionTitle(hdc, title, textBounds, _captionTheme.CaptionTextColor());
+                DrawCaptionTitle(hdc, title, textBounds, captionTextColor);
             }
         }
     }
@@ -880,9 +862,6 @@ void CMetroWindow::DrawWindowFrame(HDC hdc, RECT bounds, SIZE borderSize, int ca
         }*/
     }
 
-    // draw inactive caption mask if not full screen.
-    
-
     // delay draw caption icon
     if (!iconBounds.IsRectNull())
     {
@@ -897,44 +876,6 @@ void CMetroWindow::DrawWindowFrame(HDC hdc, RECT bounds, SIZE borderSize, int ca
     //{
     //    g.DrawImage(CaptionTheme.SizeGrap, bounds.Width - 10, bounds.Height - 10);
     //}
-}
-
-void CMetroWindow::DrawWindowFrameMask(HDC hdc, RECT bounds, COLORREF color)
-{
-    HDC tempHdc = ::CreateCompatibleDC(hdc);
-    if (tempHdc != NULL)
-    {
-        int width = bounds.right - bounds.left;
-        int height = bounds.bottom - bounds.top;
-
-        //BITMAPINFO bmi = { 0 };
-
-        //bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-        //bmi.bmiHeader.biWidth = width;
-        //bmi.bmiHeader.biHeight = height;
-        //bmi.bmiHeader.biPlanes = 1;
-        //bmi.bmiHeader.biBitCount = 32;
-        //bmi.bmiHeader.biCompression = BI_RGB;
-        //bmi.bmiHeader.biSizeImage = width * height * 4;
-
-        //HBITMAP hbitmap = ::CreateDIBSection(hdc, &bmi, DIB_RGB_COLORS, NULL, NULL, 0x0);
-        HBITMAP hbitmap = ::CreateCompatibleBitmap(hdc, width, height);
-        if (hbitmap != NULL)
-        {
-            HBITMAP hbmOld = (HBITMAP)::SelectObject(tempHdc, hbitmap);
-
-            FillSolidRect(tempHdc, &bounds, RGB(255,255,255));
-
-            BLENDFUNCTION blend = {AC_SRC_OVER, 0, 102, 0};
-            AlphaBlend(hdc, bounds.left, bounds.top, width, height,
-                tempHdc, bounds.left, bounds.top, width, height, blend);
-
-            ::SelectObject(tempHdc, hbmOld);
-            ::DeleteObject(hbitmap);
-        }
-        
-	    ::DeleteDC(tempHdc);
-    }
 }
 
 void CMetroWindow::DrawCaptionTitle(HDC hdc, LPWSTR title, RECT bounds, COLORREF color)
