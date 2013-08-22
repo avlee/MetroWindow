@@ -523,15 +523,26 @@ LRESULT CMetroWindow::OnNcMouseLeave(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 {
     _traceNCMouse = false;
 
+    bool buttonStateChanged = false;
+
     if (_pressedButton.get() != NULL)
     {
         _pressedButton->Pressed(false);
         _pressedButton = NULL;
+
+        buttonStateChanged = true;
     }
     if (_hoveredButton.get() != NULL)
     {
         _hoveredButton->Hovered(false);
         _hoveredButton = NULL;
+
+        buttonStateChanged = true;
+    }
+
+    if (buttonStateChanged)
+    {
+        PaintNonClientArea(NULL);
     }
 
     return 0;
