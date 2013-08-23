@@ -171,6 +171,11 @@ LRESULT CMetroWindow::OnNcActivate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
     bool ncactive = (wParam != 0) ? true : false;
     if (ncactive != _isNonClientAreaActive)
     {
+        if (ncactive)
+        {
+            ::SetWindowPos(GetHWnd(), HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+            ::SetForegroundWindow(GetHWnd());
+        }
         _isNonClientAreaActive = ncactive;
         PaintNonClientArea(NULL);
     }
