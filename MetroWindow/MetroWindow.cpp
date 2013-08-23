@@ -18,7 +18,7 @@ inline void TRACE(const char* format,...)
     nBuf = _vsnprintf(szBuffer, TRACEMAXSTRING, format, args);
     va_end(args);
 
-    _RPT0(_CRT_WARN,szBuffer);
+    OutputDebugStringA(szBuffer);
 }
 #else
 // Remove for release mode
@@ -230,13 +230,11 @@ LRESULT CMetroWindow::OnNcCalcSize(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 LRESULT CMetroWindow::OnNcPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
-    LRESULT lRet = 0;
     if (_prepareFullScreen || PaintNonClientArea((HRGN)wParam))
     {
-        //lRet = 1;
         bHandled = TRUE;
     }
-    return lRet;
+    return 0;
 }
 
 LRESULT CMetroWindow::OnNcHitTest(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
@@ -349,7 +347,6 @@ LRESULT CMetroWindow::OnNcLButtonDown(UINT uMsg, WPARAM wParam, LPARAM lParam, B
     if (_pressedButton.get() != NULL || _isFullScreen)
     {
         bHandled = TRUE;
-        return 1;
     }
     return 0;
 }
@@ -422,26 +419,24 @@ LRESULT CMetroWindow::OnNcMouseMove(UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
 LRESULT CMetroWindow::OnNcLButtonUp(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
-    LRESULT lRes = 0;
     // do we have a pressed button?
     if (_pressedButton.get() != NULL)
     {
         // get button at wparam
         MetroRefPtr<CCaptionButton> button = CommandButtonByHitTest(wParam);
         if (button.get() == NULL)
-            return lRes;
+            return 0;
 
         if (button->Pressed())
         {
             bHandled = TRUE;
-            lRes = 1;
 
             LONG hitTest = button->HitTest();
             switch (hitTest)
             {
             case HTCLOSE:
                 Close();
-                return lRes;
+                return 0;
             case HTMAXBUTTON:
                 {
                     UINT cmd = ::IsZoomed(GetHWnd()) ? SC_RESTORE : SC_MAXIMIZE;
@@ -466,7 +461,7 @@ LRESULT CMetroWindow::OnNcLButtonUp(UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
         PaintNonClientArea(NULL);
     }
 
-    return lRes;
+    return 0;
 }
 
 LRESULT CMetroWindow::OnNcRButtonUp(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
@@ -512,7 +507,6 @@ LRESULT CMetroWindow::OnWmLButtonDown(UINT uMsg, WPARAM wParam, LPARAM lParam, B
         ::SendMessage(GetHWnd(), WM_NCLBUTTONDOWN, HTCAPTION, 0);
 
         bHandled = TRUE;
-        return 1;
     }
 
     return 0;
