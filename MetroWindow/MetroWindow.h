@@ -59,9 +59,11 @@ private:
     bool _isUxThemeSupported;
 	bool _traceNCMouse;
 	bool _isNonClientAreaActive;
+    bool _isSizing;
 	bool _prepareFullScreen;
 	bool _isFullScreen;
 	int _captionHeight;
+
 	bool _useCustomTitle;
 	bool _clientAreaMovable;
     bool _useThickFrame;

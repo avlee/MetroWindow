@@ -33,6 +33,7 @@ CMetroWindow::CMetroWindow(HINSTANCE hInstance)
     _isUxThemeSupported = false;
     _traceNCMouse = false;
     _isNonClientAreaActive = false;
+    _isSizing = false;
     _prepareFullScreen = false;
     _isFullScreen = false;
     _captionHeight = 0;
@@ -223,14 +224,14 @@ LRESULT CMetroWindow::OnNcCalcSize(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
     //	return WVR_REDRAW;
     //}
 
-    
+    _isSizing = true;
 
     return 0;
 }
 
 LRESULT CMetroWindow::OnNcPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
-    if (_prepareFullScreen || PaintNonClientArea((HRGN)wParam))
+    if (_prepareFullScreen || _isSizing || PaintNonClientArea((HRGN)wParam))
     {
         bHandled = TRUE;
     }
@@ -578,10 +579,12 @@ LRESULT CMetroWindow::OnSize(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHan
     //{
     //    _isFullScreen = true;
     //}
+
     _prepareFullScreen = false;
+    _isSizing = false;
     UpdateCaptionButtons();
     PaintNonClientArea(NULL);
-    bHandled = FALSE;
+
     return 0;
 }
 
