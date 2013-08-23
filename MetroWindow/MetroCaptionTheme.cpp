@@ -39,10 +39,9 @@ void CMetroCaptionTheme::SetCaptionColor(COLORREF captionColor)
 	if (_captionColor != captionColor)
 	{
 		_captionColor = captionColor;
-        _inactiveCaptionColor = BlendColors(captionColor, RGB(255, 255, 255), 102);
+        _inactiveCaptionColor = ChangeColorBrightness(captionColor, 0.4f, 102);
 
-		if (GetGValue(_captionColor) > 9 ||
-			(299 * GetRValue(_captionColor) + 587 * GetGValue(_captionColor) + 114 * GetBValue(_captionColor)) / 1000 > 125)
+		if ((299 * GetRValue(_captionColor) + 587 * GetGValue(_captionColor) + 114 * GetBValue(_captionColor)) / 1000 > 125)
 		{
 			_colorStyle = ThemeColorStyle::Light;
 		}
