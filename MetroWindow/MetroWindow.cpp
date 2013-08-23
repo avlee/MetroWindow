@@ -650,6 +650,24 @@ BOOL CMetroWindow::PaintNonClientArea(HRGN hrgnUpdate)
     CRect rectWindow;
     ::GetWindowRect(GetHWnd(), &rectWindow);
 
+    //CRect dirty_region;
+    //// A value of 1 indicates paint all.
+    //if (!hrgnUpdate || hrgnUpdate == reinterpret_cast<HRGN>(1))
+    //{
+    //    dirty_region = CRect(0, 0, rectWindow.Width(), rectWindow.Height());
+    //}
+    //else
+    //{
+    //    RECT rgn_bounding_box;
+    //    ::GetRgnBox(hrgnUpdate, &rgn_bounding_box);
+    //    if (!::IntersectRect(&dirty_region, &rgn_bounding_box, &rectWindow))
+    //        return TRUE;  // Dirty region doesn't intersect window bounds, bale.
+
+    //    // rgn_bounding_box is in screen coordinates. Map it to window coordinates.
+    //    dirty_region.OffsetRect(-rectWindow.left, -rectWindow.top);
+    //}
+
+    // Map it to window coordinates.
     rectWindow.OffsetRect(-rectWindow.left, -rectWindow.top);
 
     // create graphics handle
@@ -667,6 +685,9 @@ BOOL CMetroWindow::PaintNonClientArea(HRGN hrgnUpdate)
         rectClip.top += captionHeight;
 
         CRect rectBounds = rectWindow;
+
+        //TODO: Apply clipping with the udpate region
+        //If no need to update just return
 
         // Apply clipping
         hrgn = ::CreateRectRgnIndirect(&rectBounds);
