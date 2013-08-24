@@ -955,7 +955,7 @@ void CMetroWindow::DrawThemeCaptionTitleEx(HDC hdc, LPCWSTR title, RECT bounds, 
                 DTTOPTS dttOpts = {sizeof(DTTOPTS)};
                 dttOpts.dwFlags = DTT_COMPOSITED | DTT_GLOWSIZE | DTT_TEXTCOLOR;
                 dttOpts.crText = color;
-                dttOpts.iGlowSize = 8; // This is about the size Microsoft Word 2007 uses
+                dttOpts.iGlowSize = 12;
 
                 _uxThemeApi.DrawThemeTextEx(hTheme, hdcPaint, 0, 0, title, -1,
                     DT_SINGLELINE | DT_CENTER | DT_VCENTER | DT_WORD_ELLIPSIS | DT_NOPREFIX,
