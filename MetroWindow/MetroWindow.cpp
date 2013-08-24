@@ -49,11 +49,6 @@ CMetroWindow::~CMetroWindow(void)
     _captionButtons.clear();
 }
 
-UINT CMetroWindow::GetClassStyle() const
-{
-    return CS_DBLCLKS;
-}
-
 LRESULT CMetroWindow::OnWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     LRESULT lRes = 0;
@@ -85,7 +80,7 @@ LRESULT CMetroWindow::OnWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
     case WM_GETMINMAXINFO:	lRes = OnGetMinMaxInfo(uMsg, wParam, lParam, bHandled); break;
     case WM_SIZE:			lRes = OnSize(uMsg, wParam, lParam, bHandled); break;
     case WM_SYSCOMMAND:		lRes = OnSysCommand(uMsg, wParam, lParam, bHandled); break;
-    default:				bHandled = FALSE; break;
+    default:				break;
     }
     if (bHandled) return lRes;
 
@@ -847,7 +842,7 @@ void CMetroWindow::DrawWindowFrame(HDC hdc, RECT bounds, SIZE borderSize, int ca
                 _captionTheme.InactiveCaptionTextColor() : _captionTheme.CaptionTextColor();
             if (_isDwmEnabled && _isUxThemeSupported)
             {
-                DrawThemeCaptionTitleEx(hdc, title, textBounds, captionTextColor);
+                DrawThemeCaptionTitleEx(hdc, title, textBounds, captionTextColor, captionColor);
             }
             else
             {
@@ -913,7 +908,7 @@ void CMetroWindow::DrawCaptionTitle(HDC hdc, LPWSTR title, RECT bounds, COLORREF
     ::SetBkMode(hdc, oldBkMode);
 }
 
-void CMetroWindow::DrawThemeCaptionTitleEx(HDC hdc, LPCWSTR title, RECT bounds, COLORREF color)
+void CMetroWindow::DrawThemeCaptionTitleEx(HDC hdc, LPCWSTR title, RECT bounds, COLORREF color, COLORREF bgColor)
 {
     //TODO: Cache the theme?
     HTHEME hTheme = _uxThemeApi.OpenThemeData(NULL, L"CompositedWindow::Window");
@@ -954,8 +949,7 @@ void CMetroWindow::DrawThemeCaptionTitleEx(HDC hdc, LPCWSTR title, RECT bounds, 
                 // Draw the title.
                 CRect rcPaint(0, 0, width, height);
 
-                //SetBkColor(hdcPaint, _captionTheme.GetCaptionColor());
-                FillSolidRect(hdcPaint, &rcPaint, _captionTheme.GetCaptionColor());
+                FillSolidRect(hdcPaint, &rcPaint, bgColor);
 
                 // Setup the theme drawing options.
                 DTTOPTS dttOpts = {sizeof(DTTOPTS)};

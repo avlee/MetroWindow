@@ -16,9 +16,6 @@ public:
     virtual ~CMetroWindow(void);
 
 protected:
-    //virtual LPCTSTR GetWindowClassName() const = 0;
-    virtual UINT GetClassStyle() const;
-
     virtual LRESULT OnWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
     virtual LRESULT OnSetText(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
@@ -45,7 +42,7 @@ private:
     BOOL PaintNonClientArea(HRGN hrgnUpdate);
     void DrawWindowFrame(HDC hdc, RECT bounds, SIZE borderSize, int captionHeight);
     void DrawCaptionTitle(HDC hdc, LPWSTR title, RECT bounds, COLORREF color);
-    void DrawThemeCaptionTitleEx(HDC hdc, LPCWSTR title, RECT bounds, COLORREF color);
+    void DrawThemeCaptionTitleEx(HDC hdc, LPCWSTR title, RECT bounds, COLORREF color, COLORREF bgColor);
     void UpdateCaptionButtons();
     int GetCaptionHeight();
     RECT GetFrameIconBounds(RECT windowBounds, SIZE borderSize);
