@@ -962,7 +962,7 @@ void CMetroWindow::DrawThemeCaptionTitleEx(HDC hdc, LPCWSTR title, RECT bounds, 
                     &rcPaint, &dttOpts);
 
                 // Blit text to the frame.
-                ::BitBlt(hdc, bounds.left, bounds.top, height, height, hdcPaint, 0, 0, SRCCOPY);
+                ::BitBlt(hdc, bounds.left, bounds.top, width, height, hdcPaint, 0, 0, SRCCOPY);
 
                 ::SelectObject(hdcPaint, hbmOld);
                 if (hFontOld)
