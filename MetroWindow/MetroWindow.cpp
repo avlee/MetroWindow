@@ -39,7 +39,7 @@ CMetroWindow::CMetroWindow(HINSTANCE hInstance)
     _captionHeight = 0;
     _useCustomTitle = false;
     _clientAreaMovable = false;
-    _useThickFrame = true;
+    _useThickFrame = false;
     _showIconOnCaption = true;
 }
 
@@ -778,7 +778,7 @@ void CMetroWindow::DrawWindowFrame(HDC hdc, RECT bounds, SIZE borderSize, int ca
         COLORREF borderColor = _isNonClientAreaActive ?
             _captionTheme.ActiveBorderColor() : _captionTheme.InactiveBorderColor();
 
-        HPEN hPen = CreatePen(PS_SOLID, frameBorderWidth, borderColor);
+        HPEN hPen = ::CreatePen(PS_SOLID | PS_INSIDEFRAME, frameBorderWidth, borderColor);
         HPEN hOldPen = (HPEN)::SelectObject(hdc, hPen);
         HBRUSH hOldBrush = (HBRUSH)::SelectObject(hdc, GetStockObject(NULL_BRUSH));
         ::Rectangle(hdc, windowBounds.left, windowBounds.top, windowBounds.right, windowBounds.bottom);
