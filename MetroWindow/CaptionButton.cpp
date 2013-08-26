@@ -28,15 +28,17 @@ void CCaptionButton::Draw(HDC hdc)
     HBITMAP image = _image;
     CRect srcRect(0, 0, 14, 14);
 
+    COLORREF backColor;
+
     if (_pressed)
     {
-        FillSolidRect(hdc, &_bounds, _theme.ButtonPressColor());
-        srcRect.OffsetRect(0, 14);
+        FillSolidRect(hdc, &_bounds, (_hitTest == HTCLOSE) ? RGB(221,75,73) : _theme.ButtonPressColor());
+        srcRect.OffsetRect(28, 0);
     }
     else if (_hovered)
     {
-        FillSolidRect(hdc, &_bounds, _theme.ButtonHoverColor());
-        //image = _hoverImage;
+        FillSolidRect(hdc, &_bounds, (_hitTest == HTCLOSE) ? RGB(199,80,80) : _theme.ButtonHoverColor());
+        srcRect.OffsetRect(14, 0);
     }
 
     if (image != NULL)
@@ -52,7 +54,7 @@ void CCaptionButton::Draw(HDC hdc)
 
         BLENDFUNCTION bf = { AC_SRC_OVER, 0, 0xFF, AC_SRC_ALPHA };
         AlphaBlend(hdc, destRect.left, destRect.top, destRect.Width(), destRect.Height(), 
-		    hdcBmpMem, 0, 0, srcRect.Width(), srcRect.Height(), bf);
+            hdcBmpMem, srcRect.left, srcRect.top, srcRect.Width(), srcRect.Height(), bf);
 
         ::SelectObject(hdcBmpMem, hbmOldBmp);
 	    ::DeleteDC(hdcBmpMem);
