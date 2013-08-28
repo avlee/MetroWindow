@@ -39,7 +39,7 @@ class MetroRefCount {
   int GetRefCt() { return refct_; }
 
  private:
-  long refct_;  // NOLINT(runtime/int)
+  long refct_;
 };
 
 ///
@@ -66,7 +66,7 @@ class MetroRefPtr {
   MetroRefPtr() : ptr_(NULL) {
   }
 
-  MetroRefPtr(T* p) : ptr_(p) {  // NOLINT(runtime/explicit)
+  MetroRefPtr(T* p) : ptr_(p) {
     if (ptr_)
       ptr_->AddRef();
   }
@@ -106,7 +106,7 @@ class MetroRefPtr {
   }
 
   void swap(MetroRefPtr<T>& r) {
-    swap(&r.ptr_);  // NOLINT(build/include_what_you_use)
+    swap(&r.ptr_);
   }
 
  private:
