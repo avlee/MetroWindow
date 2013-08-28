@@ -34,15 +34,6 @@ class CDwmApi
         DWMWA_LAST
     } DWMWINDOWATTRIBUTE;
 
-    // Non-client rendering policy attribute values
-    typedef enum _DWMNCRENDERINGPOLICY
-    {
-        DWMNCRP_USEWINDOWSTYLE, // Enable/disable non-client rendering based on window style
-        DWMNCRP_DISABLED,       // Disabled non-client rendering; window style is ignored
-        DWMNCRP_ENABLED,        // Enabled non-client rendering; window style is ignored
-        DWMNCRP_LAST
-    } DWMNCRENDERINGPOLICY;
-
 public:
     CDwmApi(void)
         : _dwmDllLoaded(false)
@@ -89,19 +80,14 @@ public:
     {
         if (_pfnDwmSetWindowAttribute != NULL)
         {
-            HRESULT hr = S_OK;
+            BOOL bEnable = TRUE;
 
-            DWMNCRENDERINGPOLICY ncrp = DWMNCRP_ENABLED;
-            hr = _pfnDwmSetWindowAttribute(hwnd, DWMWA_NCRENDERING_POLICY, &ncrp, sizeof(DWMNCRENDERINGPOLICY));
+            // Enable non-client area rendering on the window.
+            HRESULT hr = _pfnDwmSetWindowAttribute(hwnd,
+                DWMWA_ALLOW_NCPAINT, &bEnable, sizeof(bEnable));
             if (SUCCEEDED(hr))
             {
-                // Enable non-client area rendering on the window.
-                BOOL bEnable = TRUE;
-                hr = _pfnDwmSetWindowAttribute(hwnd, DWMWA_ALLOW_NCPAINT, &bEnable, sizeof(bEnable));
-                if (SUCCEEDED(hr))
-                {
-                    return true;
-                }
+                return true;
             }
         }
  
