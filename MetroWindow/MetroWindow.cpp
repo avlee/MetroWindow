@@ -79,6 +79,7 @@ LRESULT CMetroWindow::OnWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
     case WM_GETMINMAXINFO:	lRes = OnGetMinMaxInfo(uMsg, wParam, lParam, bHandled); break;
     case WM_SIZE:			lRes = OnSize(uMsg, wParam, lParam, bHandled); break;
     case WM_SYSCOMMAND:		lRes = OnSysCommand(uMsg, wParam, lParam, bHandled); break;
+    case WM_DWMCOMPOSITIONCHANGED: lRes = OnDwmCompositionChanged(uMsg, wParam, lParam, bHandled); break;
     default:				break;
     }
     if (bHandled) return lRes;
@@ -603,6 +604,14 @@ LRESULT CMetroWindow::OnSysCommand(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
     {
         _prepareFullScreen = true;
     }
+    return 0;
+}
+
+LRESULT CMetroWindow::OnDwmCompositionChanged(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+{
+    _isDwmEnabled = _dwmApi.IsDwmEnabled();
+    PaintNonClientArea(NULL);
+
     return 0;
 }
 
