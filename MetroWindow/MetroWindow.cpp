@@ -27,7 +27,6 @@ inline void TRACE(const char* format,...)
 
 CMetroWindow::CMetroWindow(HINSTANCE hInstance)
     : CWindowWnd(hInstance)
-    , _captionTheme(RGB(61, 140, 206))
 {
     _isDwmEnabled = false;
     _isUxThemeSupported = false;
