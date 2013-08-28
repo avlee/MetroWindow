@@ -32,12 +32,12 @@ void CCaptionButton::Draw(HDC hdc)
 
     if (_pressed)
     {
-        FillSolidRect(hdc, &_bounds, (_hitTest == HTCLOSE) ? RGB(221,75,73) : _theme.ButtonPressColor());
+        FillSolidRect(hdc, &_bounds, _theme.ButtonPressColor());
         srcRect.OffsetRect(28, 0);
     }
     else if (_hovered)
     {
-        FillSolidRect(hdc, &_bounds, (_hitTest == HTCLOSE) ? RGB(199,80,80) : _theme.ButtonHoverColor());
+        FillSolidRect(hdc, &_bounds, _theme.ButtonHoverColor());
         srcRect.OffsetRect(14, 0);
     }
 
