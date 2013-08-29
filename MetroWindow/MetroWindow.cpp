@@ -26,7 +26,7 @@ inline void TRACE(const char* format,...)
 #endif
 
 CMetroWindow::CMetroWindow(HINSTANCE hInstance)
-    : CWindowWnd(hInstance)
+    : CWindowWnd(hInstance), _hCaptionFont(NULL)
 {
     _isDwmEnabled = false;
     _isUxThemeSupported = false;
@@ -46,6 +46,8 @@ CMetroWindow::CMetroWindow(HINSTANCE hInstance)
 CMetroWindow::~CMetroWindow(void)
 {
     _captionButtons.clear();
+
+    if (_hCaptionFont) ::DeleteObject(_hCaptionFont);
 }
 
 LRESULT CMetroWindow::OnWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -906,6 +908,28 @@ void CMetroWindow::DrawWindowFrame(HDC hdc, RECT bounds, SIZE borderSize, int ca
 
 void CMetroWindow::DrawCaptionTitle(HDC hdc, LPWSTR title, RECT bounds, COLORREF color)
 {
+    if (_hCaptionFont == NULL)
+    {
+        LOGFONT lf;
+        ZeroMemory(&lf, sizeof(lf));
+        lf.lfHeight         = 16;
+        lf.lfWeight         = FW_BOLD;
+        lf.lfCharSet        = DEFAULT_CHARSET;
+        lf.lfQuality        = DEFAULT_QUALITY;
+        lf.lfOutPrecision   = OUT_DEFAULT_PRECIS;
+        lf.lfClipPrecision  = CLIP_DEFAULT_PRECIS;
+        lf.lfPitchAndFamily = DEFAULT_PITCH | FF_DONTCARE;
+        wcscpy( lf.lfFaceName, L"Segoe UI");
+
+		_hCaptionFont = ::CreateFontIndirect(&lf);
+	}
+
+    HFONT hOldFont = NULL;
+    if (_hCaptionFont)
+    {
+        hOldFont = (HFONT)::SelectObject(hdc, _hCaptionFont);
+    }
+
     int oldBkMode = ::SetBkMode(hdc, TRANSPARENT);
     COLORREF oldColor = ::SetTextColor(hdc, color);
     
@@ -914,6 +938,8 @@ void CMetroWindow::DrawCaptionTitle(HDC hdc, LPWSTR title, RECT bounds, COLORREF
 
     ::SetTextColor(hdc, oldColor);
     ::SetBkMode(hdc, oldBkMode);
+
+    if (hOldFont) ::SelectObject(hdc, hOldFont);
 }
 
 void CMetroWindow::DrawThemeCaptionTitleEx(HDC hdc, LPCWSTR title, RECT bounds, COLORREF color, COLORREF bgColor)
@@ -945,13 +971,21 @@ void CMetroWindow::DrawThemeCaptionTitleEx(HDC hdc, LPCWSTR title, RECT bounds, 
             {
                 HBITMAP hbmOld = (HBITMAP)::SelectObject(hdcPaint, hbm);
 
-                // Select a font.
-                LOGFONT lgFont;
-                HFONT hFontOld = NULL;
-                if (SUCCEEDED(_uxThemeApi.GetThemeSysFont(hTheme, TMT_CAPTIONFONT, &lgFont)))
+                // Create font
+                if (_hCaptionFont == NULL)
                 {
-                    HFONT hFont = ::CreateFontIndirect(&lgFont);
-                    hFontOld = (HFONT) SelectObject(hdcPaint, hFont);
+                    LOGFONT lgFont;
+                    if (SUCCEEDED(_uxThemeApi.GetThemeSysFont(hTheme, TMT_CAPTIONFONT, &lgFont)))
+                    {
+                        _hCaptionFont = ::CreateFontIndirect(&lgFont);
+                    }
+                }
+
+                // Select a font.
+                HFONT hFontOld = NULL;
+                if (_hCaptionFont)
+                {
+                    hFontOld = (HFONT) SelectObject(hdcPaint, _hCaptionFont);
                 }
 
                 // Draw the title.

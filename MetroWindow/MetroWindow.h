@@ -53,6 +53,8 @@ private:
     void ShowSystemMenu(POINT point);
 
 private:
+    HFONT _hCaptionFont;
+
     bool _isDwmEnabled;
     bool _isUxThemeSupported;
     bool _traceNCMouse;
