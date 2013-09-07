@@ -52,9 +52,9 @@ public:
 
         _pfnOpenThemeData = NULL;
         _pfnDrawThemeText = NULL;
-		_pfnDrawThemeTextEx = NULL;
-		_pfnGetThemeSysFont = NULL;
-		_pfnCloseThemeData = NULL;
+        _pfnDrawThemeTextEx = NULL;
+        _pfnGetThemeSysFont = NULL;
+        _pfnCloseThemeData = NULL;
         _pfnSetWindowTheme = NULL;
         _pfnBeginBufferedPaint = NULL;
         _pfnBufferedPaintSetAlpha = NULL;
@@ -194,17 +194,17 @@ private:
                 _hUxThemeDLL = ::LoadLibraryA("uxtheme.dll");
                 if (_hUxThemeDLL != NULL)
                 {
-                    _pfnOpenThemeData = (fnOpenThemeData)::GetProcAddress(_hUxThemeDLL, "OpenThemeData");
-                    _pfnDrawThemeText = (fnDrawThemeText)::GetProcAddress(_hUxThemeDLL, "DrawThemeText");
-			        _pfnDrawThemeTextEx = (fnDrawThemeTextEx)::GetProcAddress(_hUxThemeDLL, "DrawThemeTextEx");
-			        _pfnGetThemeSysFont = (fnGetThemeSysFont)::GetProcAddress(_hUxThemeDLL, "GetThemeSysFont");
-			        _pfnCloseThemeData = (fnCloseThemeData)::GetProcAddress(_hUxThemeDLL, "CloseThemeData");
-                    _pfnSetWindowTheme = (fnSetWindowTheme)::GetProcAddress(_hUxThemeDLL, "SetWindowTheme");
-                    _pfnBeginBufferedPaint = (fnBeginBufferedPaint)::GetProcAddress(_hUxThemeDLL, "BeginBufferedPaint");
-                    _pfnBufferedPaintSetAlpha = (fnBufferedPaintSetAlpha)::GetProcAddress(_hUxThemeDLL, "BufferedPaintSetAlpha");
-                    _pfnEndBufferedPaint = (fnEndBufferedPaint)::GetProcAddress(_hUxThemeDLL, "EndBufferedPaint");
-                    _pfnBufferedPaintInit = (fnBufferedPaintInit)::GetProcAddress(_hUxThemeDLL, "BufferedPaintInit");
-                    _pfnBufferedPaintUnInit = (fnBufferedPaintUnInit)::GetProcAddress(_hUxThemeDLL, "BufferedPaintUnInit");
+                    _pfnOpenThemeData = reinterpret_cast<fnOpenThemeData>(::GetProcAddress(_hUxThemeDLL, "OpenThemeData"));
+                    _pfnDrawThemeText = reinterpret_cast<fnDrawThemeText>(::GetProcAddress(_hUxThemeDLL, "DrawThemeText"));
+                    _pfnDrawThemeTextEx = reinterpret_cast<fnDrawThemeTextEx>(::GetProcAddress(_hUxThemeDLL, "DrawThemeTextEx"));
+                    _pfnGetThemeSysFont = reinterpret_cast<fnGetThemeSysFont>(::GetProcAddress(_hUxThemeDLL, "GetThemeSysFont"));
+                    _pfnCloseThemeData = reinterpret_cast<fnCloseThemeData>(::GetProcAddress(_hUxThemeDLL, "CloseThemeData"));
+                    _pfnSetWindowTheme = reinterpret_cast<fnSetWindowTheme>(::GetProcAddress(_hUxThemeDLL, "SetWindowTheme"));
+                    _pfnBeginBufferedPaint = reinterpret_cast<fnBeginBufferedPaint>(::GetProcAddress(_hUxThemeDLL, "BeginBufferedPaint"));
+                    _pfnBufferedPaintSetAlpha = reinterpret_cast<fnBufferedPaintSetAlpha>(::GetProcAddress(_hUxThemeDLL, "BufferedPaintSetAlpha"));
+                    _pfnEndBufferedPaint = reinterpret_cast<fnEndBufferedPaint>(::GetProcAddress(_hUxThemeDLL, "EndBufferedPaint"));
+                    _pfnBufferedPaintInit = reinterpret_cast<fnBufferedPaintInit>(::GetProcAddress(_hUxThemeDLL, "BufferedPaintInit"));
+                    _pfnBufferedPaintUnInit = reinterpret_cast<fnBufferedPaintUnInit>(::GetProcAddress(_hUxThemeDLL, "BufferedPaintUnInit"));
 
                     if (_pfnBufferedPaintInit != NULL)
                     {
@@ -241,7 +241,7 @@ public:
         : _uxThemeApi(uxThemeApi), _hPaintBuffer(NULL)
     {
         memset(&_paintParams, 0, sizeof(BP_PAINTPARAMS));
-		_paintParams.cbSize = sizeof(BP_PAINTPARAMS);
+        _paintParams.cbSize = sizeof(BP_PAINTPARAMS);
         _paintParams.dwFlags = BPPF_NONCLIENT;
     }
 
@@ -261,12 +261,12 @@ public:
     void EndPaint()
     {
         if(_hPaintBuffer != NULL)
-		{
+        {
             // SetAlpha with specifies entire buffer
             _uxThemeApi.BufferedPaintSetAlpha(_hPaintBuffer, NULL, 255);
-			_uxThemeApi.EndBufferedPaint(_hPaintBuffer, TRUE);
-			_hPaintBuffer = NULL;
-		}
+            _uxThemeApi.EndBufferedPaint(_hPaintBuffer, TRUE);
+            _hPaintBuffer = NULL;
+        }
     }
 
 private:
