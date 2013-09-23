@@ -6,23 +6,21 @@
 namespace MetroWindow
 {
 
+#ifndef TRACE
 #ifdef _DEBUG
-#define TRACEMAXSTRING	1024
-
-char szBuffer[TRACEMAXSTRING];
-inline void TRACE(const char* format,...)
+#include <stdio.h>
+inline void TRACE(WCHAR const * const format, ...)
 {
     va_list args;
-    va_start(args,format);
-    int nBuf;
-    nBuf = _vsnprintf(szBuffer, TRACEMAXSTRING, format, args);
+    va_start(args, format);
+    WCHAR output[512];
+    vswprintf_s(output, format, args);
+    OutputDebugStringW(output);
     va_end(args);
-
-    OutputDebugStringA(szBuffer);
 }
 #else
-// Remove for release mode
-#define TRACE  ((void)0)
+#define TRACE __noop
+#endif
 #endif
 
 CMetroWindow::CMetroWindow(HINSTANCE hInstance)
