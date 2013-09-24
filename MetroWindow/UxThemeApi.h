@@ -30,7 +30,6 @@ public:
         : _bDllLoaded(false)
         , _hUxThemeDLL(NULL)
         , _pfnOpenThemeData(NULL)
-        , _pfnDrawThemeText(NULL)
         , _pfnDrawThemeTextEx(NULL)
         , _pfnGetThemeSysFont(NULL)
         , _pfnCloseThemeData(NULL)
@@ -51,7 +50,6 @@ public:
         }
 
         _pfnOpenThemeData = NULL;
-        _pfnDrawThemeText = NULL;
 		_pfnDrawThemeTextEx = NULL;
 		_pfnGetThemeSysFont = NULL;
 		_pfnCloseThemeData = NULL;
@@ -73,7 +71,7 @@ public:
     {
         LoadUxThemeApis();
 
-        return (_hUxThemeDLL != NULL) && (_pfnDrawThemeText != NULL);
+        return (_hUxThemeDLL != NULL) && (_pfnDrawThemeTextEx != NULL);
     }
 
     HTHEME OpenThemeData(HWND hwnd, LPCWSTR pszClassList)
@@ -85,23 +83,6 @@ public:
             return _pfnOpenThemeData(hwnd, pszClassList);
         }
         return NULL;
-    }
-
-    HRESULT DrawThemeText(HTHEME hTheme,
-        HDC hdc,
-        int iPartId,
-        int iStateId,
-        LPCWSTR pszText,
-        int cchText,
-        DWORD dwTextFlags,
-        DWORD dwTextFlags2,
-        LPCRECT pRect)
-    {
-        if (_pfnDrawThemeText != NULL)
-        {
-            return _pfnDrawThemeText(hTheme, hdc, iPartId, iStateId, pszText, cchText, dwTextFlags, dwTextFlags2, pRect);
-        }
-        return E_NOTIMPL;
     }
 
     HRESULT DrawThemeTextEx(HTHEME hTheme,
@@ -195,7 +176,6 @@ private:
                 if (_hUxThemeDLL != NULL)
                 {
                     _pfnOpenThemeData = (fnOpenThemeData)::GetProcAddress(_hUxThemeDLL, "OpenThemeData");
-                    _pfnDrawThemeText = (fnDrawThemeText)::GetProcAddress(_hUxThemeDLL, "DrawThemeText");
 			        _pfnDrawThemeTextEx = (fnDrawThemeTextEx)::GetProcAddress(_hUxThemeDLL, "DrawThemeTextEx");
 			        _pfnGetThemeSysFont = (fnGetThemeSysFont)::GetProcAddress(_hUxThemeDLL, "GetThemeSysFont");
 			        _pfnCloseThemeData = (fnCloseThemeData)::GetProcAddress(_hUxThemeDLL, "CloseThemeData");
@@ -222,7 +202,6 @@ private:
     bool _bDllLoaded;
     HMODULE _hUxThemeDLL;
     fnOpenThemeData _pfnOpenThemeData;
-    fnDrawThemeText _pfnDrawThemeText;
     fnDrawThemeTextEx _pfnDrawThemeTextEx;
     fnGetThemeSysFont _pfnGetThemeSysFont;
     fnCloseThemeData _pfnCloseThemeData;
