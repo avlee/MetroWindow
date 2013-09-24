@@ -131,17 +131,17 @@ private:
                 _hDwmDLL = ::LoadLibraryA("dwmapi.dll");
                 if (_hDwmDLL != NULL)
                 {
-                    _pfnDwmIsCompositionEnabled = (fnDwmIsCompositionEnabled)::GetProcAddress(
-                        _hDwmDLL, "DwmIsCompositionEnabled");
+                    _pfnDwmIsCompositionEnabled = reinterpret_cast<fnDwmIsCompositionEnabled>(::GetProcAddress(
+                        _hDwmDLL, "DwmIsCompositionEnabled"));
 
-                    _pfnDwmSetWindowAttribute = (fnDwmSetWindowAttribute)::GetProcAddress(
-                        _hDwmDLL, "DwmSetWindowAttribute");
+                    _pfnDwmSetWindowAttribute = reinterpret_cast<fnDwmSetWindowAttribute>(::GetProcAddress(
+                        _hDwmDLL, "DwmSetWindowAttribute"));
 
-                    _pfnDwmDefWindowProc = (fnDwmDefWindowProc)::GetProcAddress(
-                        _hDwmDLL, "DwmDefWindowProc");
+                    _pfnDwmDefWindowProc = reinterpret_cast<fnDwmDefWindowProc>(::GetProcAddress(
+                        _hDwmDLL, "DwmDefWindowProc"));
 
-                    _pfnDwmExtendFrameIntoClientArea = (fnDwmExtendFrameIntoClientArea)::GetProcAddress(
-                        _hDwmDLL, "DwmExtendFrameIntoClientArea");
+                    _pfnDwmExtendFrameIntoClientArea = reinterpret_cast<fnDwmExtendFrameIntoClientArea>(::GetProcAddress(
+                        _hDwmDLL, "DwmExtendFrameIntoClientArea"));
 
 
                 }

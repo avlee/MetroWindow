@@ -1,9 +1,6 @@
 #include "stdafx.h"
 #include "CaptionButton.h"
 
-// For AlphaBlend
-#pragma comment(lib,"Msimg32.lib")
-
 namespace MetroWindow
 {
 
@@ -53,7 +50,7 @@ void CCaptionButton::Draw(HDC hdc)
         HBITMAP hbmOldBmp = (HBITMAP)::SelectObject(hdcBmpMem, image);
 
         BLENDFUNCTION bf = { AC_SRC_OVER, 0, 0xFF, AC_SRC_ALPHA };
-        AlphaBlend(hdc, destRect.left, destRect.top, destRect.Width(), destRect.Height(), 
+        ::GdiAlphaBlend(hdc, destRect.left, destRect.top, destRect.Width(), destRect.Height(), 
             hdcBmpMem, srcRect.left, srcRect.top, srcRect.Width(), srcRect.Height(), bf);
 
         ::SelectObject(hdcBmpMem, hbmOldBmp);
