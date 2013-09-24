@@ -2,12 +2,12 @@
 
 #include "MetroCaptionTheme.h"
 #include "MiscWapppers.h"
-#include "MetroBase.h"
+#include "MetroRefPtr.h"
 
 namespace MetroWindow
 {
 
-class CCaptionButton : public MetroBase
+class CCaptionButton : public MetroRefBase
 {
 public:
 	CCaptionButton(LONG hitTest, CMetroCaptionTheme& theme);

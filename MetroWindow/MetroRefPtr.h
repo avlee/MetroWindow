@@ -5,14 +5,14 @@
 namespace MetroWindow
 {
 
-class MetroBase
+class MetroRefBase
 {
 public:
 	virtual int AddRef() =0;
 	virtual int Release() =0;
 	virtual int GetRefCt() =0;
 protected:
-	virtual ~MetroBase() {}
+	virtual ~MetroRefBase() {}
 };
 
 class MetroRefCount {
@@ -44,7 +44,7 @@ class MetroRefCount {
 
 ///
 // Macro that provides a reference counting implementation for classes extending
-// CefBase.
+// MetroRefBase.
 ///
 #define IMPLEMENT_REFCOUNTING(ClassName)            \
   public:                                           \
