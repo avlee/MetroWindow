@@ -86,8 +86,8 @@
     <ClInclude Include="CaptionButton.h" />
     <ClInclude Include="DwmApi.h" />
     <ClInclude Include="lpng.h" />
-    <ClInclude Include="MetroBase.h" />
     <ClInclude Include="MetroCaptionTheme.h" />
+    <ClInclude Include="MetroRefPtr.h" />
     <ClInclude Include="MetroWindow.h" />
     <ClInclude Include="MiscWapppers.h" />
     <ClInclude Include="puff.h" />

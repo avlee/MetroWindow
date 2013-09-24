@@ -63,9 +63,6 @@
     <ClInclude Include="lpng.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MetroBase.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="MetroCaptionTheme.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -76,6 +73,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MetroRefPtr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
