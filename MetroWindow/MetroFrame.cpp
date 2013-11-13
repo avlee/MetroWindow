@@ -118,6 +118,7 @@ LRESULT CMetroFrame::OnWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
     case WM_NCMOUSELEAVE:	lRes = OnNcMouseLeave(uMsg, wParam, lParam, bHandled); break;
     case WM_GETMINMAXINFO:	lRes = OnGetMinMaxInfo(uMsg, wParam, lParam, bHandled); break;
     case WM_SIZE:			lRes = OnSize(uMsg, wParam, lParam, bHandled); break;
+    case WM_COMMAND:        lRes = OnCommand(uMsg, wParam, lParam, bHandled); break;
     case WM_SYSCOMMAND:		lRes = OnSysCommand(uMsg, wParam, lParam, bHandled); break;
     case WM_DWMCOMPOSITIONCHANGED: lRes = OnDwmCompositionChanged(uMsg, wParam, lParam, bHandled); break;
     default:				break;
@@ -644,6 +645,11 @@ LRESULT CMetroFrame::OnSysCommand(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
     {
         _prepareFullScreen = true;
     }
+    return 0;
+}
+
+LRESULT CMetroFrame::OnCommand(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+{
     return 0;
 }
 
@@ -1244,4 +1250,4 @@ void CMetroFrame::ShowSystemMenu(POINT point)
     }
 }
 
-}; //namespace MetroWindow
+} //namespace MetroWindow

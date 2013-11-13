@@ -160,4 +160,4 @@ LRESULT CALLBACK CMetroWindow::__WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LP
 	}
 }
 
-};
+} // namespace MetroWindow
