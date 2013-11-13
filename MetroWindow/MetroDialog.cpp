@@ -49,8 +49,10 @@ LRESULT CMetroDialog::OnWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
     if (uMsg == WM_INITDIALOG)
     {
+        BOOL bHandled = FALSE;
+        LRESULT lRet = CMetroFrame::OnCreate(uMsg, wParam, lParam, bHandled);
         OnInitDialog();
-        return 1;
+        return lRet;
     }
     else
     {
