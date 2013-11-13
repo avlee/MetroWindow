@@ -28,8 +28,8 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 	LoadString(hInstance, IDC_METROWINDOWDEMO, szWindowClass, MAX_LOADSTRING);
 
 	CMainWindow mainWindow(hInstance);
-    mainWindow.Create(NULL, szTitle, WS_OVERLAPPEDWINDOW, NULL);
     mainWindow.SetIcon(IDI_METROWINDOWDEMO, IDI_SMALL);
+    mainWindow.Create(NULL, szTitle, WS_OVERLAPPEDWINDOW, NULL);
 
 	hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_METROWINDOWDEMO));
 

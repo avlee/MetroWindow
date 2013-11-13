@@ -24,7 +24,7 @@ inline void TRACE(WCHAR const * const format, ...)
 #endif
 
 CMetroFrame::CMetroFrame(HINSTANCE hInstance)
-    : _hInst(NULL)
+    : _hInst(hInstance)
     , _hWnd(NULL)
     , _hIcon(NULL)
     , _hSmallIcon(NULL)
