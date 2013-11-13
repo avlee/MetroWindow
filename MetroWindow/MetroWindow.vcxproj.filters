@@ -42,12 +42,6 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="WindowWnd.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MetroWindow.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="puff.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -78,18 +72,21 @@
     <ClInclude Include="MetroRefPtr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="MetroDialog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MetroFrame.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MetroWindow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MetroWindow.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="dllmain.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="WindowWnd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CaptionButton.cpp">
@@ -105,6 +102,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="WindowExtenders.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MetroDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MetroFrame.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MetroWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

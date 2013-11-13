@@ -87,8 +87,9 @@
     <ClInclude Include="DwmApi.h" />
     <ClInclude Include="lpng.h" />
     <ClInclude Include="MetroCaptionTheme.h" />
+    <ClInclude Include="MetroDialog.h" />
     <ClInclude Include="MetroRefPtr.h" />
-    <ClInclude Include="MetroWindow.h" />
+    <ClInclude Include="MetroFrame.h" />
     <ClInclude Include="MiscWapppers.h" />
     <ClInclude Include="puff.h" />
     <ClInclude Include="resource.h" />
@@ -96,7 +97,7 @@
     <ClInclude Include="targetver.h" />
     <ClInclude Include="UxThemeApi.h" />
     <ClInclude Include="WindowExtenders.h" />
-    <ClInclude Include="WindowWnd.h" />
+    <ClInclude Include="MetroWindow.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CaptionButton.cpp" />
@@ -110,14 +111,15 @@
     </ClCompile>
     <ClCompile Include="lpng.c" />
     <ClCompile Include="MetroCaptionTheme.cpp" />
-    <ClCompile Include="MetroWindow.cpp" />
+    <ClCompile Include="MetroDialog.cpp" />
+    <ClCompile Include="MetroFrame.cpp" />
     <ClCompile Include="puff.c" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="WindowExtenders.cpp" />
-    <ClCompile Include="WindowWnd.cpp" />
+    <ClCompile Include="MetroWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="MetroWindow.rc" />
