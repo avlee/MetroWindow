@@ -16,6 +16,7 @@ public:
 
     virtual void OnInitDialog();
     virtual LRESULT OnClose(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
+    virtual LRESULT OnDefWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
     virtual LRESULT OnWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 protected:

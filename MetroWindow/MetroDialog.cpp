@@ -44,6 +44,12 @@ LRESULT CMetroDialog::OnClose(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHa
     return 1;
 }
 
+LRESULT CMetroDialog::OnDefWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+    //Has no meaning for a dialog, but needed for handlers that use it
+    return 0;
+}
+
 LRESULT CMetroDialog::OnWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     UNREFERENCED_PARAMETER(lParam);
@@ -87,7 +93,7 @@ INT_PTR CALLBACK CMetroDialog::__DlgFunc(HWND hwndDlg, UINT uMsg, WPARAM wParam,
         SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, lRes);
         return lRes;
     } else {
-        return ::DefWindowProc(hwndDlg, uMsg, wParam, lParam);
+        return 0;
     }
 }
 

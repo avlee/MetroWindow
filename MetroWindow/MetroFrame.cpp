@@ -166,6 +166,11 @@ void CMetroFrame::CenterWindow(HWND hWndCenter/* = NULL*/)
         SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
 }
 
+LRESULT CMetroFrame::OnDefWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+    return ::DefWindowProc(_hWnd, uMsg, wParam, lParam);;
+}
+
 LRESULT CMetroFrame::OnWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     LRESULT lRes = 0;
@@ -203,7 +208,7 @@ LRESULT CMetroFrame::OnWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
     }
     if (bHandled) return lRes;
 
-    return ::DefWindowProc(_hWnd, uMsg, wParam, lParam);;
+    return OnDefWndProc(uMsg, wParam, lParam);
 }
 
 LRESULT CMetroFrame::OnSetText(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
@@ -215,7 +220,7 @@ LRESULT CMetroFrame::OnSetText(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bH
     // Setting the caption text and icon cause Windows to redraw the caption.
     // Letting the default WndProc handle the message without the WS_VISIBLE
     // style applied bypasses the redraw.
-    lRes = ::DefWindowProc(GetHWnd(), uMsg, wParam, lParam);
+    lRes = OnDefWndProc(uMsg, wParam, lParam);
 
     // Put back the style we removed.
     if (modified)
@@ -280,7 +285,7 @@ LRESULT CMetroFrame::OnNcActivate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
 {
     // Despite MSDN's documentation of lParam not being used,
     // calling DefWindowProc with lParam set to -1 causes Windows not to draw over the caption.
-    LRESULT lRes = ::DefWindowProc(GetHWnd(), uMsg, wParam, -1);
+    LRESULT lRes = OnDefWndProc(uMsg, wParam, -1);
 
     bool ncactive = (wParam != 0) ? true : false;
     if (ncactive != _isNonClientAreaActive)
@@ -813,10 +818,10 @@ BOOL CMetroFrame::PaintNonClientArea(HRGN hrgnUpdate)
     {
         // prepare clipping
         CRect rectClip = rectWindow;
-        rectClip.InflateRect(-borderSize.cx, -borderSize.cy);
+        rectClip.InflateRect(-borderSize.cx * 2, -borderSize.cy * 2);
         rectClip.top += captionHeight;
 
-        CRect rectBounds = rectWindow;
+        RECT rectBounds = rectWindow;
 
         //TODO: Apply clipping with the udpate region
         //If no need to update just return

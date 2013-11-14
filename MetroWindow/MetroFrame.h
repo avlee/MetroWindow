@@ -34,6 +34,7 @@ public:
     void CenterWindow(HWND hWndCenter = NULL);
 
 protected:
+    virtual LRESULT OnDefWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
     virtual LRESULT OnWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
     virtual LRESULT OnSetText(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
