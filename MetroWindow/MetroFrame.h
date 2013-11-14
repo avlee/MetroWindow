@@ -25,6 +25,10 @@ public:
     HICON GetIcon() const { return _hIcon; }
     HICON GetSmallIcon() const { return _hSmallIcon; }
 
+    void ClientAreaMovable(bool movable) { _clientAreaMovable = movable; }
+    void UseCustomTitile(bool custom) { _useCustomTitle = custom; }
+    void UseThickFrame(bool thick) { _useThickFrame = thick; }
+
     void Close(UINT nRet = IDOK);
 
     void CenterWindow(HWND hWndCenter = NULL);
