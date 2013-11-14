@@ -54,15 +54,18 @@ LRESULT CMetroDialog::OnWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     UNREFERENCED_PARAMETER(lParam);
 
-    if (uMsg == WM_INITDIALOG)
+    switch (uMsg)
     {
-        BOOL bHandled = FALSE;
-        LRESULT lRet = CMetroFrame::OnCreate(uMsg, wParam, lParam, bHandled);
-        OnInitDialog();
-        return lRet;
-    }
-    else
-    {
+    case WM_INITDIALOG:
+        {
+            BOOL bHandled = FALSE;
+            LRESULT lRet = CMetroFrame::OnCreate(uMsg, wParam, lParam, bHandled);
+            OnInitDialog();
+        }
+        break;
+    case WM_CTLCOLORDLG:
+        return (LONG_PTR)::GetStockObject(WHITE_BRUSH);
+    default:
         return CMetroFrame::OnWndProc(uMsg, wParam, lParam);
     }
 }
