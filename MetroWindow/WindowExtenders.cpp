@@ -47,6 +47,7 @@ namespace WindowExtenders
         // Check for Caption
         DWORD dwStyle = ::GetWindowLong(hWnd, GWL_STYLE);
         bool caption = (dwStyle & WS_CAPTION) != 0;
+        DWORD dwExStyle = ::GetWindowLong(hWnd, GWL_EXSTYLE);
 
 		// Get BorderMultiplierFactor
 		int bmfactor = 0;
@@ -54,7 +55,12 @@ namespace WindowExtenders
         int factor = bmfactor - 1;
 
 		CSize border;
-		if (((dwStyle & WS_THICKFRAME) != 0))
+        if (((dwExStyle & WS_EX_CLIENTEDGE) != 0))
+		{
+			// Fixed3D
+			border = GetFixedFrameBorderSize() + GetBorder3DSize();
+		}
+		else if (((dwStyle & WS_THICKFRAME) != 0))
 		{
 			// Sizable or SizableToolWindow
 			if (IsVista())
@@ -63,11 +69,6 @@ namespace WindowExtenders
 				border = GetFixedFrameBorderSize() +
 							(caption ? GetBorderSize() + CSize(factor, factor)
 								: CSize(factor, factor));
-		}
-		else if (((dwStyle & WS_EX_CLIENTEDGE) != 0))
-		{
-			// Fixed3D
-			border = GetFixedFrameBorderSize() + GetBorder3DSize();
 		}
 		else
 		{
@@ -82,8 +83,8 @@ namespace WindowExtenders
 
 	CSize GetCaptionButtonSize(HWND hWnd)
 	{
-		DWORD dwStyle = ::GetWindowLong(hWnd, GWL_STYLE);
-		CSize buttonSize = ((dwStyle & WS_EX_TOOLWINDOW) == WS_EX_TOOLWINDOW)
+		DWORD dwExStyle = ::GetWindowLong(hWnd, GWL_EXSTYLE);
+		CSize buttonSize = ((dwExStyle & WS_EX_TOOLWINDOW) == WS_EX_TOOLWINDOW)
 			? GetToolWindowCaptionButtonSize()
 			: GetCaptionButtonSize();
 
@@ -92,8 +93,8 @@ namespace WindowExtenders
 
 	int GetCaptionHeight(HWND hWnd)
 	{
-		DWORD dwStyle = ::GetWindowLong(hWnd, GWL_STYLE);
-		return ((dwStyle & WS_EX_TOOLWINDOW) == WS_EX_TOOLWINDOW)
+		DWORD dwExStyle = ::GetWindowLong(hWnd, GWL_EXSTYLE);
+		return ((dwExStyle & WS_EX_TOOLWINDOW) == WS_EX_TOOLWINDOW)
 			? ::GetSystemMetrics(SM_CYSMCAPTION)
 			: ::GetSystemMetrics(SM_CYCAPTION);
 	}
