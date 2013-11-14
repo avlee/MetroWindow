@@ -32,6 +32,7 @@ void CMetroDialog::EndDialog()
 
 void CMetroDialog::OnInitDialog()
 {
+    CenterWindow();
 }
 
 LRESULT CMetroDialog::OnClose(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)

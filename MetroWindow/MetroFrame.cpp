@@ -88,6 +88,84 @@ void CMetroFrame::Close(UINT nRet)
     }
 }
 
+void CMetroFrame::CenterWindow(HWND hWndCenter/* = NULL*/)
+{
+    ASSERT(::IsWindow(_hWnd));
+
+    // determine owner window to center against
+    DWORD dwStyle = ::GetWindowLong(_hWnd, GWL_STYLE);
+    if(hWndCenter == NULL)
+    {
+        if(dwStyle & WS_CHILD)
+            hWndCenter = ::GetParent(_hWnd);
+        else
+            hWndCenter = ::GetWindow(_hWnd, GW_OWNER);
+    }
+
+    // get coordinates of the window relative to its parent
+    RECT rcDlg;
+    ::GetWindowRect(_hWnd, &rcDlg);
+    RECT rcArea;
+    RECT rcCenter;
+    HWND hWndParent;
+    if (!(dwStyle & WS_CHILD))
+    {
+        // don't center against invisible or minimized windows
+        if (hWndCenter != NULL)
+        {
+            DWORD dwStyleCenter = ::GetWindowLong(hWndCenter, GWL_STYLE);
+            if(!(dwStyleCenter & WS_VISIBLE) || (dwStyleCenter & WS_MINIMIZE))
+                hWndCenter = NULL;
+        }
+
+        // center within screen coordinates
+        //::SystemParametersInfo(SPI_GETWORKAREA, NULL, &rcArea, NULL);
+
+        // Support multi-monitor
+        MONITORINFO oMonitor = {};
+        oMonitor.cbSize = sizeof(oMonitor);
+        ::GetMonitorInfo(::MonitorFromWindow(_hWnd, MONITOR_DEFAULTTONEAREST), &oMonitor);
+        rcArea = oMonitor.rcWork;
+
+        if (hWndCenter == NULL)
+            rcCenter = rcArea;
+        else
+            ::GetWindowRect(hWndCenter, &rcCenter);
+    }
+    else
+    {
+        // center within parent client coordinates
+        hWndParent = ::GetParent(_hWnd);
+        ASSERT(::IsWindow(hWndParent));
+
+        ::GetClientRect(hWndParent, &rcArea);
+        ASSERT(::IsWindow(hWndCenter));
+        ::GetClientRect(hWndCenter, &rcCenter);
+        ::MapWindowPoints(hWndCenter, hWndParent, (POINT*)&rcCenter, 2);
+    }
+
+    int DlgWidth = rcDlg.right - rcDlg.left;
+    int DlgHeight = rcDlg.bottom - rcDlg.top;
+
+    // Find dialog's upper left based on rcCenter
+    int xLeft = (rcCenter.left + rcCenter.right) / 2 - DlgWidth / 2;
+    int yTop = (rcCenter.top + rcCenter.bottom) / 2 - DlgHeight / 2;
+
+    // The dialog is outside the screen, move it inside
+    if (xLeft < rcArea.left)
+        xLeft = rcArea.left;
+    else if (xLeft + DlgWidth > rcArea.right)
+        xLeft = rcArea.right - DlgWidth;
+
+    if (yTop < rcArea.top)
+        yTop = rcArea.top;
+    else if (yTop + DlgHeight > rcArea.bottom)
+        yTop = rcArea.bottom - DlgHeight;
+
+    ::SetWindowPos(_hWnd, NULL, xLeft, yTop, -1, -1,
+        SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
+}
+
 LRESULT CMetroFrame::OnWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     LRESULT lRes = 0;

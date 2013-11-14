@@ -27,6 +27,8 @@ public:
 
     void Close(UINT nRet = IDOK);
 
+    void CenterWindow(HWND hWndCenter = NULL);
+
 protected:
     virtual LRESULT OnWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
