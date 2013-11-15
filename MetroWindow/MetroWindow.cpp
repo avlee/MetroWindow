@@ -49,12 +49,16 @@ HWND CMetroWindow::Create(
     return _hWnd;
 }
 
-void CMetroWindow::ShowWindow(bool bShow /*= true*/, bool bTakeFocus /*= false*/)
+void CMetroWindow::ShowWindow(bool bShow /*= true*/, bool bTakeFocus /*= true*/)
 {
     ASSERT(::IsWindow(_hWnd));
     if (::IsWindow(_hWnd))
     {
         ::ShowWindow(_hWnd, bShow ? (bTakeFocus ? SW_SHOWNORMAL : SW_SHOWNOACTIVATE) : SW_HIDE);
+        if (bTakeFocus)
+        {
+            ::SetFocus(_hWnd);
+        }
     }
 }
 

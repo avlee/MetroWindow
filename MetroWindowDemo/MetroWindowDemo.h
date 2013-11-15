@@ -96,7 +96,7 @@ public:
 class CMainWindow : public CMetroWindow
 {
 public:
-    CMainWindow(HINSTANCE hInstance) : CMetroWindow(hInstance), _modellessWindow(NULL)
+    CMainWindow(HINSTANCE hInstance) : CMetroWindow(hInstance), _modellessWindow(GetModuleInstance())
     {
     }
 
@@ -157,13 +157,12 @@ public:
         }
         else if (wmId == IDC_BTN_TEST3)
         {
-            if (_modellessWindow == NULL)
+            if (!::IsWindow(_modellessWindow.GetHWnd()))
             {
-                _modellessWindow = new CTestWindow(GetModuleInstance());
-                _modellessWindow->Create(*this, L"ModalLessWindow", WS_OVERLAPPEDWINDOW, 0);
+                _modellessWindow.Create(*this, L"ModalLessWindow", WS_OVERLAPPEDWINDOW, 0);
             }
             
-            _modellessWindow->ShowWindow();
+            _modellessWindow.ShowWindow(true, true);
 
             bHandled = TRUE;
         }
@@ -172,7 +171,7 @@ public:
     }
 
 private:
-    CTestWindow* _modellessWindow;
+    CTestWindow _modellessWindow;
 };
 
 
