@@ -159,7 +159,7 @@ void CMetroFrame::CenterWindow(HWND hWndCenter/* = NULL*/)
 
 LRESULT CMetroFrame::OnDefWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    return ::DefWindowProc(_hWnd, uMsg, wParam, lParam);;
+    return ::DefWindowProc(_hWnd, uMsg, wParam, lParam);
 }
 
 LRESULT CMetroFrame::OnWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
