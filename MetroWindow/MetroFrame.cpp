@@ -473,7 +473,7 @@ LRESULT CMetroFrame::OnNcLButtonDown(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
     {
         bHandled = TRUE;
     }
-    return 0;
+    return bHandled;
 }
 
 LRESULT CMetroFrame::OnNcMouseMove(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
