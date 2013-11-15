@@ -29,8 +29,6 @@ public:
     void UseCustomTitile(bool custom) { _useCustomTitle = custom; }
     void UseThickFrame(bool thick) { _useThickFrame = thick; }
 
-    void Close(UINT nRet = IDOK);
-
     void CenterWindow(HWND hWndCenter = NULL);
 
 protected:

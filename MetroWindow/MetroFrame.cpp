@@ -79,15 +79,6 @@ void CMetroFrame::SetIcon(UINT nIconRes, UINT nSmallIconRes)
     }
 }
 
-void CMetroFrame::Close(UINT nRet)
-{
-	ASSERT(::IsWindow(_hWnd));
-	if (::IsWindow(_hWnd))
-    {
-	    ::PostMessage(_hWnd, WM_CLOSE, (WPARAM)nRet, 0L);
-    }
-}
-
 void CMetroFrame::CenterWindow(HWND hWndCenter/* = NULL*/)
 {
     ASSERT(::IsWindow(_hWnd));
@@ -560,8 +551,8 @@ LRESULT CMetroFrame::OnNcLButtonUp(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
             switch (hitTest)
             {
             case HTCLOSE:
-                Close();
-                return 0;
+                ::PostMessage(_hWnd, WM_CLOSE, IDCANCEL, 0L);
+                break;
             case HTMAXBUTTON:
                 {
                     UINT cmd = ::IsZoomed(GetHWnd()) ? SC_RESTORE : SC_MAXIMIZE;
