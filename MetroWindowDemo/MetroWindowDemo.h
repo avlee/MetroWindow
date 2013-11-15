@@ -21,6 +21,19 @@ public:
     {
         return _T("TestMetroDialog");
     }
+
+    virtual LRESULT OnCommand(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+    {
+        int ctrlId = LOWORD(wParam);
+
+        switch (ctrlId) {
+        case IDOK:
+        case IDCANCEL:
+            EndDialog();
+            break;
+        }
+        return 1;
+    }
 };
 
 class CTestModalWindow : public CMetroWindow
