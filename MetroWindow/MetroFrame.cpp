@@ -818,7 +818,17 @@ BOOL CMetroFrame::PaintNonClientArea(HRGN hrgnUpdate)
     {
         // prepare clipping
         CRect rectClip = rectWindow;
-        rectClip.InflateRect(-borderSize.cx * 2, -borderSize.cy * 2);
+
+        int cx = borderSize.cx;
+        int cy = borderSize.cy;
+        DWORD dwExStyle = ::GetWindowLong(_hWnd, GWL_EXSTYLE);
+        if (((dwExStyle & WS_EX_DLGMODALFRAME) != 0))
+        {
+            // The window has a double border
+            cx *= 2;
+            cy *= 2;
+        }
+        rectClip.InflateRect(-cx, -cy);
         rectClip.top += captionHeight;
 
         RECT rectBounds = rectWindow;
