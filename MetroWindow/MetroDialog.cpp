@@ -4,17 +4,23 @@ namespace MetroWindow
 {
 
 CMetroDialog::CMetroDialog(HINSTANCE hInstance)
-    : CMetroFrame(hInstance)
+    : CMetroFrame(hInstance), _bModal(false)
 {
 }
 
 
 CMetroDialog::~CMetroDialog(void)
 {
+    if (!_bModal && ::IsWindow(_hWnd))
+    {
+        ::DestroyWindow(_hWnd);
+    }
 }
 
 INT_PTR CMetroDialog::DoModal(int resId, HWND hWndParent)
 {
+    _bModal = true;
+
     INT_PTR result = ::DialogBoxParam(GetModuleInstance(), MAKEINTRESOURCE(resId), hWndParent,
                                       &CMetroDialog::__DlgFunc, (LPARAM)this);
     if (::IsWindow(hWndParent))
@@ -23,11 +29,30 @@ INT_PTR CMetroDialog::DoModal(int resId, HWND hWndParent)
     return result;
 }
 
-void CMetroDialog::EndDialog()
+void CMetroDialog::ShowModeless(int resID, HWND hWndParent)
 {
-    if (::IsWindow(_hWnd)) {
-        ::EndDialog(_hWnd, IDOK);
+    if (!::IsWindow(_hWnd)) {
+        _bModal = false;
+        _hWnd = ::CreateDialogParam(GetModuleInstance(), MAKEINTRESOURCE(resID), hWndParent,
+                                    &CMetroDialog::__DlgFunc, (LPARAM)this);
     }
+
+    ::ShowWindow(_hWnd, SW_SHOW);
+    ::SetFocus(_hWnd);
+}
+
+BOOL CMetroDialog::EndDialog()
+{
+    ASSERT(::IsWindow(_hWnd));
+
+    return ::EndDialog(_hWnd, IDOK);
+}
+
+BOOL CMetroDialog::DestroyWindow()
+{
+    ASSERT(::IsWindow(_hWnd));
+
+    return ::DestroyWindow(_hWnd);
 }
 
 void CMetroDialog::OnInitDialog()
@@ -37,11 +62,16 @@ void CMetroDialog::OnInitDialog()
 
 LRESULT CMetroDialog::OnClose(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
-    EndDialog();
+    if (_bModal)
+    {
+        EndDialog();
+        bHandled = TRUE;
+        return 1;
+    }
+    //else
+    //    DestroyWindow();
 
-    bHandled = TRUE;
-
-    return 1;
+    return 0;
 }
 
 LRESULT CMetroDialog::OnDefWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)

@@ -30,9 +30,9 @@ public:
         case IDOK:
         case IDCANCEL:
             EndDialog();
-            break;
+            return 1;
         }
-        return 1;
+        return 0;
     }
 };
 
@@ -73,13 +73,15 @@ public:
 class CMainWindow : public CMetroWindow
 {
 public:
-    CMainWindow(HINSTANCE hInstance) : CMetroWindow(hInstance), _modellessWindow(GetModuleInstance())
+    CMainWindow(HINSTANCE hInstance)
+        : CMetroWindow(hInstance)
+        , _modelessDialog(hInstance)
+        , _modelessWindow(GetModuleInstance())
     {
     }
 
     virtual ~CMainWindow(void)
     {
-        delete _modellessWindow;
     }
 
     virtual LPCTSTR GetWindowClassName() const
@@ -108,10 +110,15 @@ public:
                     100, 100, 200, 24,
                     GetHWnd(), (HMENU)IDC_BTN_TEST2, GetModuleInstance(), 0);
 
-        CreateWindow(L"BUTTON", L"显示非模态窗口 - 模拟",
+        CreateWindow(L"BUTTON", L"显示非模态窗口 - 原生",
                     WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
                     100, 150, 200, 24,
                     GetHWnd(), (HMENU)IDC_BTN_TEST3, GetModuleInstance(), 0);
+
+        CreateWindow(L"BUTTON", L"显示非模态窗口 - 模拟",
+                    WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+                    100, 200, 200, 24,
+                    GetHWnd(), (HMENU)IDC_BTN_TEST4, GetModuleInstance(), 0);
 
         return result;
     }
@@ -134,12 +141,16 @@ public:
         }
         else if (wmId == IDC_BTN_TEST3)
         {
-            if (!::IsWindow(_modellessWindow.GetHWnd()))
+            _modelessDialog.ShowModeless(IDD_DIALOG1, GetHWnd());
+        }
+        else if (wmId == IDC_BTN_TEST4)
+        {
+            if (!::IsWindow(_modelessWindow.GetHWnd()))
             {
-                _modellessWindow.Create(*this, L"ModalLessWindow", WS_OVERLAPPEDWINDOW, 0);
+                _modelessWindow.Create(*this, L"ModalLessWindow", WS_OVERLAPPEDWINDOW, 0);
             }
             
-            _modellessWindow.ShowWindow(true, true);
+            _modelessWindow.ShowWindow(true, true);
 
             bHandled = TRUE;
         }
@@ -148,7 +159,8 @@ public:
     }
 
 private:
-    CTestWindow _modellessWindow;
+    CTestDialog _modelessDialog;
+    CTestWindow _modelessWindow;
 };
 
 

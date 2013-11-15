@@ -12,7 +12,9 @@ public:
     virtual ~CMetroDialog(void);
 
     INT_PTR DoModal(int resId, HWND hWndParent);
-    void EndDialog();
+    void ShowModeless(int resID, HWND hWndParent);
+    BOOL EndDialog();
+    BOOL DestroyWindow();
 
     virtual void OnInitDialog();
     virtual LRESULT OnClose(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
@@ -21,6 +23,9 @@ public:
 
 protected:
     static INT_PTR CALLBACK __DlgFunc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+private:
+    bool _bModal;
 };
 
 } // namespace MetroWindow
