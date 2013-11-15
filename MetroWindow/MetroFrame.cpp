@@ -285,7 +285,7 @@ LRESULT CMetroFrame::OnNcActivate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
 {
     // Despite MSDN's documentation of lParam not being used,
     // calling DefWindowProc with lParam set to -1 causes Windows not to draw over the caption.
-    LRESULT lRes = OnDefWndProc(uMsg, wParam, -1);
+    OnDefWndProc(uMsg, wParam, -1);
 
     bool ncactive = (wParam != 0) ? true : false;
     if (ncactive != _isNonClientAreaActive)
@@ -300,7 +300,7 @@ LRESULT CMetroFrame::OnNcActivate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
     }
 
     bHandled = TRUE;
-    return lRes;
+    return 1;
 }
 
 LRESULT CMetroFrame::OnNcCalcSize(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
@@ -359,7 +359,7 @@ LRESULT CMetroFrame::OnNcPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bH
     {
         bHandled = TRUE;
     }
-    return 0;
+    return 1;
 }
 
 LRESULT CMetroFrame::OnNcHitTest(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
