@@ -51,29 +51,6 @@ public:
     {
         return _T("TestModalMetroWindow");
     }
-
-    bool ShowDialog(HWND hWndParent)
-    {
-        ::EnableWindow(hWndParent, FALSE);
-
-        ShowWindow();
-
-        bool loop = true;
-
-        MSG msg;
-
-        while (loop && GetMessage(&msg, NULL, 0, 0))
-	    {
-            if (msg.message == WM_CLOSE) loop = false;
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-	    }
-
-        EnableWindow(hWndParent, TRUE);
-        SetForegroundWindow(hWndParent);
-
-        return true;
-    }
 };
 
 class CTestWindow : public CMetroWindow

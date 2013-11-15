@@ -18,6 +18,7 @@ public:
     HWND Create(HWND hwndParent, LPCTSTR pstrName, DWORD dwStyle, DWORD dwExStyle, int x = CW_USEDEFAULT, int y = CW_USEDEFAULT, int cx = 400, int cy = 300, HMENU hMenu = NULL);
     
     void ShowWindow(bool bShow = true, bool bTakeFocus = true);
+    void ShowDialog(HWND hWndParent);
 
 protected:
     virtual LPCTSTR GetWindowClassName() const = 0;
