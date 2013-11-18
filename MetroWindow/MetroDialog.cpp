@@ -91,6 +91,7 @@ LRESULT CMetroDialog::OnWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
             BOOL bHandled = FALSE;
             LRESULT lRet = CMetroFrame::OnCreate(uMsg, wParam, lParam, bHandled);
             OnInitDialog();
+            return lRet;
         }
         break;
     case WM_CTLCOLORDLG:

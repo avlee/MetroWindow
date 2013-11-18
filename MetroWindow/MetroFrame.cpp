@@ -6,23 +6,6 @@
 namespace MetroWindow
 {
 
-#ifndef TRACE
-#ifdef _DEBUG
-#include <stdio.h>
-inline void TRACE(WCHAR const * const format, ...)
-{
-    va_list args;
-    va_start(args, format);
-    WCHAR output[512];
-    vswprintf_s(output, format, args);
-    OutputDebugStringW(output);
-    va_end(args);
-}
-#else
-#define TRACE __noop
-#endif
-#endif
-
 CMetroFrame::CMetroFrame(HINSTANCE hInstance)
     : _hInst(hInstance)
     , _hWnd(NULL)
@@ -325,20 +308,6 @@ LRESULT CMetroFrame::OnNcCalcSize(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
         bHandled = TRUE;
     }
 
-    //if ( ::IsZoomed(GetHWnd()))
-    //{	// 最大化时，计算当前显示器最适合宽高度
-    //	MONITORINFO oMonitor = {};
-    //	oMonitor.cbSize = sizeof(oMonitor);
-    //	::GetMonitorInfo(::MonitorFromWindow(GetHWnd(), MONITOR_DEFAULTTONEAREST), &oMonitor);
-    //	CRect rcWork = oMonitor.rcWork;
-    //	CRect rcMonitor = oMonitor.rcMonitor;
-    //	rcWork.OffsetRect(-oMonitor.rcMonitor.left, -oMonitor.rcMonitor.top);
-
-    //	pRect->right = pRect->left + rcWork.Width();
-    //	pRect->bottom = pRect->top + rcWork.Height();
-    //	return WVR_REDRAW;
-    //}
-
     _isSizing = true;
 
     return 0;
@@ -350,7 +319,7 @@ LRESULT CMetroFrame::OnNcPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bH
     {
         bHandled = TRUE;
     }
-    return 1;
+    return 1; // For native dialog, must return 1 to avoid default dialog procedure
 }
 
 LRESULT CMetroFrame::OnNcHitTest(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
@@ -464,6 +433,8 @@ LRESULT CMetroFrame::OnNcLButtonDown(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
     {
         bHandled = TRUE;
     }
+
+    // For native dialog, must return 1 to avoid default dialog procedure
     return bHandled;
 }
 
