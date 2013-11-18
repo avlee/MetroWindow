@@ -88,13 +88,6 @@ LRESULT CMetroDialog::OnWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
     {
     case WM_INITDIALOG:
         {
-            DWORD dwStyle = ::GetWindowLong(GetHWnd(), GWL_STYLE);
-            if ((dwStyle & WS_SYSMENU) != 0)
-            {
-                DWORD dwNewStyle = dwStyle & ~WS_SYSMENU;
-                ::SetWindowLong(GetHWnd(), GWL_STYLE, dwNewStyle);
-            }
-
             BOOL bHandled = FALSE;
             LRESULT lRet = CMetroFrame::OnCreate(uMsg, wParam, lParam, bHandled);
             OnInitDialog();
