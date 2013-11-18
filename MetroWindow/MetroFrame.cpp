@@ -196,7 +196,7 @@ LRESULT CMetroFrame::OnSetText(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bH
     // Setting the caption text and icon cause Windows to redraw the caption.
     // Letting the default WndProc handle the message without the WS_VISIBLE
     // style applied bypasses the redraw.
-    lRes = OnDefWndProc(uMsg, wParam, lParam);
+    lRes = ::DefWindowProc(_hWnd, uMsg, wParam, lParam);
 
     // Put back the style we removed.
     if (modified)
@@ -261,7 +261,7 @@ LRESULT CMetroFrame::OnNcActivate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
 {
     // Despite MSDN's documentation of lParam not being used,
     // calling DefWindowProc with lParam set to -1 causes Windows not to draw over the caption.
-    OnDefWndProc(uMsg, wParam, -1);
+    ::DefWindowProc(GetHWnd(), uMsg, wParam, -1);
 
     bool ncactive = (wParam != 0) ? true : false;
     if (ncactive != _isNonClientAreaActive)
