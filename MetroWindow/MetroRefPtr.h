@@ -5,16 +5,6 @@
 namespace MetroWindow
 {
 
-class MetroRefBase
-{
-public:
-	virtual int AddRef() =0;
-	virtual int Release() =0;
-	virtual int GetRefCt() =0;
-protected:
-	virtual ~MetroRefBase() {}
-};
-
 class MetroRefCount {
  public:
   MetroRefCount() : refct_(0) {}

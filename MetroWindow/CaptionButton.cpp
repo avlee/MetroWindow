@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "CaptionButton.h"
+#include "MiscWapppers.h"
 
 namespace MetroWindow
 {
@@ -41,8 +42,8 @@ void CCaptionButton::Draw(HDC hdc)
     if (image != NULL)
     {
         CRect destRect;
-        destRect.top = _bounds.top + (_bounds.Height() - srcRect.Height()) / 2;
-        destRect.left = _bounds.left + (_bounds.Width() - srcRect.Width()) / 2;
+        destRect.top = _bounds.top + (Height() - srcRect.Height()) / 2;
+        destRect.left = _bounds.left + (Width() - srcRect.Width()) / 2 + 1;
         destRect.Width(srcRect.Width());
         destRect.Height(srcRect.Height());
 
@@ -69,4 +70,4 @@ void CCaptionButton::FillSolidRect(HDC hdc, LPCRECT lpRect, COLORREF clr)
     //::DeleteObject(hBrush);
 }
 
-}; //namespace MetroWindow
+} //namespace MetroWindow

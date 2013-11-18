@@ -2,8 +2,6 @@
 
 #include "stdafx.h"
 #include "CaptionButton.h"
-#include "DwmApi.h"
-#include "UxThemeApi.h"
 #include <vector>
 
 namespace MetroWindow
@@ -94,9 +92,6 @@ private:
     bool _showIconOnCaption;
 
     TRACKMOUSEEVENT _trackMouseEvent;
-
-    CDwmApi _dwmApi;
-    CUxThemeApi _uxThemeApi;
 
     std::vector<MetroRefPtr<CCaptionButton>> _captionButtons;
     CMetroCaptionTheme _captionTheme;

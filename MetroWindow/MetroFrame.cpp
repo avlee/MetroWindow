@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "MetroFrame.h"
 #include "WindowExtenders.h"
+#include "DwmApi.h"
+#include "UxThemeApi.h"
 #include <Vssym32.h>
 
 namespace MetroWindow
@@ -152,7 +154,7 @@ LRESULT CMetroFrame::OnWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
     if (_isDwmEnabled)
     {
-        bHandled = _dwmApi.DwmDefWindowProc(GetHWnd(), uMsg, wParam, lParam, &lRes);
+        bHandled = DwmApi::DwmDefWindowProc(GetHWnd(), uMsg, wParam, lParam, &lRes);
     }
 
     switch (uMsg)
@@ -217,12 +219,12 @@ LRESULT CMetroFrame::OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHa
     _trackMouseEvent.dwFlags = TME_NONCLIENT | TME_LEAVE;
     _trackMouseEvent.hwndTrack = GetHWnd();
 
-    _isDwmEnabled = _dwmApi.IsDwmEnabled();
-    _isUxThemeSupported = _uxThemeApi.IsUxThemeSupported();
+    _isDwmEnabled = DwmApi::IsDwmEnabled();
+    _isUxThemeSupported = UxThemeApi::IsUxThemeSupported();
 
     if (_isDwmEnabled)
     {
-        _isDwmEnabled = _dwmApi.DwmAllowNcPaint(GetHWnd());
+        _isDwmEnabled = DwmApi::DwmAllowNcPaint(GetHWnd());
     }
 
     if (!_isDwmEnabled)
@@ -231,7 +233,7 @@ LRESULT CMetroFrame::OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHa
         // any funny artifacts (round corners, etc.)
         if (_isUxThemeSupported)
         {
-            _uxThemeApi.SetWindowTheme(GetHWnd(), L"", L"");
+            UxThemeApi::SetWindowTheme(GetHWnd(), L"", L"");
         }
     }
 
@@ -700,7 +702,7 @@ LRESULT CMetroFrame::OnCommand(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bH
 
 LRESULT CMetroFrame::OnDwmCompositionChanged(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
-    _isDwmEnabled = _dwmApi.IsDwmEnabled();
+    _isDwmEnabled = DwmApi::IsDwmEnabled();
     PaintNonClientArea(NULL);
 
     return 0;
@@ -808,7 +810,7 @@ BOOL CMetroFrame::PaintNonClientArea(HRGN hrgnUpdate)
     
     if (_isDwmEnabled && _isUxThemeSupported)
     {
-        CBufferedPaint bufferedPaint(_uxThemeApi);
+        CBufferedPaint bufferedPaint;
         HDC hdcPaint = NULL;
         if (bufferedPaint.BeginPaint(hdc, &rectWindow, &hdcPaint))
         {
@@ -934,7 +936,7 @@ void CMetroFrame::DrawWindowFrame(HDC hdc, const RECT& bounds, const SIZE& borde
         if (button != NULL)
         {
             button->Draw(hdc);
-            textBounds.right -= button->Bounds().Width();
+            textBounds.right -= button->Width();
         }
     }
 
@@ -1044,7 +1046,7 @@ void CMetroFrame::DrawCaptionTitle(HDC hdc, LPWSTR title, RECT bounds, COLORREF 
 void CMetroFrame::DrawThemeCaptionTitleEx(HDC hdc, LPCWSTR title, const RECT& bounds, COLORREF color, COLORREF bgColor)
 {
     //TODO: Cache the theme?
-    HTHEME hTheme = _uxThemeApi.OpenThemeData(NULL, L"CompositedWindow::Window");
+    HTHEME hTheme = UxThemeApi::OpenThemeData(NULL, L"CompositedWindow::Window");
     if (hTheme)
     {
         HDC hdcPaint = ::CreateCompatibleDC(hdc);
@@ -1074,7 +1076,7 @@ void CMetroFrame::DrawThemeCaptionTitleEx(HDC hdc, LPCWSTR title, const RECT& bo
                 if (_hCaptionFont == NULL)
                 {
                     LOGFONT lgFont;
-                    if (SUCCEEDED(_uxThemeApi.GetThemeSysFont(hTheme, TMT_CAPTIONFONT, &lgFont)))
+                    if (SUCCEEDED(UxThemeApi::GetThemeSysFont(hTheme, TMT_CAPTIONFONT, &lgFont)))
                     {
                         _hCaptionFont = ::CreateFontIndirect(&lgFont);
                     }
@@ -1098,7 +1100,7 @@ void CMetroFrame::DrawThemeCaptionTitleEx(HDC hdc, LPCWSTR title, const RECT& bo
                 dttOpts.crText = color;
                 dttOpts.iGlowSize = 12;
 
-                _uxThemeApi.DrawThemeTextEx(hTheme, hdcPaint, 0, 0, title, -1,
+                UxThemeApi::DrawThemeTextEx(hTheme, hdcPaint, 0, 0, title, -1,
                     DT_SINGLELINE | DT_CENTER | DT_VCENTER | DT_WORD_ELLIPSIS | DT_NOPREFIX,
                     &rcPaint, &dttOpts);
 
@@ -1115,7 +1117,7 @@ void CMetroFrame::DrawThemeCaptionTitleEx(HDC hdc, LPCWSTR title, const RECT& bo
             ::DeleteDC(hdcPaint);
         }
 
-        _uxThemeApi.CloseThemeData(hTheme);
+        UxThemeApi::CloseThemeData(hTheme);
     }
 }
 
@@ -1265,7 +1267,7 @@ MetroRefPtr<CCaptionButton> CMetroFrame::CommandButtonFromPoint(POINT point)
     for (btnIter = _captionButtons.begin(); btnIter != _captionButtons.end(); btnIter++)
     {
         CCaptionButton* button = btnIter->get();
-        if (button != NULL && button->Visible() && button->Bounds().PtInRect(point))
+        if (button != NULL && button->Visible() && ::PtInRect(&button->Bounds(), point))
         {
             foundButton = *btnIter;
         }

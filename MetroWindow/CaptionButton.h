@@ -1,13 +1,12 @@
 #pragma once
 
 #include "MetroCaptionTheme.h"
-#include "MiscWapppers.h"
 #include "MetroRefPtr.h"
 
 namespace MetroWindow
 {
 
-class CCaptionButton : public MetroRefBase
+class CCaptionButton
 {
 public:
 	CCaptionButton(LONG hitTest, CMetroCaptionTheme& theme);
@@ -15,8 +14,10 @@ public:
 
 	void Draw(HDC hdc);
 
-	CRect Bounds() const {return _bounds; }
-	void Bounds(CRect bounds) { _bounds = bounds; }
+	RECT Bounds() const { return _bounds; }
+	void Bounds(const RECT& bounds) { ::CopyRect(&_bounds, &bounds); }
+    int Width() const { return _bounds.right - _bounds.left; }
+    int Height() const { return _bounds.bottom - _bounds.top; }
     HBITMAP Image() const { return _image; }
 	void Image(HBITMAP image) { _image = image; }
 	bool Visible() const { return _visible; }
@@ -39,11 +40,11 @@ private:
 	LONG _hitTest;
     HBITMAP _image;
     HBITMAP _hoverImage;
-    CRect _bounds;
+    RECT _bounds;
     bool _pressed;
     bool _hovered;
     bool _enabled;
     bool _visible;
 };
 
-}; //namespace MetroWindow
+} //namespace MetroWindow
