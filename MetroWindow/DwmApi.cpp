@@ -1,5 +1,5 @@
+#include "stdafx.h"
 #include "DwmApi.h"
-#include <Uxtheme.h>
 #include "WindowExtenders.h"
 
 namespace MetroWindow

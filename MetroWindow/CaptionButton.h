@@ -6,7 +6,7 @@
 namespace MetroWindow
 {
 
-class CCaptionButton
+class METROWINDOW_DECL CCaptionButton
 {
 public:
 	CCaptionButton(LONG hitTest, CMetroCaptionTheme& theme);

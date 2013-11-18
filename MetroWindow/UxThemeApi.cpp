@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "UxThemeApi.h"
 
 #include "WindowExtenders.h"

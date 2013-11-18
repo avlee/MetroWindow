@@ -1,6 +1,10 @@
 #pragma once
 
-#include <windows.h>
+#ifdef METROWINDOW_EXPORTS
+#   define METROWINDOW_DECL __declspec (dllexport)
+#else
+#   define METROWINDOW_DECL __declspec (dllimport)
+#endif
 
 namespace MetroWindow
 {
@@ -11,7 +15,7 @@ enum ThemeColorStyle
     Dark
 };
 
-class CMetroCaptionTheme
+class METROWINDOW_DECL CMetroCaptionTheme
 {
 public:
 	CMetroCaptionTheme(COLORREF color = RGB(255,255,255));

@@ -12,12 +12,7 @@
 #include <windows.h>
 #include <windowsx.h>
 #include <crtdbg.h>
-
-#ifdef METROWINDOW_EXPORTS
-#   define METROWINDOW_DECL __declspec (dllexport)
-#else
-#   define METROWINDOW_DECL __declspec (dllimport)
-#endif
+#include <Uxtheme.h>
 
 #ifndef ASSERT
 #define ASSERT(expr)  _ASSERTE(expr)
