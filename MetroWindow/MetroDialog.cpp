@@ -36,6 +36,8 @@ void CMetroDialog::ShowModeless(int resID, HWND hWndParent)
         _bModal = false;
         _hWnd = ::CreateDialogParam(GetModuleInstance(), MAKEINTRESOURCE(resID), hWndParent,
                                     &CMetroDialog::__DlgFunc, (LPARAM)this);
+    } else {
+        OnShowModeless();
     }
 
     ::ShowWindow(_hWnd, SW_SHOW);
@@ -61,18 +63,20 @@ void CMetroDialog::OnInitDialog()
     CenterWindow();
 }
 
+void CMetroDialog::OnShowModeless()
+{
+}
+
 LRESULT CMetroDialog::OnClose(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
     if (_bModal)
-    {
         EndDialog();
-        bHandled = TRUE;
-        return 1;
-    }
-    //else
-    //    DestroyWindow();
+    else
+        DestroyWindow();
 
-    return 0;
+    bHandled = TRUE;
+
+    return 1;
 }
 
 LRESULT CMetroDialog::OnDefWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
