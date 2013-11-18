@@ -13,14 +13,14 @@ class MetroRefCount {
   // Atomic reference increment.
   ///
   int AddRef() {
-    return InterlockedIncrement(&refct_);
+    return ::InterlockedIncrement(&refct_);
   }
 
   ///
   // Atomic reference decrement. Delete the object when no references remain.
   ///
   int Release() {
-    return InterlockedDecrement(&refct_);
+    return ::InterlockedDecrement(&refct_);
   }
 
   ///
@@ -47,7 +47,7 @@ class MetroRefCount {
     }                                               \
     int GetRefCt() { return refct_.GetRefCt(); }    \
   private:                                          \
-    MetroRefCount refct_;
+    MetroWindow::MetroRefCount refct_;
 
 
 template <class T>
