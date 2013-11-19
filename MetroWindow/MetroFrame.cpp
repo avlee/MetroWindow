@@ -291,13 +291,6 @@ LRESULT CMetroFrame::OnNcActivate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
 LRESULT CMetroFrame::OnNcCalcSize(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
     CSize borderSize = WindowExtenders::GetBorderSize(GetHWnd(), _isDwmEnabled);
-    DWORD dwExStyle = ::GetWindowLong(_hWnd, GWL_EXSTYLE);
-    if (((dwExStyle & WS_EX_DLGMODALFRAME) != 0))
-    {
-        // The window has a double border
-        borderSize.cx = -borderSize.cx;
-        borderSize.cy = -borderSize.cy;
-    }
 
     if ( wParam == TRUE)
     {
@@ -309,24 +302,21 @@ LRESULT CMetroFrame::OnNcCalcSize(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
         pncsp->rgrc[0].bottom = pncsp->rgrc[0].bottom - borderSize.cy;
         pncsp->rgrc[0].left = pncsp->rgrc[0].left + borderSize.cx;
         pncsp->rgrc[0].right = pncsp->rgrc[0].right - borderSize.cx;
-
-        bHandled = TRUE;
     }
-    else if ( wParam == FALSE)
+    else
     {
-        LPRECT pRect=(LPRECT)lParam;
+        LPRECT pRect = (LPRECT)lParam;
 
         pRect->top += GetCaptionHeight() + borderSize.cy;
         pRect->bottom -= borderSize.cy;
         pRect->left += borderSize.cx;
         pRect->right -= borderSize.cx;
-
-        bHandled = TRUE;
     }
 
+    bHandled = TRUE;
     _isSizing = true;
 
-    return 0;
+    return 1;
 }
 
 LRESULT CMetroFrame::OnNcPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
@@ -799,13 +789,18 @@ BOOL CMetroFrame::PaintNonClientArea(HRGN hrgnUpdate)
 
         int cx = borderSize.cx;
         int cy = borderSize.cy;
-        DWORD dwExStyle = ::GetWindowLong(_hWnd, GWL_EXSTYLE);
-        if (((dwExStyle & WS_EX_DLGMODALFRAME) != 0))
+
+        if (!_isDwmEnabled)
         {
-            // The window has a double border
-            cx *= 2;
-            cy *= 2;
+            DWORD dwExStyle = ::GetWindowLong(_hWnd, GWL_EXSTYLE);
+            if (((dwExStyle & WS_EX_DLGMODALFRAME) != 0))
+            {
+                // The window has a double border
+                cx *= 2;
+                cy *= 2;
+            }
         }
+
         rectClip.InflateRect(-cx, -cy);
         rectClip.top += captionHeight;
 
