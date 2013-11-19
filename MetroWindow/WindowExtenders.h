@@ -23,7 +23,8 @@ namespace WindowExtenders
 	inline bool IsWindowSizable(HWND hWnd)
 	{
 		DWORD dwStyle = ::GetWindowLong(hWnd, GWL_STYLE);
-        return (dwStyle & WS_THICKFRAME) != 0;
+        DWORD dwExStyle = ::GetWindowLong(hWnd, GWL_EXSTYLE);
+        return ((dwStyle & WS_THICKFRAME) != 0) && !((dwExStyle & WS_EX_DLGMODALFRAME) != 0);
 	}
 
 	inline CSize GetBorderSize()

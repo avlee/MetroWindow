@@ -84,6 +84,7 @@ private:
     bool _traceNCMouse;
     bool _isNonClientAreaActive;
     bool _isSizing;
+    bool _isSizable;
     bool _prepareFullScreen;
     bool _isFullScreen;
     int _captionHeight;

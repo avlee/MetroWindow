@@ -356,7 +356,7 @@ LRESULT CMetroFrame::OnNcHitTest(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
                 else
                 {
                     bHandled = TRUE;
-                    return HTNOWHERE;
+                    return HTCLIENT;
                 }
             }
         }
@@ -387,7 +387,7 @@ LRESULT CMetroFrame::OnNcHitTest(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
                 else
                 {
                     bHandled = TRUE;
-                    return HTNOWHERE;
+                    return HTCLIENT;
                 }
             }
         }
@@ -728,6 +728,8 @@ void CMetroFrame::RemoveWindowBorderStyle()
         SetWindowPos(GetHWnd(), NULL, 0, 0, 0, 0,
             SWP_NOZORDER | SWP_NOSIZE | SWP_NOMOVE | SWP_FRAMECHANGED | SWP_NOREDRAW | SWP_NOACTIVATE);
     }
+
+    _isSizable = WindowExtenders::IsWindowSizable(GetHWnd());
 }
 
 BOOL CMetroFrame::ModifyWindowStyle(LONG removeStyle, LONG addStyle)
