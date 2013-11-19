@@ -33,7 +33,7 @@ namespace UxThemeApi
 
     void LoadUxThemeApi()
     {
-        HMODULE _hUxThemeDLL = NULL;
+        _hUxThemeDLL = NULL;
         _pfnOpenThemeData = NULL;
         _pfnDrawThemeTextEx = NULL;
         _pfnGetThemeSysFont = NULL;
