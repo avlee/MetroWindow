@@ -316,7 +316,7 @@ LRESULT CMetroFrame::OnNcCalcSize(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
     bHandled = TRUE;
     _isSizing = true;
 
-    return 1;
+    return (_isDwmEnabled ? 1 : 0);
 }
 
 LRESULT CMetroFrame::OnNcPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
