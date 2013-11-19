@@ -163,7 +163,7 @@ LRESULT CMetroFrame::OnWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
     if (_isDwmEnabled)
     {
-        bHandled = DwmApi::DwmDefWindowProc(GetHWnd(), uMsg, wParam, lParam, &lRes);
+        bHandled = DwmApi::DwmDefWindowProc(_hWnd, uMsg, wParam, lParam, &lRes);
     }
 
     switch (uMsg)
@@ -226,14 +226,14 @@ LRESULT CMetroFrame::OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHa
     memset(&_trackMouseEvent, 0, sizeof(TRACKMOUSEEVENT));
     _trackMouseEvent.cbSize = sizeof( TRACKMOUSEEVENT );
     _trackMouseEvent.dwFlags = TME_NONCLIENT | TME_LEAVE;
-    _trackMouseEvent.hwndTrack = GetHWnd();
+    _trackMouseEvent.hwndTrack = _hWnd;
 
     _isDwmEnabled = DwmApi::IsDwmEnabled();
     _isUxThemeSupported = UxThemeApi::IsUxThemeSupported();
 
     if (_isDwmEnabled)
     {
-        _isDwmEnabled = DwmApi::DwmAllowNcPaint(GetHWnd());
+        _isDwmEnabled = DwmApi::DwmAllowNcPaint(_hWnd);
     }
 
     if (!_isDwmEnabled)
@@ -242,7 +242,7 @@ LRESULT CMetroFrame::OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHa
         // any funny artifacts (round corners, etc.)
         if (_isUxThemeSupported)
         {
-            UxThemeApi::SetWindowTheme(GetHWnd(), L"", L"");
+            UxThemeApi::SetWindowTheme(_hWnd, L"", L"");
         }
     }
 
@@ -270,15 +270,15 @@ LRESULT CMetroFrame::OnNcActivate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
 {
     // Despite MSDN's documentation of lParam not being used,
     // calling DefWindowProc with lParam set to -1 causes Windows not to draw over the caption.
-    ::DefWindowProc(GetHWnd(), uMsg, wParam, -1);
+    ::DefWindowProc(_hWnd, uMsg, wParam, -1);
 
     bool ncactive = (wParam != 0) ? true : false;
     if (ncactive != _isNonClientAreaActive)
     {
         if (ncactive)
         {
-            ::SetWindowPos(GetHWnd(), HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
-            ::SetForegroundWindow(GetHWnd());
+            ::SetWindowPos(_hWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+            ::SetForegroundWindow(_hWnd);
         }
         _isNonClientAreaActive = ncactive;
         PaintNonClientArea(NULL);
@@ -290,7 +290,7 @@ LRESULT CMetroFrame::OnNcActivate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
 
 LRESULT CMetroFrame::OnNcCalcSize(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
-    CSize borderSize = WindowExtenders::GetBorderSize(GetHWnd(), _isDwmEnabled);
+    CSize borderSize = WindowExtenders::GetBorderSize(_hWnd, _isDwmEnabled);
 
     if ( wParam == TRUE)
     {
@@ -335,7 +335,7 @@ LRESULT CMetroFrame::OnNcHitTest(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
     point.y = GET_Y_LPARAM(lParam);
 
     CRect rectScreen;
-    ::GetWindowRect(GetHWnd(), &rectScreen);
+    ::GetWindowRect(_hWnd, &rectScreen);
 
     // custom processing
     if (rectScreen.PtInRect(point))
@@ -348,7 +348,7 @@ LRESULT CMetroFrame::OnNcHitTest(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
             rect.InflateRect(-1, -1);
             if (!rect.PtInRect(point))
             {
-                if (!_isDwmEnabled || WindowExtenders::IsWindowSizable(GetHWnd()))
+                if (!_isDwmEnabled || WindowExtenders::IsWindowSizable(_hWnd))
                 {
                     bHandled = FALSE;
                     return 0;
@@ -370,7 +370,7 @@ LRESULT CMetroFrame::OnNcHitTest(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
             return sysButton->HitTest();
         }
 
-        CSize borderSize = WindowExtenders::GetBorderSize(GetHWnd(), _isDwmEnabled);
+        CSize borderSize = WindowExtenders::GetBorderSize(_hWnd, _isDwmEnabled);
         if (!_isFullScreen)
         {
             // on border?
@@ -379,7 +379,7 @@ LRESULT CMetroFrame::OnNcHitTest(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
             // let form handle hittest itself if we are on borders
             if (!rect.PtInRect(point))
             {
-                if (!_isDwmEnabled || WindowExtenders::IsWindowSizable(GetHWnd()))
+                if (!_isDwmEnabled || WindowExtenders::IsWindowSizable(_hWnd))
                 {
                     bHandled = FALSE;
                     return 0;
@@ -403,7 +403,7 @@ LRESULT CMetroFrame::OnNcHitTest(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
         }
 
         // on icon?
-        if (WindowExtenders::HasSysMenu(GetHWnd())/* && ShowIcon && Icon != null && ShowIconOnCaption*/)
+        if (WindowExtenders::HasSysMenu(_hWnd)/* && ShowIcon && Icon != null && ShowIconOnCaption*/)
         {
             CRect rectSysMenu = GetFrameIconBounds(rectScreen, borderSize);
             if (rectSysMenu.PtInRect(point))
@@ -532,14 +532,14 @@ LRESULT CMetroFrame::OnNcLButtonUp(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
                 break;
             case HTMAXBUTTON:
                 {
-                    UINT cmd = ::IsZoomed(GetHWnd()) ? SC_RESTORE : SC_MAXIMIZE;
-                    ::SendMessage(GetHWnd(), WM_SYSCOMMAND, cmd, 0);
+                    UINT cmd = ::IsZoomed(_hWnd) ? SC_RESTORE : SC_MAXIMIZE;
+                    ::SendMessage(_hWnd, WM_SYSCOMMAND, cmd, 0);
                     break;
                 }
             case HTMINBUTTON:
                 {
-                    UINT cmd = ::IsIconic(GetHWnd()) ? SC_RESTORE : SC_MINIMIZE;
-                    ::SendMessage(GetHWnd(), WM_SYSCOMMAND, cmd, 0);
+                    UINT cmd = ::IsIconic(_hWnd) ? SC_RESTORE : SC_MINIMIZE;
+                    ::SendMessage(_hWnd, WM_SYSCOMMAND, cmd, 0);
                     break;
                 }
             default:
@@ -563,13 +563,13 @@ LRESULT CMetroFrame::OnNcRButtonUp(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
     if (button != NULL && (button->HitTest() == HTCLOSE || button->HitTest() == HTMAXBUTTON))
         return 0;
 
-    if (WindowExtenders::HasSysMenu(GetHWnd()))
+    if (WindowExtenders::HasSysMenu(_hWnd))
     {
         POINT point;
         point.x = GET_X_LPARAM(lParam);
         point.y = GET_Y_LPARAM(lParam);
         CRect rectScreen;
-        ::GetWindowRect(GetHWnd(), &rectScreen);
+        ::GetWindowRect(_hWnd, &rectScreen);
         CRect rectCaption = rectScreen;
         rectCaption.Height(GetCaptionHeight());
 
@@ -594,10 +594,10 @@ LRESULT CMetroFrame::OnNcRButtonUp(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 LRESULT CMetroFrame::OnWmLButtonDown(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
-    if (_clientAreaMovable && !::IsZoomed(GetHWnd()))
+    if (_clientAreaMovable && !::IsZoomed(_hWnd))
     {
         ::ReleaseCapture();
-        ::SendMessage(GetHWnd(), WM_NCLBUTTONDOWN, HTCAPTION, 0);
+        ::SendMessage(_hWnd, WM_NCLBUTTONDOWN, HTCAPTION, 0);
 
         bHandled = TRUE;
     }
@@ -640,7 +640,7 @@ LRESULT CMetroFrame::OnGetMinMaxInfo(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 
     MONITORINFO oMonitor = {};
     oMonitor.cbSize = sizeof(oMonitor);
-    ::GetMonitorInfo(::MonitorFromWindow(GetHWnd(), MONITOR_DEFAULTTONEAREST), &oMonitor);
+    ::GetMonitorInfo(::MonitorFromWindow(_hWnd, MONITOR_DEFAULTTONEAREST), &oMonitor);
     CRect rcWork = oMonitor.rcWork;
     CRect rcMonitor = oMonitor.rcMonitor;
     rcWork.OffsetRect(-oMonitor.rcMonitor.left, -oMonitor.rcMonitor.top);
@@ -661,7 +661,7 @@ LRESULT CMetroFrame::OnGetMinMaxInfo(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 
 LRESULT CMetroFrame::OnSize(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
-    //if (::IsIconic(GetHWnd())) bHandled = FALSE;
+    //if (::IsIconic(_hWnd)) bHandled = FALSE;
 
     if (wParam == SIZE_RESTORED)
     {
@@ -715,7 +715,7 @@ LRESULT CMetroFrame::OnDwmCompositionChanged(UINT uMsg, WPARAM wParam, LPARAM lP
 void CMetroFrame::RemoveWindowBorderStyle()
 {
     // remove the border style
-    DWORD dwStyle = ::GetWindowLong(GetHWnd(), GWL_STYLE);
+    DWORD dwStyle = ::GetWindowLong(_hWnd, GWL_STYLE);
     if ((dwStyle & WS_BORDER) != 0)
     {
         DWORD dwNewStyle = dwStyle & ~WS_BORDER;
@@ -723,25 +723,25 @@ void CMetroFrame::RemoveWindowBorderStyle()
         {
             dwNewStyle |= WS_THICKFRAME;
         }
-        SetWindowLong(GetHWnd(), GWL_STYLE, dwNewStyle);
+        SetWindowLong(_hWnd, GWL_STYLE, dwNewStyle);
 
-        SetWindowPos(GetHWnd(), NULL, 0, 0, 0, 0,
+        SetWindowPos(_hWnd, NULL, 0, 0, 0, 0,
             SWP_NOZORDER | SWP_NOSIZE | SWP_NOMOVE | SWP_FRAMECHANGED | SWP_NOREDRAW | SWP_NOACTIVATE);
     }
 
-    _isSizable = WindowExtenders::IsWindowSizable(GetHWnd());
+    _isSizable = WindowExtenders::IsWindowSizable(_hWnd);
 }
 
 BOOL CMetroFrame::ModifyWindowStyle(LONG removeStyle, LONG addStyle)
 {
-    DWORD dwStyle = ::GetWindowLong(GetHWnd(), GWL_STYLE);
+    DWORD dwStyle = ::GetWindowLong(_hWnd, GWL_STYLE);
     DWORD dwNewStyle = (dwStyle & ~removeStyle) | addStyle;
     if (dwStyle == dwNewStyle)
     {
         return FALSE;
     }
 
-    ::SetWindowLong(GetHWnd(), GWL_STYLE, dwNewStyle);
+    ::SetWindowLong(_hWnd, GWL_STYLE, dwNewStyle);
     return TRUE;
 }
 
@@ -751,11 +751,11 @@ BOOL CMetroFrame::PaintNonClientArea(HRGN hrgnUpdate)
     BOOL result = FALSE;
 
     // prepare paint bounds
-    CSize borderSize = WindowExtenders::GetBorderSize(GetHWnd(), _isDwmEnabled);
+    CSize borderSize = WindowExtenders::GetBorderSize(_hWnd, _isDwmEnabled);
     int captionHeight = this->GetCaptionHeight();
 
     CRect rectWindow;
-    ::GetWindowRect(GetHWnd(), &rectWindow);
+    ::GetWindowRect(_hWnd, &rectWindow);
 
     //CRect dirty_region;
     //// A value of 1 indicates paint all.
@@ -778,13 +778,13 @@ BOOL CMetroFrame::PaintNonClientArea(HRGN hrgnUpdate)
     rectWindow.OffsetRect(-rectWindow.left, -rectWindow.top);
 
     // create graphics handle
-    HDC hdc = ::GetDCEx(GetHWnd(), NULL, DCX_CACHE | DCX_CLIPSIBLINGS | DCX_WINDOW);
-    //HDC hdc = ::GetWindowDC(GetHWnd());
+    HDC hdc = ::GetDCEx(_hWnd, NULL, DCX_CACHE | DCX_CLIPSIBLINGS | DCX_WINDOW);
+    //HDC hdc = ::GetWindowDC(_hWnd);
     if (hdc == NULL) return result;
 
     HRGN hrgn = NULL;
 
-    if (!::IsIconic(GetHWnd()))
+    if (!::IsIconic(_hWnd))
     {
         // prepare clipping
         CRect rectClip = rectWindow;
@@ -866,14 +866,14 @@ BOOL CMetroFrame::PaintNonClientArea(HRGN hrgnUpdate)
         ::DeleteObject(hrgn);
     }
 
-    ::ReleaseDC(GetHWnd(), hdc);
+    ::ReleaseDC(_hWnd, hdc);
 
     return result;
 }
 
 void CMetroFrame::DrawWindowFrame(HDC hdc, const RECT& bounds, const SIZE& borderSize, int captionHeight)
 {
-    BOOL isMaxisized = ::IsZoomed(GetHWnd());
+    BOOL isMaxisized = ::IsZoomed(_hWnd);
 
     // prepare bounds
     CRect windowBounds = bounds;
@@ -932,7 +932,7 @@ void CMetroFrame::DrawWindowFrame(HDC hdc, const RECT& bounds, const SIZE& borde
 
     // Caculate caption icons size
     CRect iconBounds;
-    if (WindowExtenders::HasSysMenu(GetHWnd()) && GetSmallIcon() != NULL && _showIconOnCaption)
+    if (WindowExtenders::HasSysMenu(_hWnd) && GetSmallIcon() != NULL && _showIconOnCaption)
     {
         iconBounds = GetFrameIconBounds(bounds, borderSize);
 
@@ -957,7 +957,7 @@ void CMetroFrame::DrawWindowFrame(HDC hdc, const RECT& bounds, const SIZE& borde
     if (!_useCustomTitle)
     {
         WCHAR title[256];
-        int titleLen = ::GetWindowTextW(GetHWnd(), title, 255);
+        int titleLen = ::GetWindowTextW(_hWnd, title, 255);
         if (titleLen > 0 && !textBounds.IsRectNull() && !textBounds.IsRectEmpty())
         {
             COLORREF captionTextColor = (!_isNonClientAreaActive && !_isFullScreen) ?
@@ -981,7 +981,7 @@ void CMetroFrame::DrawWindowFrame(HDC hdc, const RECT& bounds, const SIZE& borde
     }
 
     // draw the custom caption elements.
-    if (!::IsIconic(GetHWnd()))
+    if (!::IsIconic(_hWnd))
     {
         /*foreach (ICaptionElement captionElement in _captionElements)
         {
@@ -1142,21 +1142,21 @@ void CMetroFrame::UpdateCaptionButtons()
 
         closeButton->Image(_captionTheme.CloseButton());
 
-        if (WindowExtenders::IsDrawMaximizeBox(GetHWnd()))
+        if (WindowExtenders::IsDrawMaximizeBox(_hWnd))
         {
             _maxButton = new CCaptionButton(HTMAXBUTTON, _captionTheme);
             _captionButtons.push_back(_maxButton);
 
-            _maxButton->Image(::IsZoomed(GetHWnd()) ? 
+            _maxButton->Image(::IsZoomed(_hWnd) ? 
                 _captionTheme.RestoreButton() : _captionTheme.MaximizeButton());
         }
 
-        if (WindowExtenders::IsDrawMinimizeBox(GetHWnd()))
+        if (WindowExtenders::IsDrawMinimizeBox(_hWnd))
         {
             _minButton = new CCaptionButton(HTMINBUTTON, _captionTheme);
             _captionButtons.push_back(_minButton);
 
-            _minButton->Image(::IsIconic(GetHWnd()) ? 
+            _minButton->Image(::IsIconic(_hWnd) ? 
                 _captionTheme.RestoreButton() : _captionTheme.MinimizeButton());
         }
 
@@ -1168,24 +1168,24 @@ void CMetroFrame::UpdateCaptionButtons()
     {
         if (_minButton != NULL)
         {
-            _minButton->Image(::IsIconic(GetHWnd()) ? 
+            _minButton->Image(::IsIconic(_hWnd) ? 
                 _captionTheme.RestoreButton() : _captionTheme.MinimizeButton());
         }
 
         if (_maxButton != NULL)
         {
-            _maxButton->Image(::IsZoomed(GetHWnd()) ? 
+            _maxButton->Image(::IsZoomed(_hWnd) ? 
                 _captionTheme.RestoreButton() : _captionTheme.MaximizeButton());
         }
     }
 
     // Calculate Caption Button Bounds
     CRect rect;
-    ::GetWindowRect(GetHWnd(), &rect);
+    ::GetWindowRect(_hWnd, &rect);
     rect.OffsetRect(-rect.left, -rect.top);
 
-    CSize borderSize = WindowExtenders::GetBorderSize(GetHWnd(), _isDwmEnabled);
-    CSize captionButtonSize = WindowExtenders::GetCaptionButtonSize(GetHWnd());
+    CSize borderSize = WindowExtenders::GetBorderSize(_hWnd, _isDwmEnabled);
+    CSize captionButtonSize = WindowExtenders::GetCaptionButtonSize(_hWnd);
 
     CRect buttonRect;
     buttonRect.left = rect.right - borderSize.cx - captionButtonSize.cx;
@@ -1215,7 +1215,7 @@ int CMetroFrame::GetCaptionHeight()
 {
     if (_captionHeight == 0)
     {
-        _captionHeight = WindowExtenders::GetCaptionHeight(GetHWnd());
+        _captionHeight = WindowExtenders::GetCaptionHeight(_hWnd);
 
         /*if (CaptionElements.Count > 0)
         {
@@ -1244,7 +1244,7 @@ int CMetroFrame::GetCaptionHeight()
 
 RECT CMetroFrame::GetFrameIconBounds(const RECT& windowBounds, SIZE borderSize)
 {
-    int captionHeight = WindowExtenders::GetCaptionHeight(GetHWnd());
+    int captionHeight = WindowExtenders::GetCaptionHeight(_hWnd);
     CSize iconSize = WindowExtenders::GetSmallIconSize();
 
     CRect iconBounds;
@@ -1309,7 +1309,7 @@ CCaptionButton * CMetroFrame::CommandButtonByHitTest(LONG hitTest)
 
 void CMetroFrame::ShowSystemMenu(POINT point)
 {
-    HWND hWnd = GetHWnd();
+    HWND hWnd = _hWnd;
     HMENU hmenu = ::GetSystemMenu(hWnd, FALSE);
     if (hmenu != NULL)
     {
