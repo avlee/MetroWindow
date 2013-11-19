@@ -290,26 +290,31 @@ LRESULT CMetroFrame::OnNcActivate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
 
 LRESULT CMetroFrame::OnNcCalcSize(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
+    CSize borderSize = WindowExtenders::GetBorderSize(GetHWnd(), _isDwmEnabled);
+    DWORD dwExStyle = ::GetWindowLong(_hWnd, GWL_EXSTYLE);
+    if (((dwExStyle & WS_EX_DLGMODALFRAME) != 0))
+    {
+        // The window has a double border
+        borderSize.cx = -borderSize.cx;
+        borderSize.cy = -borderSize.cy;
+    }
+
     if ( wParam == TRUE)
     {
-        CSize borderSize = WindowExtenders::GetBorderSize(GetHWnd(), _isDwmEnabled);
-
         LPNCCALCSIZE_PARAMS pncsp = (LPNCCALCSIZE_PARAMS)lParam;
+
+        ::CopyRect(&pncsp->rgrc[1], &pncsp->rgrc[0]);
 
         pncsp->rgrc[0].top = pncsp->rgrc[0].top + GetCaptionHeight() + borderSize.cy;
         pncsp->rgrc[0].bottom = pncsp->rgrc[0].bottom - borderSize.cy;
         pncsp->rgrc[0].left = pncsp->rgrc[0].left + borderSize.cx;
         pncsp->rgrc[0].right = pncsp->rgrc[0].right - borderSize.cx;
 
-        pncsp->rgrc[1] = pncsp->rgrc[0];
-
         bHandled = TRUE;
     }
     else if ( wParam == FALSE)
     {
         LPRECT pRect=(LPRECT)lParam;
-
-        CSize borderSize = WindowExtenders::GetBorderSize(GetHWnd(), _isDwmEnabled);
 
         pRect->top += GetCaptionHeight() + borderSize.cy;
         pRect->bottom -= borderSize.cy;
