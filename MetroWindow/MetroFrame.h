@@ -1,10 +1,13 @@
 #pragma once
 
-#include "CaptionButton.h"
 #include <vector>
+
+#include "MetroCaptionTheme.h"
 
 namespace MetroWindow
 {
+
+class CCaptionButton; // Forward declare
 
 class METROWINDOW_DECL CMetroFrame
 {
@@ -63,8 +66,8 @@ private:
     int GetCaptionHeight();
     RECT GetFrameIconBounds(const RECT& windowBounds, SIZE borderSize);
     void FillSolidRect(HDC hdc, LPCRECT lpRect, COLORREF clr);
-    MetroRefPtr<CCaptionButton> CommandButtonFromPoint(POINT point);
-    MetroRefPtr<CCaptionButton> CommandButtonByHitTest(LONG hitTest);
+    CCaptionButton * CommandButtonFromPoint(POINT point);
+    CCaptionButton * CommandButtonByHitTest(LONG hitTest);
     void ShowSystemMenu(POINT point);
 
 protected:
@@ -92,13 +95,13 @@ private:
 
     TRACKMOUSEEVENT _trackMouseEvent;
 
-    std::vector<MetroRefPtr<CCaptionButton>> _captionButtons;
+    std::vector<CCaptionButton *> _captionButtons;
     CMetroCaptionTheme _captionTheme;
 
-    MetroRefPtr<CCaptionButton> _pressedButton;
-    MetroRefPtr<CCaptionButton> _hoveredButton;
-    MetroRefPtr<CCaptionButton> _minButton;
-    MetroRefPtr<CCaptionButton> _maxButton;
+    CCaptionButton * _pressedButton;
+    CCaptionButton * _hoveredButton;
+    CCaptionButton * _minButton;
+    CCaptionButton * _maxButton;
 };
 
-}; //namespace MetroWindow
+} //namespace MetroWindow

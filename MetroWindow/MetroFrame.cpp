@@ -2,6 +2,7 @@
 #include "MetroFrame.h"
 #include "WindowExtenders.h"
 #include "DwmApi.h"
+#include "CaptionButton.h"
 #include "UxThemeApi.h"
 #include <Vssym32.h>
 
@@ -27,12 +28,20 @@ CMetroFrame::CMetroFrame(HINSTANCE hInstance)
     _clientAreaMovable = false;
     _useThickFrame = false;
     _showIconOnCaption = true;
+
+    _pressedButton = NULL;
+    _hoveredButton = NULL;
+    _minButton = NULL;
+    _maxButton = NULL;
 }
 
 
 CMetroFrame::~CMetroFrame(void)
 {
-    _captionButtons.clear();
+    std::vector<CCaptionButton *>::const_iterator iter = _captionButtons.begin();
+    std::vector<CCaptionButton *>::const_iterator end = _captionButtons.end();
+    for (; iter != end; ++iter)
+        delete *iter;
 
     if (_hCaptionFont) ::DeleteObject(_hCaptionFont);
 }
@@ -359,8 +368,8 @@ LRESULT CMetroFrame::OnNcHitTest(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 
         // on Button?
         CPoint pt(point.x - rectScreen.left, point.y - rectScreen.top);
-        MetroRefPtr<CCaptionButton> sysButton = CommandButtonFromPoint(pt);
-        if (sysButton.get() != NULL && sysButton->Enabled())
+        CCaptionButton * sysButton = CommandButtonFromPoint(pt);
+        if (sysButton != NULL && sysButton->Enabled())
         {
             bHandled = TRUE;
             return sysButton->HitTest();
@@ -420,18 +429,18 @@ LRESULT CMetroFrame::OnNcHitTest(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 
 LRESULT CMetroFrame::OnNcLButtonDown(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
-    MetroRefPtr<CCaptionButton> button = CommandButtonByHitTest(wParam);
-    if (_pressedButton.get() != button.get() && _pressedButton.get() != NULL)
+    CCaptionButton * button = CommandButtonByHitTest(wParam);
+    if (_pressedButton != button && _pressedButton != NULL)
         _pressedButton->Pressed(false);
-    if (button.get() != NULL)
+    if (button != NULL)
         button->Pressed(true);
     _pressedButton = button;
-    if (_pressedButton.get() != NULL)
+    if (_pressedButton != NULL)
     {
         PaintNonClientArea(NULL);
     }
 
-    if (_pressedButton.get() != NULL || _isFullScreen)
+    if (_pressedButton != NULL || _isFullScreen)
     {
         bHandled = TRUE;
     }
@@ -455,7 +464,7 @@ LRESULT CMetroFrame::OnNcMouseMove(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
     // Check for hovered and pressed buttons
     if ((::GetKeyState(VK_LBUTTON) & 0x80) != 0x80)
     {
-        if (_pressedButton.get() != NULL)
+        if (_pressedButton != NULL)
         {
             if (_pressedButton->Pressed())
             {
@@ -466,8 +475,8 @@ LRESULT CMetroFrame::OnNcMouseMove(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
         }
     }
 
-    MetroRefPtr<CCaptionButton> button = CommandButtonByHitTest(wParam);
-    if (_hoveredButton.get() != button.get() && _hoveredButton.get() != NULL)
+    CCaptionButton * button = CommandButtonByHitTest(wParam);
+    if (_hoveredButton != button && _hoveredButton != NULL)
     {
         if (_hoveredButton->Hovered())
         {
@@ -476,9 +485,9 @@ LRESULT CMetroFrame::OnNcMouseMove(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
         }
     }
 
-    if (_pressedButton.get() == NULL)
+    if (_pressedButton == NULL)
     {
-        if (button.get() != NULL)
+        if (button != NULL)
         {
             if (!button->Hovered())
             {
@@ -490,7 +499,7 @@ LRESULT CMetroFrame::OnNcMouseMove(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
     }
     else
     {
-        bool pressed = (button.get() == _pressedButton.get());
+        bool pressed = (button == _pressedButton);
         if (pressed != _pressedButton->Pressed())
         {
             _pressedButton->Pressed(pressed);
@@ -509,11 +518,11 @@ LRESULT CMetroFrame::OnNcMouseMove(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 LRESULT CMetroFrame::OnNcLButtonUp(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
     // do we have a pressed button?
-    if (_pressedButton.get() != NULL)
+    if (_pressedButton != NULL)
     {
         // get button at wparam
-        MetroRefPtr<CCaptionButton> button = CommandButtonByHitTest(wParam);
-        if (button.get() == NULL)
+        CCaptionButton * button = CommandButtonByHitTest(wParam);
+        if (button == NULL)
             return 0;
 
         if (button->Pressed())
@@ -555,8 +564,8 @@ LRESULT CMetroFrame::OnNcLButtonUp(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 LRESULT CMetroFrame::OnNcRButtonUp(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
-    MetroRefPtr<CCaptionButton> button = CommandButtonByHitTest(wParam);
-    if (button.get() != NULL && (button->HitTest() == HTCLOSE || button->HitTest() == HTMAXBUTTON))
+    CCaptionButton * button = CommandButtonByHitTest(wParam);
+    if (button != NULL && (button->HitTest() == HTCLOSE || button->HitTest() == HTMAXBUTTON))
         return 0;
 
     if (WindowExtenders::HasSysMenu(GetHWnd()))
@@ -572,7 +581,7 @@ LRESULT CMetroFrame::OnNcRButtonUp(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
         // right click in caption
         if (rectCaption.PtInRect(point))
         {
-            if (button.get() != NULL)
+            if (button != NULL)
             {
                 button->Hovered(false);
 
@@ -607,14 +616,14 @@ LRESULT CMetroFrame::OnNcMouseLeave(UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
     bool buttonStateChanged = false;
 
-    if (_pressedButton.get() != NULL)
+    if (_pressedButton != NULL)
     {
         _pressedButton->Pressed(false);
         _pressedButton = NULL;
 
         buttonStateChanged = true;
     }
-    if (_hoveredButton.get() != NULL)
+    if (_hoveredButton != NULL)
     {
         _hoveredButton->Hovered(false);
         _hoveredButton = NULL;
@@ -929,10 +938,10 @@ void CMetroFrame::DrawWindowFrame(HDC hdc, const RECT& bounds, const SIZE& borde
     }
 
     // Paint caption buttons
-    std::vector<MetroRefPtr<CCaptionButton>>::iterator btnIter;
+    std::vector<CCaptionButton *>::iterator btnIter;
     for (btnIter = _captionButtons.begin(); btnIter != _captionButtons.end(); btnIter++)
     {
-        CCaptionButton* button = btnIter->get();
+        CCaptionButton* button = *btnIter;
         if (button != NULL)
         {
             button->Draw(hdc);
@@ -1126,24 +1135,27 @@ void CMetroFrame::UpdateCaptionButtons()
     // create buttons
     if (_captionButtons.size() == 0)
     {
-        MetroRefPtr<CCaptionButton> closeButton = new CCaptionButton(HTCLOSE, _captionTheme);
-        closeButton->Image(_captionTheme.CloseButton());
+        CCaptionButton * closeButton = new CCaptionButton(HTCLOSE, _captionTheme);
         _captionButtons.push_back(closeButton);
+
+        closeButton->Image(_captionTheme.CloseButton());
 
         if (WindowExtenders::IsDrawMaximizeBox(GetHWnd()))
         {
             _maxButton = new CCaptionButton(HTMAXBUTTON, _captionTheme);
+            _captionButtons.push_back(_maxButton);
+
             _maxButton->Image(::IsZoomed(GetHWnd()) ? 
                 _captionTheme.RestoreButton() : _captionTheme.MaximizeButton());
-            _captionButtons.push_back(_maxButton);
         }
 
         if (WindowExtenders::IsDrawMinimizeBox(GetHWnd()))
         {
             _minButton = new CCaptionButton(HTMINBUTTON, _captionTheme);
+            _captionButtons.push_back(_minButton);
+
             _minButton->Image(::IsIconic(GetHWnd()) ? 
                 _captionTheme.RestoreButton() : _captionTheme.MinimizeButton());
-            _captionButtons.push_back(_minButton);
         }
 
         // add command handlers
@@ -1152,13 +1164,13 @@ void CMetroFrame::UpdateCaptionButtons()
     }
     else
     {
-        if (_minButton.get() != NULL)
+        if (_minButton != NULL)
         {
             _minButton->Image(::IsIconic(GetHWnd()) ? 
                 _captionTheme.RestoreButton() : _captionTheme.MinimizeButton());
         }
 
-        if (_maxButton.get() != NULL)
+        if (_maxButton != NULL)
         {
             _maxButton->Image(::IsZoomed(GetHWnd()) ? 
                 _captionTheme.RestoreButton() : _captionTheme.MaximizeButton());
@@ -1185,10 +1197,10 @@ void CMetroFrame::UpdateCaptionButtons()
         buttonRect.InflateRect(0, -1);
     }
 
-    std::vector<MetroRefPtr<CCaptionButton>>::iterator btnIter;
+    std::vector<CCaptionButton *>::iterator btnIter;
     for (btnIter = _captionButtons.begin(); btnIter != _captionButtons.end(); btnIter++)
     {
-        CCaptionButton* button = btnIter->get();
+        CCaptionButton* button = *btnIter;
         if (button != NULL && button->Visible())
         {
             button->Bounds(buttonRect);
@@ -1259,14 +1271,14 @@ void CMetroFrame::FillSolidRect(HDC hdc, LPCRECT lpRect, COLORREF clr)
     //::DeleteObject(hBrush);
 }
 
-MetroRefPtr<CCaptionButton> CMetroFrame::CommandButtonFromPoint(POINT point)
+CCaptionButton * CMetroFrame::CommandButtonFromPoint(POINT point)
 {
-    MetroRefPtr<CCaptionButton> foundButton;
+    CCaptionButton * foundButton = NULL;
 
-    std::vector<MetroRefPtr<CCaptionButton>>::iterator btnIter;
+    std::vector<CCaptionButton *>::iterator btnIter;
     for (btnIter = _captionButtons.begin(); btnIter != _captionButtons.end(); btnIter++)
     {
-        CCaptionButton* button = btnIter->get();
+        CCaptionButton* button = *btnIter;
         if (button != NULL && button->Visible() && ::PtInRect(&button->Bounds(), point))
         {
             foundButton = *btnIter;
@@ -1276,14 +1288,14 @@ MetroRefPtr<CCaptionButton> CMetroFrame::CommandButtonFromPoint(POINT point)
     return foundButton;
 }
 
-MetroRefPtr<CCaptionButton> CMetroFrame::CommandButtonByHitTest(LONG hitTest)
+CCaptionButton * CMetroFrame::CommandButtonByHitTest(LONG hitTest)
 {
-    MetroRefPtr<CCaptionButton> foundButton;
+    CCaptionButton * foundButton = NULL;
 
-    std::vector<MetroRefPtr<CCaptionButton>>::iterator btnIter;
+    std::vector<CCaptionButton *>::iterator btnIter;
     for (btnIter = _captionButtons.begin(); btnIter != _captionButtons.end(); btnIter++)
     {
-        CCaptionButton* button = btnIter->get();
+        CCaptionButton* button = *btnIter;
         if (button != NULL && button->Visible() && button->HitTest() == hitTest)
         {
             foundButton = *btnIter;

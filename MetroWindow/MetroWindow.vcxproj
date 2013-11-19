@@ -88,7 +88,6 @@
     <ClInclude Include="lpng.h" />
     <ClInclude Include="MetroCaptionTheme.h" />
     <ClInclude Include="MetroDialog.h" />
-    <ClInclude Include="MetroRefPtr.h" />
     <ClInclude Include="MetroFrame.h" />
     <ClInclude Include="MiscWapppers.h" />
     <ClInclude Include="puff.h" />

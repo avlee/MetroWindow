@@ -1,12 +1,11 @@
 #pragma once
 
 #include "MetroCaptionTheme.h"
-#include "MetroRefPtr.h"
 
 namespace MetroWindow
 {
 
-class METROWINDOW_DECL CCaptionButton
+class CCaptionButton
 {
 public:
 	CCaptionButton(LONG hitTest, CMetroCaptionTheme& theme);
@@ -33,9 +32,8 @@ public:
 private:
     void FillSolidRect(HDC hdc, LPCRECT lpRect, COLORREF clr);
 
-	IMPLEMENT_REFCOUNTING(CCaptionButton)
 private:
-	CMetroCaptionTheme& _theme; //TODO: Using smart ptr like CefRefPtr
+	CMetroCaptionTheme& _theme; //TODO: Using smart ptr like std::shared_ptr
 
 	LONG _hitTest;
     HBITMAP _image;

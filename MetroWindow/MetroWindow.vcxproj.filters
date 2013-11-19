@@ -69,9 +69,6 @@
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MetroRefPtr.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="MetroDialog.h">
       <Filter>Header Files</Filter>
     </ClInclude>
