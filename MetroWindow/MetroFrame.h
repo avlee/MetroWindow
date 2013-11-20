@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include <vector>
 
 #include "MetroCaptionTheme.h"
@@ -25,6 +26,8 @@ public:
 
     HICON GetIcon() const { return _hIcon; }
     HICON GetSmallIcon() const { return _hSmallIcon; }
+
+    void SetWindowTitle(const wchar_t* title);
 
     void ClientAreaMovable(bool movable) { _clientAreaMovable = movable; }
     void UseCustomTitile(bool custom) { _useCustomTitle = custom; }
@@ -76,6 +79,7 @@ protected:
     HWND _hWnd;
     HICON _hIcon;
     HICON _hSmallIcon;
+    std::wstring _title;
 
 private:
     HFONT _hCaptionFont;

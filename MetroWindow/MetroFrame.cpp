@@ -85,6 +85,18 @@ void CMetroFrame::SetIcon(UINT nIconRes, UINT nSmallIconRes)
     }
 }
 
+void CMetroFrame::SetWindowTitle(const wchar_t* title)
+{
+    if (_hWnd != NULL)
+    {
+        ::SetWindowTextW(_hWnd, title);
+    }
+    else
+    {
+        _title = title;
+    }
+}
+
 void CMetroFrame::CenterWindow(HWND hWndCenter/* = NULL*/)
 {
     ASSERT(::IsWindow(_hWnd));
