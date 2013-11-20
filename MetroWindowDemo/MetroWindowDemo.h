@@ -121,7 +121,7 @@ public:
             _modelessWindows.push_back(testWindow);
 
             std::wstringstream ss;
-            ss << L"ModalLess Window " << _modelessWindows.size();
+            ss << L"ModelLess Window " << _modelessWindows.size();
 
             std::wstring strTitle = ss.str();
 
