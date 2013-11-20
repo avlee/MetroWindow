@@ -21,7 +21,7 @@ public:
     void ShowDialog(HWND hWndParent);
 
 protected:
-    virtual LPCTSTR GetWindowClassName() const = 0;
+    virtual LPCTSTR GetWindowClassName() const;
     virtual UINT GetClassStyle() const;
 
 private:

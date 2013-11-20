@@ -24,6 +24,11 @@ CMetroWindow::~CMetroWindow(void)
     }
 }
 
+LPCTSTR CMetroWindow::GetWindowClassName() const
+{
+    return TEXT("WC_MetroWindow");
+}
+
 UINT CMetroWindow::GetClassStyle() const
 {
     return CS_HREDRAW | CS_VREDRAW;
