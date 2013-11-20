@@ -43,6 +43,18 @@ CMetroFrame::~CMetroFrame(void)
     for (; iter != end; ++iter)
         delete *iter;
 
+    if (_hSmallIcon != NULL)
+    {
+        ::DestroyIcon(_hSmallIcon);
+        _hSmallIcon = NULL;
+    }
+
+    if (_hIcon != NULL)
+    {
+        ::DestroyIcon(_hIcon);
+        _hIcon = NULL;
+    }
+
     if (_hCaptionFont) ::DeleteObject(_hCaptionFont);
 }
 

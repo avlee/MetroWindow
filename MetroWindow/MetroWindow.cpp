@@ -11,17 +11,6 @@ CMetroWindow::CMetroWindow(HINSTANCE hInstance)
 
 CMetroWindow::~CMetroWindow(void)
 {
-    if (_hSmallIcon != NULL)
-    {
-        ::DestroyIcon(_hSmallIcon);
-        _hSmallIcon = NULL;
-    }
-
-    if (_hIcon != NULL)
-    {
-        ::DestroyIcon(_hIcon);
-        _hIcon = NULL;
-    }
 }
 
 LPCTSTR CMetroWindow::GetWindowClassName() const
