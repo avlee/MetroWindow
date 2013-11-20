@@ -87,6 +87,9 @@ public:
                     80, 200, 250, 24,
                     GetHWnd(), (HMENU)IDC_BTN_TEST4, GetModuleInstance(), 0);
 
+        _modelessDialog.SetCaptionColor(RGB(61, 140, 206));
+        _modelessDialog.UseThickFrame(true);
+
         return result;
     }
 

@@ -20,6 +20,7 @@ public:
 
 	HINSTANCE GetModuleInstance() const { return _hInst; }
 
+    void SetCaptionColor(COLORREF captionColor) { _captionTheme.SetCaptionColor(captionColor); }
     void SetIcon(UINT nIconRes, UINT nSmallIconRes = 0);
 
     HICON GetIcon() const { return _hIcon; }
