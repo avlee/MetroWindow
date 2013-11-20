@@ -28,7 +28,6 @@ void CMetroCaptionTheme::Reset(COLORREF captionColor)
 {
     _activeBorder = RGB(153, 153, 153);
 	_inactiveBorder = RGB(193, 193, 193);
-    _buttonHoverColor = BlendColors(captionColor, RGB(226, 226, 226), 153);
     _buttonPressColor = RGB(78, 166, 234);
     _backgroundImage = NULL;
     SetCaptionColor(captionColor);
@@ -40,6 +39,7 @@ void CMetroCaptionTheme::SetCaptionColor(COLORREF captionColor)
 	{
 		_captionColor = captionColor;
         _inactiveCaptionColor = ChangeColorBrightness(captionColor, 0.4f, 102);
+        _buttonHoverColor = BlendColors(captionColor, RGB(226, 226, 226), 153);
 
 		if (GetGValue(_captionColor) > 9 ||
             (299 * GetRValue(_captionColor) + 587 * GetGValue(_captionColor) + 114 * GetBValue(_captionColor)) / 1000 > 125)
