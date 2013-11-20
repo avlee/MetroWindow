@@ -55,15 +55,23 @@ namespace WindowExtenders
         int factor = bmfactor - 1;
 
 		CSize border;
-        if (((dwExStyle & WS_EX_CLIENTEDGE) != 0))
+        if ((dwExStyle & WS_EX_CLIENTEDGE) != 0)
 		{
 			// Fixed3D
 			border = GetFixedFrameBorderSize() + GetBorder3DSize();
 		}
-		else if (((dwStyle & WS_THICKFRAME) != 0))
+		else if ((dwStyle & WS_THICKFRAME) != 0)
 		{
+            // Dialog
+            if ((dwExStyle & WS_EX_DLGMODALFRAME) != 0)
+            {
+                // Dialog with WS_EX_DLGMODALFRAME has double border
+                int cx = ::GetSystemMetrics(SM_CXDLGFRAME);
+                int cy = ::GetSystemMetrics(SM_CYDLGFRAME);
+                border.SetSize(cx + cx, cy + cy);
+            }
 			// Sizable or SizableToolWindow
-			if (IsVista())
+			else if (IsVista())
 				border = GetFrameBorderSize();
             else
 				border = GetFixedFrameBorderSize() +
