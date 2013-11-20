@@ -87,6 +87,7 @@ public:
                     80, 200, 250, 24,
                     GetHWnd(), (HMENU)IDC_BTN_TEST4, GetModuleInstance(), 0);
 
+        _modelessDialog.SetWindowTitle(L"Modeless Dialog");
         _modelessDialog.SetCaptionColor(RGB(61, 140, 206));
         _modelessDialog.UseThickFrame(true);
 
@@ -99,13 +100,14 @@ public:
         if (wmId == IDC_BTN_TEST1)
         {
             CTestDialog testWidnow(GetModuleInstance());
+            testWidnow.SetWindowTitle(L"Model Dialog");
             testWidnow.DoModal(IDD_DIALOG1, GetHWnd());
             bHandled = TRUE;
         }
         else if (wmId == IDC_BTN_TEST2)
         {
             CMetroWindow testWindow(GetModuleInstance());
-            testWindow.Create(*this, L"ModalWindow", WS_OVERLAPPEDWINDOW, 0);
+            testWindow.Create(*this, L"Model Window", WS_OVERLAPPEDWINDOW, 0);
             testWindow.ShowDialog(*this);
             bHandled = TRUE;
         }
@@ -119,7 +121,7 @@ public:
             _modelessWindows.push_back(testWindow);
 
             std::wstringstream ss;
-            ss << L"ModalLessWindow " << _modelessWindows.size();
+            ss << L"ModalLess Window " << _modelessWindows.size();
 
             std::wstring strTitle = ss.str();
 
