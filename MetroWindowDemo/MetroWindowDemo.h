@@ -4,6 +4,9 @@
 #include "MetroWindow\MetroWindow.h"
 #include "MetroWindow\MetroDialog.h"
 
+#include <vector>
+#include <sstream>
+
 using namespace MetroWindow;
 
 class CTestDialog : public CMetroDialog
@@ -15,11 +18,6 @@ public:
 
     virtual ~CTestDialog(void)
     {
-    }
-
-    virtual LPCTSTR GetWindowClassName() const
-    {
-        return _T("TestMetroDialog");
     }
 
     virtual LRESULT OnCommand(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
@@ -36,52 +34,21 @@ public:
     }
 };
 
-class CTestModalWindow : public CMetroWindow
-{
-public:
-    CTestModalWindow(HINSTANCE hInstance) : CMetroWindow(hInstance)
-    {
-    }
-
-    virtual ~CTestModalWindow(void)
-    {
-    }
-
-    virtual LPCTSTR GetWindowClassName() const
-    {
-        return _T("TestModalMetroWindow");
-    }
-};
-
-class CTestWindow : public CMetroWindow
-{
-public:
-    CTestWindow(HINSTANCE hInstance) : CMetroWindow(hInstance)
-    {
-    }
-
-    virtual ~CTestWindow(void)
-    {
-    }
-
-    virtual LPCTSTR GetWindowClassName() const
-    {
-        return _T("TestMetroWindow");
-    }
-};
-
 class CMainWindow : public CMetroWindow
 {
 public:
     CMainWindow(HINSTANCE hInstance)
         : CMetroWindow(hInstance)
         , _modelessDialog(hInstance)
-        , _modelessWindow(GetModuleInstance())
     {
     }
 
     virtual ~CMainWindow(void)
     {
+        std::vector<CMetroWindow *>::const_iterator iter = _modelessWindows.begin();
+        std::vector<CMetroWindow *>::const_iterator end = _modelessWindows.end();
+        for (; iter != end; iter++)
+            delete *iter;
     }
 
     virtual LPCTSTR GetWindowClassName() const
@@ -100,24 +67,24 @@ public:
     {
         LRESULT result = CMetroWindow::OnCreate(uMsg, wParam, lParam, bHandled);
 
-        CreateWindow(L"BUTTON", L"显示模态对话框 - 原生",
-                              WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-                              100, 50, 200, 24,
-                              GetHWnd(), (HMENU)IDC_BTN_TEST1, GetModuleInstance(), 0);
-
-        CreateWindow(L"BUTTON", L"显示模态窗口 - 模拟",
+        CreateWindow(L"BUTTON", L"Show Model Dialog - Native",
                     WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-                    100, 100, 200, 24,
+                    80, 50, 250, 24,
+                    GetHWnd(), (HMENU)IDC_BTN_TEST1, GetModuleInstance(), 0);
+
+        CreateWindow(L"BUTTON", L"Show Model Dialog - Simulate",
+                    WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+                    80, 100, 250, 24,
                     GetHWnd(), (HMENU)IDC_BTN_TEST2, GetModuleInstance(), 0);
 
-        CreateWindow(L"BUTTON", L"显示非模态窗口 - 原生",
+        CreateWindow(L"BUTTON", L"Show Modeless Dialog - Native",
                     WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-                    100, 150, 200, 24,
+                    80, 150, 250, 24,
                     GetHWnd(), (HMENU)IDC_BTN_TEST3, GetModuleInstance(), 0);
 
-        CreateWindow(L"BUTTON", L"显示非模态窗口 - 模拟",
+        CreateWindow(L"BUTTON", L"Show Modeless Dialog - Simulate",
                     WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-                    100, 200, 200, 24,
+                    80, 200, 250, 24,
                     GetHWnd(), (HMENU)IDC_BTN_TEST4, GetModuleInstance(), 0);
 
         return result;
@@ -134,7 +101,7 @@ public:
         }
         else if (wmId == IDC_BTN_TEST2)
         {
-            CTestModalWindow testWindow(GetModuleInstance());
+            CMetroWindow testWindow(GetModuleInstance());
             testWindow.Create(*this, L"ModalWindow", WS_OVERLAPPEDWINDOW, 0);
             testWindow.ShowDialog(*this);
             bHandled = TRUE;
@@ -145,12 +112,16 @@ public:
         }
         else if (wmId == IDC_BTN_TEST4)
         {
-            if (!::IsWindow(_modelessWindow.GetHWnd()))
-            {
-                _modelessWindow.Create(*this, L"ModalLessWindow", WS_OVERLAPPEDWINDOW, 0);
-            }
-            
-            _modelessWindow.ShowWindow(true, true);
+            CMetroWindow * testWindow = new CMetroWindow(GetModuleInstance());
+            _modelessWindows.push_back(testWindow);
+
+            std::wstringstream ss;
+            ss << L"ModalLessWindow " << _modelessWindows.size();
+
+            std::wstring strTitle = ss.str();
+
+            testWindow->Create(*this, strTitle.c_str(), WS_OVERLAPPEDWINDOW, 0);
+            testWindow->ShowWindow();
 
             bHandled = TRUE;
         }
@@ -160,7 +131,7 @@ public:
 
 private:
     CTestDialog _modelessDialog;
-    CTestWindow _modelessWindow;
+    std::vector<CMetroWindow *> _modelessWindows;
 };
 
 
