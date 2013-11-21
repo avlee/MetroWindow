@@ -67,12 +67,12 @@ public:
     {
         LRESULT result = CMetroWindow::OnCreate(uMsg, wParam, lParam, bHandled);
 
-        CreateWindow(L"BUTTON", L"Show Model Dialog - Native",
+        CreateWindow(L"BUTTON", L"Show Modal Dialog - Native",
                     WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
                     80, 50, 250, 24,
                     GetHWnd(), (HMENU)IDC_BTN_TEST1, GetModuleInstance(), 0);
 
-        CreateWindow(L"BUTTON", L"Show Model Dialog - Simulate",
+        CreateWindow(L"BUTTON", L"Show Modal Dialog - Simulate",
                     WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
                     80, 100, 250, 24,
                     GetHWnd(), (HMENU)IDC_BTN_TEST2, GetModuleInstance(), 0);
@@ -100,14 +100,14 @@ public:
         if (wmId == IDC_BTN_TEST1)
         {
             CTestDialog testWidnow(GetModuleInstance());
-            testWidnow.SetWindowTitle(L"Model Dialog");
+            testWidnow.SetWindowTitle(L"Modal Dialog");
             testWidnow.DoModal(IDD_DIALOG1, GetHWnd());
             bHandled = TRUE;
         }
         else if (wmId == IDC_BTN_TEST2)
         {
             CMetroWindow testWindow(GetModuleInstance());
-            testWindow.Create(*this, L"Model Window", WS_OVERLAPPEDWINDOW, 0);
+            testWindow.Create(*this, L"Modal Window", WS_OVERLAPPEDWINDOW, 0);
             testWindow.ShowDialog(*this);
             bHandled = TRUE;
         }
