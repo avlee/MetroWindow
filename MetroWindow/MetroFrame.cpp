@@ -16,6 +16,9 @@ CMetroFrame::CMetroFrame(HINSTANCE hInstance)
     , _hSmallIcon(NULL)
     , _hCaptionFont(NULL)
 {
+    _minSize.cx = 0;
+    _minSize.cy = 0;
+
     _isDwmEnabled = false;
     _isUxThemeSupported = false;
     _traceNCMouse = false;
@@ -95,6 +98,12 @@ void CMetroFrame::SetWindowTitle(const wchar_t* title)
     {
         _title = title;
     }
+}
+
+void CMetroFrame::SetMinSize(int cx, int cy)
+{
+    _minSize.cx = cx;
+    _minSize.cy = cy;
 }
 
 void CMetroFrame::CenterWindow(HWND hWndCenter/* = NULL*/)
@@ -676,8 +685,11 @@ LRESULT CMetroFrame::OnGetMinMaxInfo(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
     lpMMI->ptMaxTrackSize.x =rcWork.Width();
     lpMMI->ptMaxTrackSize.y =rcWork.Height();
 
-    //lpMMI->ptMinTrackSize.x =m_PaintManager.GetMinInfo().cx;
-    //lpMMI->ptMinTrackSize.y =m_PaintManager.GetMinInfo().cy;
+    if (_minSize.cx > 0 && _minSize.cy > 0)
+    {
+        lpMMI->ptMinTrackSize.x = _minSize.cx;
+        lpMMI->ptMinTrackSize.y = _minSize.cy;
+    }
 
     bHandled = FALSE;
     return 0;

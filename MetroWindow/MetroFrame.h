@@ -28,6 +28,7 @@ public:
     HICON GetSmallIcon() const { return _hSmallIcon; }
 
     void SetWindowTitle(const wchar_t* title);
+    void SetMinSize(int cx, int cy);
 
     void ClientAreaMovable(bool movable) { _clientAreaMovable = movable; }
     void UseCustomTitile(bool custom) { _useCustomTitle = custom; }
@@ -83,6 +84,7 @@ protected:
 
 private:
     HFONT _hCaptionFont;
+    SIZE _minSize;
 
     bool _isDwmEnabled;
     bool _isUxThemeSupported;
