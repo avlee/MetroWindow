@@ -15,6 +15,7 @@ CMetroFrame::CMetroFrame(HINSTANCE hInstance)
     , _hIcon(NULL)
     , _hSmallIcon(NULL)
     , _hCaptionFont(NULL)
+    , _bgColor(RGB(255,255,255))
 {
     _minSize.cx = 0;
     _minSize.cy = 0;
@@ -924,7 +925,7 @@ void CMetroFrame::DrawWindowFrame(HDC hdc, const RECT& bounds, const SIZE& borde
 
     // clear frame area
     COLORREF backColor = (_useThickFrame || isMaxisized)
-        ? captionColor : RGB(255,255,255);
+        ? captionColor : _bgColor;
 
     FillSolidRect(hdc, &windowBounds, backColor);
 

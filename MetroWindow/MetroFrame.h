@@ -21,6 +21,7 @@ public:
 
 	HINSTANCE GetModuleInstance() const { return _hInst; }
 
+    void SetBackgroundColor(COLORREF bgColor) { _bgColor = bgColor; }
     void SetCaptionColor(COLORREF captionColor) { _captionTheme.SetCaptionColor(captionColor); }
     void SetIcon(UINT nIconRes, UINT nSmallIconRes = 0);
 
@@ -84,6 +85,7 @@ protected:
 
 private:
     HFONT _hCaptionFont;
+    COLORREF _bgColor;
     SIZE _minSize;
 
     bool _isDwmEnabled;
