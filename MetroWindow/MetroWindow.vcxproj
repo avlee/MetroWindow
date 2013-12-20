@@ -89,6 +89,7 @@
     <ClInclude Include="MetroCaptionTheme.h" />
     <ClInclude Include="MetroDialog.h" />
     <ClInclude Include="MetroFrame.h" />
+    <ClInclude Include="MetroMessageBox.h" />
     <ClInclude Include="MiscWapppers.h" />
     <ClInclude Include="puff.h" />
     <ClInclude Include="resource.h" />
@@ -113,6 +114,7 @@
     <ClCompile Include="MetroCaptionTheme.cpp" />
     <ClCompile Include="MetroDialog.cpp" />
     <ClCompile Include="MetroFrame.cpp" />
+    <ClCompile Include="MetroMessageBox.cpp" />
     <ClCompile Include="puff.c" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

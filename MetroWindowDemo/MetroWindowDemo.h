@@ -3,6 +3,7 @@
 #include "resource.h"
 #include "MetroWindow\MetroWindow.h"
 #include "MetroWindow\MetroDialog.h"
+#include "MetroWindow\MetroMessageBox.h"
 
 #include <vector>
 #include <sstream>
@@ -87,6 +88,11 @@ public:
                     80, 200, 250, 24,
                     GetHWnd(), (HMENU)IDC_BTN_TEST4, GetModuleInstance(), 0);
 
+        CreateWindow(L"BUTTON", L"Show Message Box - Styled",
+                    WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+                    80, 250, 250, 24,
+                    GetHWnd(), (HMENU)IDC_BTN_TEST5, GetModuleInstance(), 0);
+
         _modelessDialog.SetWindowTitle(L"Modeless Dialog");
         _modelessDialog.SetCaptionColor(RGB(61, 140, 206));
         _modelessDialog.UseThickFrame(true);
@@ -129,6 +135,11 @@ public:
             testWindow->ShowWindow();
 
             bHandled = TRUE;
+        }
+        else if (wmId == IDC_BTN_TEST5)
+        {
+            CMetroMessageBox msgBox(GetModuleInstance());
+            msgBox.Show(*this, L"第一行\r\n\r\n第二行", L"测试", MB_YESNO | MB_ICONWARNING | MB_DEFBUTTON2);
         }
 
         return 0;
