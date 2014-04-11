@@ -107,7 +107,7 @@ public:
         else if (wmId == IDC_BTN_TEST2)
         {
             CMetroWindow testWindow(GetModuleInstance());
-            testWindow.Create(*this, L"Modal Window", WS_OVERLAPPEDWINDOW, 0);
+            testWindow.Create(*this, L"Modal Window", WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN, 0);
             testWindow.ShowDialog(*this);
             bHandled = TRUE;
         }
@@ -125,7 +125,7 @@ public:
 
             std::wstring strTitle = ss.str();
 
-            testWindow->Create(*this, strTitle.c_str(), WS_OVERLAPPEDWINDOW, 0);
+            testWindow->Create(*this, strTitle.c_str(), WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN, 0);
             testWindow->ShowWindow();
 
             bHandled = TRUE;

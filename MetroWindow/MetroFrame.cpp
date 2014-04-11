@@ -199,6 +199,13 @@ LRESULT CMetroFrame::OnWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
     {
         bHandled = DwmApi::DwmDefWindowProc(_hWnd, uMsg, wParam, lParam, &lRes);
     }
+    else
+    {
+        lRes = _dropShadowWnd.OnParentWndProc(_hWnd, uMsg, wParam, lParam, bHandled);
+        if (bHandled) {
+            return lRes;
+        }
+    }
 
     switch (uMsg)
     {
@@ -284,6 +291,8 @@ LRESULT CMetroFrame::OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHa
     UpdateCaptionButtons();
 
     ::DisableProcessWindowsGhosting();
+
+    _dropShadowWnd.Create(_hInst, _hWnd);
 
     return 0;
 }

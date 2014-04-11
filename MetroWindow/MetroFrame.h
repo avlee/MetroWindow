@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "MetroCaptionTheme.h"
+#include "DropShadowWnd.h"
 
 namespace MetroWindow
 {
@@ -107,6 +108,8 @@ private:
 
     std::vector<CCaptionButton *> _captionButtons;
     CMetroCaptionTheme _captionTheme;
+
+    DropShadowWnd _dropShadowWnd;
 
     CCaptionButton * _pressedButton;
     CCaptionButton * _hoveredButton;

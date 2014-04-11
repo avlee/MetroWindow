@@ -78,6 +78,12 @@
     <ClInclude Include="MetroWindow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="DropShadowWnd.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DropShadowBitmaps.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -114,6 +120,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="UxThemeApi.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DropShadowWnd.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DropShadowBitmaps.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
