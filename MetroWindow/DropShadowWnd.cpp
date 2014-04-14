@@ -47,11 +47,11 @@ void DropShadowWnd::Create(HINSTANCE hInstance, HWND hParentWnd)
         shadow_.Initialize();
 
         hWnd_ = ::CreateWindowEx(
-            WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE,
+            WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_NOACTIVATE,
             kDropShadowWndClassName,
             NULL,
-            WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, CW_USEDEFAULT,
-            0, 0, 0, NULL/*hParentWnd*/, NULL, hInstance, NULL);
+            WS_POPUP, CW_USEDEFAULT,
+            0, 0, 0, hParentWnd, NULL, hInstance, NULL);
 
         ASSERT(hWnd_ != NULL);
     }
@@ -60,15 +60,19 @@ void DropShadowWnd::Create(HINSTANCE hInstance, HWND hParentWnd)
 LRESULT DropShadowWnd::OnParentWndProc(HWND hParentWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
     switch(uMsg) {
-    case WM_SIZE:
-        ShowShadow(hParentWnd);
-        break;
-    case WM_MOVE:
-        ShowShadow(hParentWnd);
-        break;
-    case WM_NCACTIVATE:
-        ShowShadow(hParentWnd);
-        break;
+    case WM_WINDOWPOSCHANGED:
+        {
+            WINDOWPOS *pwp = (WINDOWPOS *)lParam;
+            if (pwp->flags & SWP_SHOWWINDOW || pwp->flags & SWP_HIDEWINDOW ||
+                !(pwp->flags & SWP_NOMOVE) || !(pwp->flags & SWP_NOSIZE))
+            {
+                ShowShadow(hParentWnd);
+            }
+            break;
+        }
+    //case WM_NCACTIVATE:
+    //    ShowShadow(hParentWnd);
+    //    break;
     case WM_DESTROY:
         ::DestroyWindow(hWnd_);
         break;
@@ -113,8 +117,6 @@ void DropShadowWnd::UpdateShadow(HWND hParentWnd)
 	POINT ptSrc = {0, 0};
 	SIZE WndSize = {shadowWndWidth, shadowWndHeight};
 	BLENDFUNCTION blendPixelFunction= { AC_SRC_OVER, 0, 255, AC_SRC_ALPHA };
-
-	//::MoveWindow(hWnd_, ptDst.x, ptDst.y, shadowWndWidth, shadowWndHeight, FALSE);
 
 	BOOL bRet= ::UpdateLayeredWindow(hWnd_, NULL, &ptDst, &WndSize, hMemDC,
 		&ptSrc, 0, &blendPixelFunction, ULW_ALPHA);
