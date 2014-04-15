@@ -18,6 +18,8 @@ CMetroFrame::CMetroFrame(HINSTANCE hInstance)
     , _hCaptionFont(NULL)
     , _bgColor(RGB(255,255,255))
 {
+    _title[0] = L'\0';
+
     _minSize.cx = 0;
     _minSize.cy = 0;
 
@@ -104,7 +106,7 @@ void CMetroFrame::SetWindowTitle(const wchar_t* title)
     }
     else
     {
-        _title = title;
+        wcscpy_s(_title, 255, title);
     }
 }
 

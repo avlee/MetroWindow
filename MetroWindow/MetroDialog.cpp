@@ -60,9 +60,9 @@ BOOL CMetroDialog::DestroyWindow()
 
 void CMetroDialog::OnInitDialog()
 {
-    if (!_title.empty())
+    if (wcslen(_title) > 0)
     {
-        ::SetWindowTextW(_hWnd, _title.c_str());
+        ::SetWindowTextW(_hWnd, _title);
     }
 
     CenterWindow();

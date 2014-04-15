@@ -81,7 +81,7 @@ protected:
     HWND _hWnd;
     HICON _hIcon;
     HICON _hSmallIcon;
-    std::wstring _title;
+    wchar_t _title[256];
 
 private:
     HFONT _hCaptionFont;
