@@ -1,20 +1,22 @@
 #include "stdafx.h"
 #include "DropShadowWnd.h"
-#include "math.h"
+
+namespace MetroWindow
+{
 
 static const TCHAR *kDropShadowWndClassName = TEXT("MetroShadowWnd");
 
-DropShadowWnd::DropShadowWnd(void)
+CDropShadowWnd::CDropShadowWnd(void)
     : hWnd_(NULL)
 {
 }
 
 
-DropShadowWnd::~DropShadowWnd(void)
+CDropShadowWnd::~CDropShadowWnd(void)
 {
 }
 
-bool DropShadowWnd::RegisterWindowClass(HINSTANCE hInstance)
+bool CDropShadowWnd::RegisterWindowClass(HINSTANCE hInstance)
 {
     // Register window class for shadow window
     WNDCLASSEX wcex;
@@ -40,7 +42,7 @@ bool DropShadowWnd::RegisterWindowClass(HINSTANCE hInstance)
     return ret != NULL || ::GetLastError() == ERROR_CLASS_ALREADY_EXISTS;
 }
 
-void DropShadowWnd::Create(HINSTANCE hInstance, HWND hParentWnd)
+void CDropShadowWnd::Create(HINSTANCE hInstance, HWND hParentWnd)
 {
     if (RegisterWindowClass(hInstance))
     {
@@ -57,7 +59,7 @@ void DropShadowWnd::Create(HINSTANCE hInstance, HWND hParentWnd)
     }
 }
 
-LRESULT DropShadowWnd::OnParentWndProc(HWND hParentWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+LRESULT CDropShadowWnd::OnParentWndProc(HWND hParentWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
     switch(uMsg) {
     case WM_WINDOWPOSCHANGED:
@@ -82,7 +84,7 @@ LRESULT DropShadowWnd::OnParentWndProc(HWND hParentWnd, UINT uMsg, WPARAM wParam
     return 0;
 }
 
-void DropShadowWnd::UpdateShadow(HWND hParentWnd)
+void CDropShadowWnd::UpdateShadow(HWND hParentWnd)
 {
     RECT rectParent;
 	::GetWindowRect(hParentWnd, &rectParent);
@@ -128,7 +130,7 @@ void DropShadowWnd::UpdateShadow(HWND hParentWnd)
 	::DeleteDC(hMemDC);
 }
 
-void DropShadowWnd::ShowShadow(HWND hParentWnd)
+void CDropShadowWnd::ShowShadow(HWND hParentWnd)
 {
     LONG lParentStyle = ::GetWindowLong(hParentWnd, GWL_STYLE);
 
@@ -143,3 +145,5 @@ void DropShadowWnd::ShowShadow(HWND hParentWnd)
         ::ShowWindow(hWnd_, SW_HIDE);
     }
 }
+
+} //namespace MetroWindow

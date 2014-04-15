@@ -3,6 +3,7 @@
 #include "WindowExtenders.h"
 #include "DwmApi.h"
 #include "CaptionButton.h"
+#include "DropShadowWnd.h"
 #include "UxThemeApi.h"
 #include <Vssym32.h>
 
@@ -20,6 +21,7 @@ CMetroFrame::CMetroFrame(HINSTANCE hInstance)
     _minSize.cx = 0;
     _minSize.cy = 0;
 
+    _showDropShadowOnXP = false;
     _isDwmEnabled = false;
     _isUxThemeSupported = false;
     _traceNCMouse = false;
@@ -32,6 +34,8 @@ CMetroFrame::CMetroFrame(HINSTANCE hInstance)
     _clientAreaMovable = false;
     _useThickFrame = false;
     _showIconOnCaption = true;
+
+    _dropShadowWnd = NULL;
 
     _pressedButton = NULL;
     _hoveredButton = NULL;
@@ -60,6 +64,12 @@ CMetroFrame::~CMetroFrame(void)
     }
 
     if (_hCaptionFont) ::DeleteObject(_hCaptionFont);
+
+    if (_dropShadowWnd != NULL)
+    {
+        delete _dropShadowWnd;
+        _dropShadowWnd = NULL;
+    }
 }
 
 void CMetroFrame::SetIcon(UINT nIconRes, UINT nSmallIconRes)
@@ -199,9 +209,9 @@ LRESULT CMetroFrame::OnWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
     {
         bHandled = DwmApi::DwmDefWindowProc(_hWnd, uMsg, wParam, lParam, &lRes);
     }
-    else
+    else if (_dropShadowWnd != NULL)
     {
-        lRes = _dropShadowWnd.OnParentWndProc(_hWnd, uMsg, wParam, lParam, bHandled);
+        lRes = _dropShadowWnd->OnParentWndProc(_hWnd, uMsg, wParam, lParam, bHandled);
         if (bHandled) {
             return lRes;
         }
@@ -292,7 +302,11 @@ LRESULT CMetroFrame::OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHa
 
     ::DisableProcessWindowsGhosting();
 
-    _dropShadowWnd.Create(_hInst, _hWnd);
+    if (_showDropShadowOnXP)
+    {
+        _dropShadowWnd = new CDropShadowWnd();
+        _dropShadowWnd->Create(_hInst, _hWnd);
+    }
 
     return 0;
 }

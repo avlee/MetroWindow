@@ -4,12 +4,12 @@
 #include <vector>
 
 #include "MetroCaptionTheme.h"
-#include "DropShadowWnd.h"
 
 namespace MetroWindow
 {
 
 class CCaptionButton; // Forward declare
+class CDropShadowWnd;
 
 class METROWINDOW_DECL CMetroFrame
 {
@@ -32,6 +32,7 @@ public:
     void SetWindowTitle(const wchar_t* title);
     void SetMinSize(int cx, int cy);
 
+    void ShowDropShadowOnXP(bool show) { _showDropShadowOnXP = show; }
     void ClientAreaMovable(bool movable) { _clientAreaMovable = movable; }
     void UseCustomTitile(bool custom) { _useCustomTitle = custom; }
     void UseThickFrame(bool thick) { _useThickFrame = thick; }
@@ -89,6 +90,7 @@ private:
     COLORREF _bgColor;
     SIZE _minSize;
 
+    bool _showDropShadowOnXP;
     bool _isDwmEnabled;
     bool _isUxThemeSupported;
     bool _traceNCMouse;
@@ -109,7 +111,7 @@ private:
     std::vector<CCaptionButton *> _captionButtons;
     CMetroCaptionTheme _captionTheme;
 
-    DropShadowWnd _dropShadowWnd;
+    CDropShadowWnd * _dropShadowWnd;
 
     CCaptionButton * _pressedButton;
     CCaptionButton * _hoveredButton;

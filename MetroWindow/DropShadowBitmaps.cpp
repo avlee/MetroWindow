@@ -1,6 +1,9 @@
 #include "stdafx.h"
 #include "DropShadowBitmaps.h"
 
+namespace MetroWindow
+{
+
 static const int kShadowCorner[26][26] = {
     { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2 },
     { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 3, 4, 4, 4, 4, 4 },
@@ -184,13 +187,6 @@ HBITMAP DropShadowBitmaps::BuildCorner(int rotation)
             pvBits[pos + 1] = g * alpha / 255;
             pvBits[pos + 2] = r * alpha / 255;
             pvBits[pos + 3] = alpha;
-
-            //pvBits[0] = b * alpha / 255;
-            //pvBits[1] = g * alpha / 255;
-            //pvBits[2] = r * alpha / 255;
-            //pvBits[3] = alpha;
-
-            //pvBits += 4;
         }
     }
 
@@ -231,7 +227,6 @@ HBITMAP DropShadowBitmaps::BuildBorder(int rotation)
             pvBits[pos + 1] = g * alpha / 255;
             pvBits[pos + 2] = r * alpha / 255;
             pvBits[pos + 3] = alpha;
-
         }
     }
 
@@ -295,3 +290,4 @@ void DropShadowBitmaps::DrawShadowBorder(HDC hdc, HBITMAP image, int x, int y, i
     ::DeleteObject(hBrush);
 }
 
+} //namespace MetroWindow

@@ -1,5 +1,8 @@
 #pragma once
 
+namespace MetroWindow
+{
+
 class DropShadowBitmaps
 {
 public:
@@ -31,4 +34,6 @@ private:
     HBITMAP border_s_;
     HBITMAP border_w_;
 };
+
+} //namespace MetroWindow
 

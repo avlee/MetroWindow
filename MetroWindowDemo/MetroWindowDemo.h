@@ -90,6 +90,7 @@ public:
         _modelessDialog.SetWindowTitle(L"Modeless Dialog");
         _modelessDialog.SetCaptionColor(RGB(61, 140, 206));
         _modelessDialog.UseThickFrame(true);
+        _modelessDialog.ShowDropShadowOnXP(true);
 
         return result;
     }
@@ -107,8 +108,8 @@ public:
         else if (wmId == IDC_BTN_TEST2)
         {
             CMetroWindow testWindow(GetModuleInstance());
-            testWindow.Create(*this, L"Modal Window", WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN, 0);
-            testWindow.ShowDialog(*this);
+            testWindow.Create(GetHWnd(), L"Modal Window", WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN, 0);
+            testWindow.ShowDialog(GetHWnd());
             bHandled = TRUE;
         }
         else if (wmId == IDC_BTN_TEST3)
@@ -125,7 +126,7 @@ public:
 
             std::wstring strTitle = ss.str();
 
-            testWindow->Create(*this, strTitle.c_str(), WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN, 0);
+            testWindow->Create(GetHWnd(), strTitle.c_str(), WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN, 0);
             testWindow->ShowWindow();
 
             bHandled = TRUE;

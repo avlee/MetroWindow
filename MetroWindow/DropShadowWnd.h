@@ -3,11 +3,14 @@
 #include "MetroCaptionTheme.h"
 #include "DropShadowBitmaps.h"
 
-class METROWINDOW_DECL DropShadowWnd
+namespace MetroWindow
+{
+
+class CDropShadowWnd
 {
 public:
-    DropShadowWnd(void);
-    ~DropShadowWnd(void);
+    CDropShadowWnd(void);
+    ~CDropShadowWnd(void);
 
     void Create(HINSTANCE hInstance, HWND hParentWnd);
 
@@ -23,3 +26,4 @@ private:
     DropShadowBitmaps shadow_;
 };
 
+} //namespace MetroWindow
