@@ -13,17 +13,17 @@ public:
     ~CDropShadowWnd(void);
 
     void Create(HINSTANCE hInstance, HWND hParentWnd);
-
-    LRESULT OnParentWndProc(HWND hParentWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
+    void Destroy();
+    void ShowShadow(HWND hParentWnd, bool active);
 
 private:
     bool RegisterWindowClass(HINSTANCE hInstance);
-    void UpdateShadow(HWND hParentWnd);
-    void ShowShadow(HWND hParentWnd);
+    void UpdateShadow(HWND hParentWnd, const DropShadowBitmaps& shadow);
 
 private:
     HWND hWnd_;
-    DropShadowBitmaps shadow_;
+    DropShadowBitmaps active_shadow_;
+    DropShadowBitmaps inactive_shadow_;
 };
 
 } //namespace MetroWindow

@@ -209,13 +209,6 @@ LRESULT CMetroFrame::OnWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
     {
         bHandled = DwmApi::DwmDefWindowProc(_hWnd, uMsg, wParam, lParam, &lRes);
     }
-    else if (_dropShadowWnd != NULL)
-    {
-        lRes = _dropShadowWnd->OnParentWndProc(_hWnd, uMsg, wParam, lParam, bHandled);
-        if (bHandled) {
-            return lRes;
-        }
-    }
 
     switch (uMsg)
     {
@@ -237,6 +230,7 @@ LRESULT CMetroFrame::OnWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
     case WM_NCMOUSELEAVE:	lRes = OnNcMouseLeave(uMsg, wParam, lParam, bHandled); break;
     case WM_GETMINMAXINFO:	lRes = OnGetMinMaxInfo(uMsg, wParam, lParam, bHandled); break;
     case WM_SIZE:			lRes = OnSize(uMsg, wParam, lParam, bHandled); break;
+    case WM_WINDOWPOSCHANGED: lRes = OnWindowPosChanged(uMsg, wParam, lParam, bHandled); break;
     case WM_COMMAND:        lRes = OnCommand(uMsg, wParam, lParam, bHandled); break;
     case WM_SYSCOMMAND:		lRes = OnSysCommand(uMsg, wParam, lParam, bHandled); break;
     case WM_DWMCOMPOSITIONCHANGED: lRes = OnDwmCompositionChanged(uMsg, wParam, lParam, bHandled); break;
@@ -302,7 +296,7 @@ LRESULT CMetroFrame::OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHa
 
     ::DisableProcessWindowsGhosting();
 
-    if (_showDropShadowOnXP)
+    if (!_isDwmEnabled && _showDropShadowOnXP)
     {
         _dropShadowWnd = new CDropShadowWnd();
         _dropShadowWnd->Create(_hInst, _hWnd);
@@ -319,6 +313,11 @@ LRESULT CMetroFrame::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
 LRESULT CMetroFrame::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 {
+    if (_dropShadowWnd != NULL)
+    {
+        _dropShadowWnd->Destroy();
+    }
+
     bHandled = FALSE;
     return 0;
 }
@@ -339,6 +338,11 @@ LRESULT CMetroFrame::OnNcActivate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
         }
         _isNonClientAreaActive = ncactive;
         PaintNonClientArea(NULL);
+
+        if (_dropShadowWnd != NULL)
+        {
+            _dropShadowWnd->ShowShadow(_hWnd, ncactive);
+        }
     }
 
     bHandled = TRUE;
@@ -740,6 +744,21 @@ LRESULT CMetroFrame::OnSize(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHand
     return 0;
 }
 
+LRESULT CMetroFrame::OnWindowPosChanged(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+{
+    if (_dropShadowWnd != NULL)
+    {
+        WINDOWPOS *pwp = (WINDOWPOS *)lParam;
+        if (pwp->flags & SWP_SHOWWINDOW || pwp->flags & SWP_HIDEWINDOW ||
+            !(pwp->flags & SWP_NOMOVE) || !(pwp->flags & SWP_NOSIZE))
+        {
+            _dropShadowWnd->ShowShadow(_hWnd, _isNonClientAreaActive);
+        }
+    }
+
+    return 0;
+}
+
 LRESULT CMetroFrame::OnSysCommand(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
     int sysCommand = wParam & 0xFFF0;
@@ -955,7 +974,7 @@ void CMetroFrame::DrawWindowFrame(HDC hdc, const RECT& bounds, const SIZE& borde
     int frameBorderWidth = 1;
 
     // draw frame border
-    if (!_isDwmEnabled && !isMaxisized && !_useThickFrame)
+    if (!_isDwmEnabled && !isMaxisized && !_useThickFrame && _dropShadowWnd == NULL)
     {
         COLORREF borderColor = _isNonClientAreaActive ?
             _captionTheme.ActiveBorderColor() : _captionTheme.InactiveBorderColor();

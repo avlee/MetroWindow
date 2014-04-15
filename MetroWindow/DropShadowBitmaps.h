@@ -6,22 +6,22 @@ namespace MetroWindow
 class DropShadowBitmaps
 {
 public:
-    DropShadowBitmaps(void);
+    explicit DropShadowBitmaps(COLORREF color);
     ~DropShadowBitmaps(void);
 
     void Initialize();
-    void MakeShadow(HDC hdc, int width, int height);
+    void MakeShadow(HDC hdc, int width, int height) const;
 
     int GetShadowSize() const;
 
 private:
     void DeleteBitmaps();
-    HBITMAP CreateBitmap(int width, int height, void ** ppvBits);
-    HBITMAP BuildCorner(int rotation);
-    HBITMAP BuildBorder(int rotation);
-    void GetAlpha(int x, int y, int width, int height, int rotation, int* xPos, int* yPos);
-    void DrawShadowCorner(HDC hdc, HBITMAP image, int x, int y, int width, int height);
-    void DrawShadowBorder(HDC hdc, HBITMAP image, int x, int y, int width, int height);
+    HBITMAP CreateBitmap(int width, int height, void ** ppvBits) const;
+    HBITMAP BuildCorner(int rotation) const;
+    HBITMAP BuildBorder(int rotation) const;
+    void GetAlpha(int x, int y, int width, int height, int rotation, int* xPos, int* yPos) const;
+    void DrawShadowCorner(HDC hdc, HBITMAP image, int x, int y, int width, int height) const;
+    void DrawShadowBorder(HDC hdc, HBITMAP image, int x, int y, int width, int height) const;
 
 private:
     COLORREF color_;

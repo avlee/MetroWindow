@@ -57,8 +57,8 @@ char (&ArraySizeHelperT(T (&array)[N]))[N];
 
 #define arraysize(array) (sizeof(ArraySizeHelperT(array)))
 
-DropShadowBitmaps::DropShadowBitmaps(void)
-    : color_(RGB(0, 0, 0))
+DropShadowBitmaps::DropShadowBitmaps(COLORREF color)
+    : color_(color)
 {
 }
 
@@ -93,7 +93,7 @@ void DropShadowBitmaps::DeleteBitmaps()
     if (border_w_ != NULL) { ::DeleteObject(border_w_); border_w_ = NULL; }
 }
 
-void DropShadowBitmaps::MakeShadow(HDC hdc, int width, int height)
+void DropShadowBitmaps::MakeShadow(HDC hdc, int width, int height) const
 {
     int cornerSize = arraysize(kShadowCorner);
     int borderWidth = arraysize(kShadowBorder);
@@ -133,27 +133,27 @@ int DropShadowBitmaps::GetShadowSize() const
     return arraysize(kShadowBorder);
 }
 
-HBITMAP DropShadowBitmaps::CreateBitmap(int width, int height, void ** ppvBits)
+HBITMAP DropShadowBitmaps::CreateBitmap(int width, int height, void ** ppvBits) const
 {
     BITMAPINFO bmi;
-	::ZeroMemory(&bmi, sizeof(BITMAPINFO));
+    ::ZeroMemory(&bmi, sizeof(BITMAPINFO));
 
-	bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-	bmi.bmiHeader.biWidth = width;
-	bmi.bmiHeader.biHeight = -height;
-	bmi.bmiHeader.biPlanes = 1;
-	bmi.bmiHeader.biBitCount = 32;
-	bmi.bmiHeader.biCompression = BI_RGB;
-	bmi.bmiHeader.biSizeImage = width * height * 4;
+    bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+    bmi.bmiHeader.biWidth = width;
+    bmi.bmiHeader.biHeight = -height;
+    bmi.bmiHeader.biPlanes = 1;
+    bmi.bmiHeader.biBitCount = 32;
+    bmi.bmiHeader.biCompression = BI_RGB;
+    bmi.bmiHeader.biSizeImage = width * height * 4;
     
-	HBITMAP bitmap = ::CreateDIBSection(NULL, &bmi, DIB_RGB_COLORS, ppvBits, NULL, 0);
+    HBITMAP bitmap = ::CreateDIBSection(NULL, &bmi, DIB_RGB_COLORS, ppvBits, NULL, 0);
 
-	ZeroMemory(*ppvBits, bmi.bmiHeader.biSizeImage);
+    ZeroMemory(*ppvBits, bmi.bmiHeader.biSizeImage);
 
     return bitmap;
 }
 
-HBITMAP DropShadowBitmaps::BuildCorner(int rotation)
+HBITMAP DropShadowBitmaps::BuildCorner(int rotation) const
 {
     int height = arraysize(kShadowCorner);
     int width = arraysize(kShadowCorner[0]);
@@ -193,7 +193,7 @@ HBITMAP DropShadowBitmaps::BuildCorner(int rotation)
     return bitmap;
 }
 
-HBITMAP DropShadowBitmaps::BuildBorder(int rotation)
+HBITMAP DropShadowBitmaps::BuildBorder(int rotation) const
 {
     int height = arraysize(kShadowBorder);
     int width = arraysize(kShadowBorder[0]);
@@ -233,7 +233,7 @@ HBITMAP DropShadowBitmaps::BuildBorder(int rotation)
     return bitmap;
 }
 
-void DropShadowBitmaps::GetAlpha(int x, int y, int width, int height, int rotation, int* xPos, int* yPos)
+void DropShadowBitmaps::GetAlpha(int x, int y, int width, int height, int rotation, int* xPos, int* yPos) const
 {
     int n = rotation % 4;
     switch (n)
@@ -265,7 +265,7 @@ void DropShadowBitmaps::GetAlpha(int x, int y, int width, int height, int rotati
     }
 }
 
-void DropShadowBitmaps::DrawShadowCorner(HDC hdc, HBITMAP image, int x, int y, int width, int height)
+void DropShadowBitmaps::DrawShadowCorner(HDC hdc, HBITMAP image, int x, int y, int width, int height) const
 {
     HDC hdcMem = ::CreateCompatibleDC(hdc);
     HBITMAP hbmOldBmp = (HBITMAP)::SelectObject(hdcMem, image);
@@ -275,10 +275,10 @@ void DropShadowBitmaps::DrawShadowCorner(HDC hdc, HBITMAP image, int x, int y, i
     //BitBlt(hdc, 0, 0, width, height, hdcMem, 0, 0, SRCCOPY);
 
     ::SelectObject(hdcMem, hbmOldBmp);
-	::DeleteDC(hdcMem);
+    ::DeleteDC(hdcMem);
 }
 
-void DropShadowBitmaps::DrawShadowBorder(HDC hdc, HBITMAP image, int x, int y, int width, int height)
+void DropShadowBitmaps::DrawShadowBorder(HDC hdc, HBITMAP image, int x, int y, int width, int height) const
 {
     HBRUSH hBrush = ::CreatePatternBrush(image);
     ::SetBrushOrgEx(hdc, x, y, NULL);
