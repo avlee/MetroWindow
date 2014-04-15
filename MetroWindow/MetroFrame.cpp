@@ -1110,7 +1110,7 @@ void CMetroFrame::DrawCaptionTitle(HDC hdc, LPWSTR title, RECT bounds, COLORREF 
         lf.lfOutPrecision   = OUT_DEFAULT_PRECIS;
         lf.lfClipPrecision  = CLIP_DEFAULT_PRECIS;
         lf.lfPitchAndFamily = DEFAULT_PITCH | FF_DONTCARE;
-        wcscpy( lf.lfFaceName, L"Segoe UI");
+        wcscpy_s(lf.lfFaceName, L"Segoe UI");
 
 		_hCaptionFont = ::CreateFontIndirect(&lf);
 	}

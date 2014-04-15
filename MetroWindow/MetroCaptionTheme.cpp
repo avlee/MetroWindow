@@ -48,14 +48,14 @@ void CMetroCaptionTheme::SetCaptionColor(COLORREF captionColor)
 		if (GetGValue(_captionColor) > 9 ||
             (299 * GetRValue(_captionColor) + 587 * GetGValue(_captionColor) + 114 * GetBValue(_captionColor)) / 1000 > 125)
 		{
-			_colorStyle = ThemeColorStyle::Light;
+			_colorStyle = ThemeColorLight;
 		}
 		else
 		{
-			_colorStyle = ThemeColorStyle::Dark;
+			_colorStyle = ThemeColorDark;
 		}
 
-		_captionTextColor = (_colorStyle == ThemeColorStyle::Dark) ? RGB(255,255,255) : RGB(0,0,0);
+		_captionTextColor = (_colorStyle == ThemeColorDark) ? RGB(255,255,255) : RGB(0,0,0);
         _inactiveCaptionTextColor = BlendColors(_captionTextColor, RGB(255, 255, 255), 102);
 		//NotifyThemeChanged("CaptionColor");
 	}
@@ -89,9 +89,9 @@ COLORREF CMetroCaptionTheme::ChangeColorBrightness(COLORREF color, float factor)
 COLORREF CMetroCaptionTheme::ChangeColorBrightness(COLORREF color, float factor, int alpha)
 {
     //TODO: Use HLSColor to make lighter
-	BYTE red = GetRValue(color);
-	BYTE green = GetGValue(color);
-	BYTE blue = GetBValue(color);
+	float red = GetRValue(color);
+	float green = GetGValue(color);
+	float blue = GetBValue(color);
 
 	if (factor < 0)
 	{

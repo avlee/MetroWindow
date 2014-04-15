@@ -26,8 +26,6 @@ void CCaptionButton::Draw(HDC hdc)
     HBITMAP image = _image;
     CRect srcRect(0, 0, 14, 14);
 
-    COLORREF backColor;
-
     if (_pressed)
     {
         FillSolidRect(hdc, &_bounds, _theme.ButtonPressColor());

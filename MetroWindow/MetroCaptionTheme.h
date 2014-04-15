@@ -11,8 +11,8 @@ namespace MetroWindow
 
 enum ThemeColorStyle
 {
-    Light,
-    Dark
+    ThemeColorLight,
+    ThemeColorDark
 };
 
 class METROWINDOW_DECL CMetroCaptionTheme
