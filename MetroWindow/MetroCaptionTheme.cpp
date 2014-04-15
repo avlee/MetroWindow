@@ -14,11 +14,15 @@ HBITMAP CMetroCaptionTheme::_fullscreenButtonImage = NULL;
 HBITMAP CMetroCaptionTheme::_closeButtonImage = NULL;
 HBITMAP CMetroCaptionTheme::_sizeGrapImage = NULL;
 
+CMetroCaptionTheme::CMetroCaptionTheme()
+{
+	Reset(RGB(255,255,255));
+}
+
 CMetroCaptionTheme::CMetroCaptionTheme(COLORREF color)
 {
 	Reset(color);
 }
-
 
 CMetroCaptionTheme::~CMetroCaptionTheme(void)
 {

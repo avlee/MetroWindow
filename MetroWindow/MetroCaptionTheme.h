@@ -18,7 +18,8 @@ enum ThemeColorStyle
 class METROWINDOW_DECL CMetroCaptionTheme
 {
 public:
-	CMetroCaptionTheme(COLORREF color = RGB(255,255,255));
+    CMetroCaptionTheme();
+	explicit CMetroCaptionTheme(COLORREF color);
 	~CMetroCaptionTheme(void);
 
 	void Reset(COLORREF captionColor);
