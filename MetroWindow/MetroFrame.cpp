@@ -37,19 +37,16 @@ CMetroFrame::CMetroFrame(HINSTANCE hInstance)
 
     _dropShadowWnd = NULL;
 
+    _captionButtonMgr = new CCaptionButtonManager();
+
     _pressedButton = NULL;
     _hoveredButton = NULL;
-    _minButton = NULL;
-    _maxButton = NULL;
 }
 
 
 CMetroFrame::~CMetroFrame(void)
 {
-    std::vector<CCaptionButton *>::const_iterator iter = _captionButtons.begin();
-    std::vector<CCaptionButton *>::const_iterator end = _captionButtons.end();
-    for (; iter != end; ++iter)
-        delete *iter;
+    delete _captionButtonMgr;
 
     if (_hSmallIcon != NULL)
     {
@@ -292,7 +289,7 @@ LRESULT CMetroFrame::OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHa
     }
 
     RemoveWindowBorderStyle();
-    UpdateCaptionButtons();
+    _captionButtonMgr->UpdateCaptionButtons(_hWnd, _captionTheme, _isDwmEnabled);
 
     ::DisableProcessWindowsGhosting();
 
@@ -424,7 +421,7 @@ LRESULT CMetroFrame::OnNcHitTest(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 
         // on Button?
         CPoint pt(point.x - rectScreen.left, point.y - rectScreen.top);
-        CCaptionButton * sysButton = CommandButtonFromPoint(pt);
+        CCaptionButton * sysButton = _captionButtonMgr->CommandButtonFromPoint(pt);
         if (sysButton != NULL && sysButton->Enabled())
         {
             bHandled = TRUE;
@@ -485,7 +482,7 @@ LRESULT CMetroFrame::OnNcHitTest(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 
 LRESULT CMetroFrame::OnNcLButtonDown(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
-    CCaptionButton * button = CommandButtonByHitTest(wParam);
+    CCaptionButton * button = _captionButtonMgr->CommandButtonByHitTest(wParam);
     if (_pressedButton != button && _pressedButton != NULL)
         _pressedButton->Pressed(false);
     if (button != NULL)
@@ -531,7 +528,7 @@ LRESULT CMetroFrame::OnNcMouseMove(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
         }
     }
 
-    CCaptionButton * button = CommandButtonByHitTest(wParam);
+    CCaptionButton * button = _captionButtonMgr->CommandButtonByHitTest(wParam);
     if (_hoveredButton != button && _hoveredButton != NULL)
     {
         if (_hoveredButton->Hovered())
@@ -577,7 +574,7 @@ LRESULT CMetroFrame::OnNcLButtonUp(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
     if (_pressedButton != NULL)
     {
         // get button at wparam
-        CCaptionButton * button = CommandButtonByHitTest(wParam);
+        CCaptionButton * button = _captionButtonMgr->CommandButtonByHitTest(wParam);
         if (button == NULL)
             return 0;
 
@@ -620,7 +617,7 @@ LRESULT CMetroFrame::OnNcLButtonUp(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 LRESULT CMetroFrame::OnNcRButtonUp(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
-    CCaptionButton * button = CommandButtonByHitTest(wParam);
+    CCaptionButton * button = _captionButtonMgr->CommandButtonByHitTest(wParam);
     if (button != NULL && (button->HitTest() == HTCLOSE || button->HitTest() == HTMAXBUTTON))
         return 0;
 
@@ -738,7 +735,7 @@ LRESULT CMetroFrame::OnSize(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHand
 
     _prepareFullScreen = false;
     _isSizing = false;
-    UpdateCaptionButtons();
+    _captionButtonMgr->UpdateCaptionButtons(_hWnd, _captionTheme, _isDwmEnabled);
     PaintNonClientArea(NULL);
 
     return 0;
@@ -1019,16 +1016,8 @@ void CMetroFrame::DrawWindowFrame(HDC hdc, const RECT& bounds, const SIZE& borde
     }
 
     // Paint caption buttons
-    std::vector<CCaptionButton *>::iterator btnIter;
-    for (btnIter = _captionButtons.begin(); btnIter != _captionButtons.end(); btnIter++)
-    {
-        CCaptionButton* button = *btnIter;
-        if (button != NULL)
-        {
-            button->Draw(hdc);
-            textBounds.right -= button->Width();
-        }
-    }
+    int buttonWidths = _captionButtonMgr->Draw(hdc);
+    textBounds.right -= buttonWidths;
 
     textBounds.right -= borderSize.cx + 1;
 
@@ -1211,85 +1200,6 @@ void CMetroFrame::DrawThemeCaptionTitleEx(HDC hdc, LPCWSTR title, const RECT& bo
     }
 }
 
-void CMetroFrame::UpdateCaptionButtons()
-{
-    // create buttons
-    if (_captionButtons.size() == 0)
-    {
-        CCaptionButton * closeButton = new CCaptionButton(HTCLOSE, _captionTheme);
-        _captionButtons.push_back(closeButton);
-
-        closeButton->Image(_captionTheme.CloseButton());
-
-        if (WindowExtenders::IsDrawMaximizeBox(_hWnd))
-        {
-            _maxButton = new CCaptionButton(HTMAXBUTTON, _captionTheme);
-            _captionButtons.push_back(_maxButton);
-
-            _maxButton->Image(::IsZoomed(_hWnd) ? 
-                _captionTheme.RestoreButton() : _captionTheme.MaximizeButton());
-        }
-
-        if (WindowExtenders::IsDrawMinimizeBox(_hWnd))
-        {
-            _minButton = new CCaptionButton(HTMINBUTTON, _captionTheme);
-            _captionButtons.push_back(_minButton);
-
-            _minButton->Image(::IsIconic(_hWnd) ? 
-                _captionTheme.RestoreButton() : _captionTheme.MinimizeButton());
-        }
-
-        // add command handlers
-        //foreach (CaptionButton button in _captionButtons)
-        //    button.PropertyChanged += OnCommandButtonPropertyChanged;
-    }
-    else
-    {
-        if (_minButton != NULL)
-        {
-            _minButton->Image(::IsIconic(_hWnd) ? 
-                _captionTheme.RestoreButton() : _captionTheme.MinimizeButton());
-        }
-
-        if (_maxButton != NULL)
-        {
-            _maxButton->Image(::IsZoomed(_hWnd) ? 
-                _captionTheme.RestoreButton() : _captionTheme.MaximizeButton());
-        }
-    }
-
-    // Calculate Caption Button Bounds
-    CRect rect;
-    ::GetWindowRect(_hWnd, &rect);
-    rect.OffsetRect(-rect.left, -rect.top);
-
-    CSize borderSize = WindowExtenders::GetBorderSize(_hWnd, _isDwmEnabled);
-    CSize captionButtonSize = WindowExtenders::GetCaptionButtonSize(_hWnd);
-
-    CRect buttonRect;
-    buttonRect.left = rect.right - borderSize.cx - captionButtonSize.cx;
-    buttonRect.top = rect.top;
-    buttonRect.Width(captionButtonSize.cx);
-    buttonRect.Height(captionButtonSize.cy);
-
-    // Do not overlap the frame border
-    if (!_isDwmEnabled/* && CaptionTheme.BackgroundImage == null*/)
-    {
-        buttonRect.InflateRect(0, -1);
-    }
-
-    std::vector<CCaptionButton *>::iterator btnIter;
-    for (btnIter = _captionButtons.begin(); btnIter != _captionButtons.end(); btnIter++)
-    {
-        CCaptionButton* button = *btnIter;
-        if (button != NULL && button->Visible())
-        {
-            button->Bounds(buttonRect);
-            buttonRect.MoveToX(buttonRect.left - captionButtonSize.cx);
-        }
-    }
-}
-
 int CMetroFrame::GetCaptionHeight()
 {
     if (_captionHeight == 0)
@@ -1350,40 +1260,6 @@ void CMetroFrame::FillSolidRect(HDC hdc, LPCRECT lpRect, COLORREF clr)
     //HBRUSH hBrush = ::CreateSolidBrush(clr);
     //::FillRect(hdc, lpRect, hBrush);
     //::DeleteObject(hBrush);
-}
-
-CCaptionButton * CMetroFrame::CommandButtonFromPoint(POINT point)
-{
-    CCaptionButton * foundButton = NULL;
-
-    std::vector<CCaptionButton *>::iterator btnIter;
-    for (btnIter = _captionButtons.begin(); btnIter != _captionButtons.end(); btnIter++)
-    {
-        CCaptionButton* button = *btnIter;
-        if (button != NULL && button->Visible() && ::PtInRect(&button->Bounds(), point))
-        {
-            foundButton = *btnIter;
-        }
-    }
-
-    return foundButton;
-}
-
-CCaptionButton * CMetroFrame::CommandButtonByHitTest(LONG hitTest)
-{
-    CCaptionButton * foundButton = NULL;
-
-    std::vector<CCaptionButton *>::iterator btnIter;
-    for (btnIter = _captionButtons.begin(); btnIter != _captionButtons.end(); btnIter++)
-    {
-        CCaptionButton* button = *btnIter;
-        if (button != NULL && button->Visible() && button->HitTest() == hitTest)
-        {
-            foundButton = *btnIter;
-        }
-    }
-
-    return foundButton;
 }
 
 void CMetroFrame::ShowSystemMenu(POINT point)

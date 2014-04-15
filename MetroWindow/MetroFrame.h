@@ -1,7 +1,6 @@
 #pragma once
 
 #include <string>
-#include <vector>
 
 #include "MetroCaptionTheme.h"
 
@@ -9,6 +8,7 @@ namespace MetroWindow
 {
 
 class CCaptionButton; // Forward declare
+class CCaptionButtonManager;
 class CDropShadowWnd;
 
 class METROWINDOW_DECL CMetroFrame
@@ -71,12 +71,9 @@ private:
     void DrawWindowFrame(HDC hdc, const RECT& bounds, const SIZE& borderSize, int captionHeight);
     void DrawCaptionTitle(HDC hdc, LPWSTR title, RECT bounds, COLORREF color);
     void DrawThemeCaptionTitleEx(HDC hdc, LPCWSTR title, const RECT& bounds, COLORREF color, COLORREF bgColor);
-    void UpdateCaptionButtons();
     int GetCaptionHeight();
     RECT GetFrameIconBounds(const RECT& windowBounds, SIZE borderSize);
     void FillSolidRect(HDC hdc, LPCRECT lpRect, COLORREF clr);
-    CCaptionButton * CommandButtonFromPoint(POINT point);
-    CCaptionButton * CommandButtonByHitTest(LONG hitTest);
     void ShowSystemMenu(POINT point);
 
 protected:
@@ -109,15 +106,13 @@ private:
 
     TRACKMOUSEEVENT _trackMouseEvent;
 
-    std::vector<CCaptionButton *> _captionButtons;
+    CCaptionButtonManager * _captionButtonMgr;
     CMetroCaptionTheme _captionTheme;
 
     CDropShadowWnd * _dropShadowWnd;
 
     CCaptionButton * _pressedButton;
     CCaptionButton * _hoveredButton;
-    CCaptionButton * _minButton;
-    CCaptionButton * _maxButton;
 };
 
 } //namespace MetroWindow

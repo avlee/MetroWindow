@@ -2,6 +2,8 @@
 
 #include "MetroCaptionTheme.h"
 
+#include <vector>
+
 namespace MetroWindow
 {
 
@@ -43,6 +45,25 @@ private:
     bool _hovered;
     bool _enabled;
     bool _visible;
+};
+
+class CCaptionButtonManager
+{
+public:
+    CCaptionButtonManager();
+    ~CCaptionButtonManager();
+
+    void UpdateCaptionButtons(HWND hWnd, CMetroCaptionTheme& captionTheme, bool dwmEnabled);
+
+    int Draw(HDC hdc);
+
+    CCaptionButton * CommandButtonFromPoint(POINT point);
+    CCaptionButton * CommandButtonByHitTest(LONG hitTest);
+
+private:
+    std::vector<CCaptionButton *> _captionButtons;
+    CCaptionButton * _minButton;
+    CCaptionButton * _maxButton;
 };
 
 } //namespace MetroWindow
