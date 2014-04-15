@@ -58,7 +58,16 @@ char (&ArraySizeHelperT(T (&array)[N]))[N];
 #define arraysize(array) (sizeof(ArraySizeHelperT(array)))
 
 DropShadowBitmaps::DropShadowBitmaps(COLORREF color)
-    : color_(color)
+    : color_(color),
+    corner_nw_(NULL),
+    corner_ne_(NULL),
+    corner_sw_(NULL),
+    corner_se_(NULL),
+    border_n_(NULL),
+    border_e_(NULL),
+    border_s_(NULL),
+    border_w_(NULL),
+    initialized_(false)
 {
 }
 
@@ -70,14 +79,19 @@ DropShadowBitmaps::~DropShadowBitmaps(void)
 
 void DropShadowBitmaps::Initialize()
 {
-    corner_nw_ = BuildCorner(0);
-    corner_ne_ = BuildCorner(1);
-    corner_se_ = BuildCorner(2);
-    corner_sw_ = BuildCorner(3);
-    border_n_ = BuildBorder(0);
-    border_e_ = BuildBorder(1);
-    border_s_ = BuildBorder(2);
-    border_w_ = BuildBorder(3);
+    if (!initialized_)
+    {
+        corner_nw_ = BuildCorner(0);
+        corner_ne_ = BuildCorner(1);
+        corner_se_ = BuildCorner(2);
+        corner_sw_ = BuildCorner(3);
+        border_n_ = BuildBorder(0);
+        border_e_ = BuildBorder(1);
+        border_s_ = BuildBorder(2);
+        border_w_ = BuildBorder(3);
+
+        initialized_ = true;
+    }
 }
 
 void DropShadowBitmaps::DeleteBitmaps()

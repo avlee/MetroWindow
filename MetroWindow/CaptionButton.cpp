@@ -70,6 +70,7 @@ void CCaptionButton::FillSolidRect(HDC hdc, LPCRECT lpRect, COLORREF clr)
 }
 
 CCaptionButtonManager::CCaptionButtonManager()
+    : _minButton(NULL), _maxButton(NULL)
 {
 }
 

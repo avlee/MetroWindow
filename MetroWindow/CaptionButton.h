@@ -61,9 +61,9 @@ public:
     CCaptionButton * CommandButtonByHitTest(LONG hitTest);
 
 private:
-    std::vector<CCaptionButton *> _captionButtons;
     CCaptionButton * _minButton;
     CCaptionButton * _maxButton;
+    std::vector<CCaptionButton *> _captionButtons;
 };
 
 } //namespace MetroWindow

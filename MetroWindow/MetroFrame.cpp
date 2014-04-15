@@ -297,7 +297,11 @@ LRESULT CMetroFrame::OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHa
 
     if (!_isDwmEnabled && _showDropShadowOnXP)
     {
-        _dropShadowWnd = new CDropShadowWnd();
+        if (_dropShadowWnd == NULL)
+        {
+            _dropShadowWnd = new CDropShadowWnd();
+        }
+
         _dropShadowWnd->Create(_hInst, _hWnd);
     }
 

@@ -33,6 +33,7 @@ private:
     HBITMAP border_e_;
     HBITMAP border_s_;
     HBITMAP border_w_;
+    bool initialized_;
 };
 
 } //namespace MetroWindow
