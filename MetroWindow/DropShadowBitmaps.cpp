@@ -105,6 +105,8 @@ void DropShadowBitmaps::DeleteBitmaps()
     if (border_e_ != NULL) { ::DeleteObject(border_e_); border_e_ = NULL; }
     if (border_s_ != NULL) { ::DeleteObject(border_s_); border_s_ = NULL; }
     if (border_w_ != NULL) { ::DeleteObject(border_w_); border_w_ = NULL; }
+
+     initialized_ = false;
 }
 
 void DropShadowBitmaps::MakeShadow(HDC hdc, int width, int height) const

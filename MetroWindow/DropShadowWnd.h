@@ -22,8 +22,6 @@ private:
 
 private:
     HWND hWnd_;
-    DropShadowBitmaps active_shadow_;
-    DropShadowBitmaps inactive_shadow_;
 };
 
 } //namespace MetroWindow

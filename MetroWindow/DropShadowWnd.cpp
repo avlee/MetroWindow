@@ -6,8 +6,14 @@ namespace MetroWindow
 
 static const TCHAR *kDropShadowWndClassName = TEXT("MetroShadowWnd");
 
+namespace
+{
+    DropShadowBitmaps active_shadow_(RGB(0, 0, 0));
+    DropShadowBitmaps inactive_shadow_(RGB(102, 102, 102));
+}
+
 CDropShadowWnd::CDropShadowWnd(void)
-    : hWnd_(NULL), active_shadow_(RGB(0, 0, 0)), inactive_shadow_(RGB(102, 102, 102))
+    : hWnd_(NULL)
 {
 }
 
@@ -38,7 +44,14 @@ bool CDropShadowWnd::RegisterWindowClass(HINSTANCE hInstance)
 
     ATOM ret = ::RegisterClassEx(&wcex);
 
-    ASSERT(ret!=NULL || ::GetLastError()==ERROR_CLASS_ALREADY_EXISTS);
+    if (ret != NULL)
+    {
+        // Initialize at here to reduce lock.
+        active_shadow_.Initialize();
+        inactive_shadow_.Initialize();
+    }
+
+    ASSERT(ret != NULL || ::GetLastError() == ERROR_CLASS_ALREADY_EXISTS);
     return ret != NULL || ::GetLastError() == ERROR_CLASS_ALREADY_EXISTS;
 }
 
@@ -46,9 +59,6 @@ void CDropShadowWnd::Create(HINSTANCE hInstance, HWND hParentWnd)
 {
     if (RegisterWindowClass(hInstance))
     {
-        active_shadow_.Initialize();
-        inactive_shadow_.Initialize();
-
         hWnd_ = ::CreateWindowEx(
             WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_NOACTIVATE,
             kDropShadowWndClassName,

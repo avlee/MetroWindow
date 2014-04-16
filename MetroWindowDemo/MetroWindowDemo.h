@@ -108,6 +108,7 @@ public:
         else if (wmId == IDC_BTN_TEST2)
         {
             CMetroWindow testWindow(GetModuleInstance());
+            testWindow.ShowDropShadowOnXP(true);
             testWindow.Create(GetHWnd(), L"Modal Window", WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN, 0);
             testWindow.ShowDialog(GetHWnd());
             bHandled = TRUE;
