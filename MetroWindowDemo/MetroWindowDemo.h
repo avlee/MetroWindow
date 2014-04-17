@@ -127,6 +127,7 @@ public:
 
             std::wstring strTitle = ss.str();
 
+            testWindow->ShowDropShadowOnXP(true);
             testWindow->Create(GetHWnd(), strTitle.c_str(), WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN, 0);
             testWindow->ShowWindow();
 
