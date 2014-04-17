@@ -4,7 +4,7 @@
 namespace MetroWindow
 {
 
-static const int kShadowCorner[26][26] = {
+static const BYTE kShadowCorner[26][26] = {
     { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2 },
     { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 3, 4, 4, 4, 4, 4 },
     { 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 3, 3, 4, 5, 5, 5, 6, 7, 7, 7, 7, 7 },
@@ -33,7 +33,7 @@ static const int kShadowCorner[26][26] = {
     { 2, 4, 7, 12, 16, 23, 29, 37, 46, 63, 86, 115, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
 };
 
-static const int kShadowBorder[12][1] = {
+static const BYTE kShadowBorder[12][1] = {
     { 2 },
     { 4 },
     { 7 },
@@ -196,12 +196,12 @@ HBITMAP DropShadowBitmaps::BuildCorner(int rotation) const
         {
             GetAlpha(x, y, width, height, rotation, &xPos, &yPos);
 
-            int alpha = kShadowCorner[yPos][xPos];
+            BYTE alpha = kShadowCorner[yPos][xPos];
             int pos = y * width * 4  + x * 4;
 
-            pvBits[pos] = b * alpha / 255;
-            pvBits[pos + 1] = g * alpha / 255;
-            pvBits[pos + 2] = r * alpha / 255;
+            pvBits[pos]     = (b * alpha) >> 8;
+            pvBits[pos + 1] = (g * alpha) >> 8;
+            pvBits[pos + 2] = (r * alpha) >> 8;
             pvBits[pos + 3] = alpha;
         }
     }
@@ -236,12 +236,12 @@ HBITMAP DropShadowBitmaps::BuildBorder(int rotation) const
         {
             GetAlpha(x, y, width, height, rotation, &xPos, &yPos);
 
-            int alpha = kShadowBorder[yPos][xPos];
+            BYTE alpha = kShadowBorder[yPos][xPos];
             int pos = y * width * 4  + x * 4;
 
-            pvBits[pos] = b * alpha / 255;
-            pvBits[pos + 1] = g * alpha / 255;
-            pvBits[pos + 2] = r * alpha / 255;
+            pvBits[pos]     = (b * alpha) >> 8;
+            pvBits[pos + 1] = (g * alpha) >> 8;
+            pvBits[pos + 2] = (r * alpha) >> 8;
             pvBits[pos + 3] = alpha;
         }
     }
