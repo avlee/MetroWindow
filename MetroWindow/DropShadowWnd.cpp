@@ -67,6 +67,10 @@ void CDropShadowWnd::Create(HINSTANCE hInstance, HWND hParentWnd)
             0, 0, 0, hParentWnd, NULL, hInstance, NULL);
 
         ASSERT(hWnd_ != NULL);
+
+        // Disable message handler of drop shadow window,
+        // this will avoid break the modal dialog lost modal behavior.
+        ::EnableWindow(hWnd_, FALSE);
     }
 }
 
