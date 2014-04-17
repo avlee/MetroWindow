@@ -10,7 +10,17 @@ namespace
 {
     DropShadowBitmaps active_shadow_(RGB(0, 0, 0));
     DropShadowBitmaps inactive_shadow_(RGB(102, 102, 102));
-}
+
+    LRESULT CALLBACK DropShadowWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+    {
+        // Avoid hide drop shadow before the minimize animation of the owner window.
+        if (uMsg == WM_SHOWWINDOW)
+            return 0;
+        else
+            return DefWindowProc(hwnd, uMsg, wParam, lParam);
+    }
+
+} // namespace
 
 CDropShadowWnd::CDropShadowWnd(void)
     : hWnd_(NULL)
@@ -31,7 +41,7 @@ bool CDropShadowWnd::RegisterWindowClass(HINSTANCE hInstance)
     wcex.cbSize = sizeof(WNDCLASSEX);
 
     wcex.style          = CS_HREDRAW | CS_VREDRAW;
-    wcex.lpfnWndProc    = DefWindowProc;
+    wcex.lpfnWndProc    = DropShadowWndProc;
     wcex.cbClsExtra     = 0;
     wcex.cbWndExtra     = 0;
     wcex.hInstance      = hInstance;
