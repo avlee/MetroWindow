@@ -88,7 +88,7 @@ void CDropShadowWnd::ShowShadow(HWND hParentWnd, bool active)
             if (hParentOwner != NULL)
             {
                 // Show drop shadow if the parent window has owner and minimized.
-                ::ShowWindow(hWnd_, SW_SHOWNA);
+                ::ShowWindow(hWnd_, SW_SHOWNOACTIVATE);
                 UpdateShadow(hParentWnd, inactive_shadow_);
             }
             else
@@ -99,7 +99,7 @@ void CDropShadowWnd::ShowShadow(HWND hParentWnd, bool active)
         else
         {
             // Show drop shadow if parent is normal and visiable.
-            ::ShowWindow(hWnd_, SW_SHOWNA);
+            ::ShowWindow(hWnd_, SW_SHOWNOACTIVATE);
             UpdateShadow(hParentWnd, active ? active_shadow_ : inactive_shadow_);
         }
     }
