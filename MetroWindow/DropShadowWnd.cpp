@@ -23,13 +23,18 @@ namespace
 } // namespace
 
 CDropShadowWnd::CDropShadowWnd(void)
-    : hWnd_(NULL)
+    : hWnd_(NULL), shadow_image_(NULL), width_(0), height_(0), active_(false)
 {
 }
 
 
 CDropShadowWnd::~CDropShadowWnd(void)
 {
+    if (shadow_image_ != NULL)
+    {
+        ::DeleteObject(shadow_image_);
+        shadow_image_ = NULL;
+    }
 }
 
 bool CDropShadowWnd::RegisterWindowClass(HINSTANCE hInstance)
@@ -92,6 +97,13 @@ void CDropShadowWnd::Destroy()
 
 void CDropShadowWnd::ShowShadow(HWND hParentWnd, bool active)
 {
+    bool force = false;
+    if (active != active_)
+    {
+        active_ = active;
+        force = true;
+    }
+
     LONG lParentStyle = ::GetWindowLong(hParentWnd, GWL_STYLE);
 
     if (WS_VISIBLE & lParentStyle && !(WS_MAXIMIZE & lParentStyle))
@@ -103,7 +115,7 @@ void CDropShadowWnd::ShowShadow(HWND hParentWnd, bool active)
             {
                 // Show drop shadow if the parent window has owner and minimized.
                 ::ShowWindow(hWnd_, SW_SHOWNOACTIVATE);
-                UpdateShadow(hParentWnd, inactive_shadow_);
+                UpdateShadow(hParentWnd, inactive_shadow_, force);
             }
             else
             {
@@ -114,7 +126,7 @@ void CDropShadowWnd::ShowShadow(HWND hParentWnd, bool active)
         {
             // Show drop shadow if parent is normal and visiable.
             ::ShowWindow(hWnd_, SW_SHOWNOACTIVATE);
-            UpdateShadow(hParentWnd, active ? active_shadow_ : inactive_shadow_);
+            UpdateShadow(hParentWnd, active ? active_shadow_ : inactive_shadow_, force);
         }
     }
     else
@@ -123,38 +135,67 @@ void CDropShadowWnd::ShowShadow(HWND hParentWnd, bool active)
     }
 }
 
-void CDropShadowWnd::UpdateShadow(HWND hParentWnd, const DropShadowBitmaps& shadow)
+HBITMAP CDropShadowWnd::CreateBitmap(int width, int height)
+{
+    BITMAPINFO bmi;
+    ::ZeroMemory(&bmi, sizeof(BITMAPINFO));
+
+    bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+    bmi.bmiHeader.biWidth = width;
+    bmi.bmiHeader.biHeight = height;
+    bmi.bmiHeader.biPlanes = 1;
+    bmi.bmiHeader.biBitCount = 32;
+    bmi.bmiHeader.biCompression = BI_RGB;
+    bmi.bmiHeader.biSizeImage = width * height * 4;
+
+    BYTE *pvBits;
+    return ::CreateDIBSection(NULL, &bmi, DIB_RGB_COLORS, (void **)&pvBits, NULL, 0);
+}
+
+void CDropShadowWnd::UpdateShadow(HWND hParentWnd, DropShadowBitmaps& shadow, bool force)
 {
     RECT rectParent;
     ::GetWindowRect(hParentWnd, &rectParent);
 
     int shadowSize = shadow.GetShadowSize();
-    int shadowWndWidth = rectParent.right - rectParent.left + shadowSize * 2;
-    int shadowWndHeight = rectParent.bottom - rectParent.top + shadowSize * 2;
-
-    // Create the alpha blending bitmap
-    BITMAPINFO bmi;
-    ::ZeroMemory(&bmi, sizeof(BITMAPINFO));
-
-    bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-    bmi.bmiHeader.biWidth = shadowWndWidth;
-    bmi.bmiHeader.biHeight = shadowWndHeight;
-    bmi.bmiHeader.biPlanes = 1;
-    bmi.bmiHeader.biBitCount = 32;
-    bmi.bmiHeader.biCompression = BI_RGB;
-    bmi.bmiHeader.biSizeImage = shadowWndWidth * shadowWndHeight * 4;
-
-    BYTE *pvBits;
-    HBITMAP shadow_bitmap = ::CreateDIBSection(NULL, &bmi, DIB_RGB_COLORS, (void **)&pvBits, NULL, 0);
+    int width = rectParent.right - rectParent.left + shadowSize * 2;
+    int height = rectParent.bottom - rectParent.top + shadowSize * 2;
 
     HDC hMemDC = ::CreateCompatibleDC(NULL);
-    HBITMAP hOriBmp = (HBITMAP)::SelectObject(hMemDC, shadow_bitmap);
 
-    shadow.MakeShadow(hMemDC, shadowWndWidth, shadowWndHeight);
+    HBITMAP hMemBmp = CreateBitmap(width, height);
+    HBITMAP hOriBmp = (HBITMAP)::SelectObject(hMemDC, hMemBmp);
+
+    HDC hPaintDC = ::CreateCompatibleDC(hMemDC);
+
+    if (width != width_ || height != height_ || force || shadow_image_ == NULL)
+    {
+        width_ = width;
+        height_ = height;
+
+        if (shadow_image_ != NULL)
+        {
+            ::DeleteObject(shadow_image_);
+            shadow_image_ = NULL;
+        }
+
+        shadow_image_ = CreateBitmap(width, height);
+        ::SelectObject(hPaintDC, shadow_image_);
+
+        shadow.MakeShadow(hPaintDC, width, height);
+    }
+    else
+    {
+        ::SelectObject(hPaintDC, shadow_image_);
+    }
+
+    ::BitBlt(hMemDC, 0, 0, width, height, hPaintDC, 0, 0, SRCCOPY);
+
+    ::DeleteDC(hPaintDC);
 
     POINT ptDst = {rectParent.left - shadowSize, rectParent.top - shadowSize};
     POINT ptSrc = {0, 0};
-    SIZE WndSize = {shadowWndWidth, shadowWndHeight};
+    SIZE WndSize = {width, height};
     BLENDFUNCTION blendPixelFunction= { AC_SRC_OVER, 0, 255, AC_SRC_ALPHA };
 
     BOOL bRet= ::UpdateLayeredWindow(hWnd_, NULL, &ptDst, &WndSize, hMemDC,
@@ -163,7 +204,7 @@ void CDropShadowWnd::UpdateShadow(HWND hParentWnd, const DropShadowBitmaps& shad
     ASSERT(bRet);
 
     ::SelectObject(hMemDC, hOriBmp);
-    ::DeleteObject(shadow_bitmap);
+    ::DeleteObject(hMemBmp);
     ::DeleteDC(hMemDC);
 }
 

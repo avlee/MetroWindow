@@ -18,10 +18,15 @@ public:
 
 private:
     bool RegisterWindowClass(HINSTANCE hInstance);
-    void UpdateShadow(HWND hParentWnd, const DropShadowBitmaps& shadow);
+    HBITMAP CreateBitmap(int width, int height);
+    void UpdateShadow(HWND hParentWnd, DropShadowBitmaps& shadow, bool force);
 
 private:
     HWND hWnd_;
+    HBITMAP shadow_image_;
+    int width_;
+    int height_;
+    bool active_;
 };
 
 } //namespace MetroWindow
