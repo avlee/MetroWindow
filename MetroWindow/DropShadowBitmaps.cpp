@@ -199,9 +199,9 @@ HBITMAP DropShadowBitmaps::BuildCorner(int rotation) const
             BYTE alpha = kShadowCorner[yPos][xPos];
             int pos = y * width * 4  + x * 4;
 
-            pvBits[pos]     = b;
-            pvBits[pos + 1] = g;
-            pvBits[pos + 2] = r;
+            pvBits[pos]     = (b * alpha) >> 8;
+            pvBits[pos + 1] = (g * alpha) >> 8;
+            pvBits[pos + 2] = (r * alpha) >> 8;
             pvBits[pos + 3] = alpha;
         }
     }
@@ -239,9 +239,9 @@ HBITMAP DropShadowBitmaps::BuildBorder(int rotation) const
             BYTE alpha = kShadowBorder[yPos][xPos];
             int pos = y * width * 4  + x * 4;
 
-            pvBits[pos]     = b;
-            pvBits[pos + 1] = g;
-            pvBits[pos + 2] = r;
+            pvBits[pos]     = (b * alpha) >> 8;
+            pvBits[pos + 1] = (g * alpha) >> 8;
+            pvBits[pos + 2] = (r * alpha) >> 8;
             pvBits[pos + 3] = alpha;
         }
     }
