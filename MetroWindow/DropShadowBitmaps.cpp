@@ -199,9 +199,9 @@ HBITMAP DropShadowBitmaps::BuildCorner(int rotation) const
             BYTE alpha = kShadowCorner[yPos][xPos];
             int pos = y * width * 4  + x * 4;
 
-            pvBits[pos]     = (b * alpha) >> 8;
-            pvBits[pos + 1] = (g * alpha) >> 8;
-            pvBits[pos + 2] = (r * alpha) >> 8;
+            pvBits[pos]     = b;
+            pvBits[pos + 1] = g;
+            pvBits[pos + 2] = r;
             pvBits[pos + 3] = alpha;
         }
     }
@@ -239,9 +239,9 @@ HBITMAP DropShadowBitmaps::BuildBorder(int rotation) const
             BYTE alpha = kShadowBorder[yPos][xPos];
             int pos = y * width * 4  + x * 4;
 
-            pvBits[pos]     = (b * alpha) >> 8;
-            pvBits[pos + 1] = (g * alpha) >> 8;
-            pvBits[pos + 2] = (r * alpha) >> 8;
+            pvBits[pos]     = b;
+            pvBits[pos + 1] = g;
+            pvBits[pos + 2] = r;
             pvBits[pos + 3] = alpha;
         }
     }
@@ -286,9 +286,7 @@ void DropShadowBitmaps::DrawShadowCorner(HDC hdc, HBITMAP image, int x, int y, i
     HDC hdcMem = ::CreateCompatibleDC(hdc);
     HBITMAP hbmOldBmp = (HBITMAP)::SelectObject(hdcMem, image);
 
-    BLENDFUNCTION bf = { AC_SRC_OVER, 0, 0xFF, AC_SRC_ALPHA };
-    ::GdiAlphaBlend(hdc, x, y, width, height, hdcMem, 0, 0, width, height, bf);
-    //BitBlt(hdc, 0, 0, width, height, hdcMem, 0, 0, SRCCOPY);
+    ::BitBlt(hdc, x, y, width, height, hdcMem, 0, 0, SRCCOPY);
 
     ::SelectObject(hdcMem, hbmOldBmp);
     ::DeleteDC(hdcMem);
