@@ -17,9 +17,9 @@ public:
 private:
     void DeleteBitmaps();
     HBITMAP CreateBitmap(int width, int height, void ** ppvBits) const;
-    HBITMAP BuildCorner(int rotation, int offsetX, int offsetY) const;
-    HBITMAP BuildBorder(int rotation, int offsetX, int offsetY) const;
-    void GetAlpha(int x, int y, int width, int height, int rotation, int* xPos, int* yPos, int* singalX, int* singalY) const;
+    HBITMAP BuildShadowImage(int rotation, int offsetX, int offsetY, bool corner) const;
+    BYTE GetAlpha(int x, int y, int width, int height,
+        int rotation, int offsetX, int offsetY, bool corner) const;
     void DrawShadowCorner(HDC hdc, HBITMAP image, int x, int y, int width, int height) const;
     void DrawShadowBorder(HDC hdc, HBITMAP image, int x, int y, int width, int height) const;
 

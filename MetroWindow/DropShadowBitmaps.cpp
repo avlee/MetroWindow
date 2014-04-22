@@ -81,14 +81,14 @@ void DropShadowBitmaps::Initialize()
 {
     if (!initialized_)
     {
-        corner_nw_ = BuildCorner(0, 2, 2);
-        corner_ne_ = BuildCorner(1, 2, 0);
-        corner_se_ = BuildCorner(2, 0, 0);
-        corner_sw_ = BuildCorner(3, 0, 2);
-        border_n_ = BuildBorder(0, 0, 2);
-        border_e_ = BuildBorder(1, 0, 0);
-        border_s_ = BuildBorder(2, 0, 0);
-        border_w_ = BuildBorder(3, 0, 2);
+        corner_nw_ = BuildShadowImage(0, 2, 2, true);
+        corner_ne_ = BuildShadowImage(1, 2, 0, true);
+        corner_se_ = BuildShadowImage(2, 0, 0, true);
+        corner_sw_ = BuildShadowImage(3, 0, 2, true);
+        border_n_ = BuildShadowImage(0, 0, 2, false);
+        border_e_ = BuildShadowImage(1, 0, 0, false);
+        border_s_ = BuildShadowImage(2, 0, 0, false);
+        border_w_ = BuildShadowImage(3, 0, 2, false);
 
         initialized_ = true;
     }
@@ -169,153 +169,106 @@ HBITMAP DropShadowBitmaps::CreateBitmap(int width, int height, void ** ppvBits) 
     return bitmap;
 }
 
-HBITMAP DropShadowBitmaps::BuildCorner(int rotation, int offsetX, int offsetY) const
+HBITMAP DropShadowBitmaps::BuildShadowImage(int rotation, int offsetX, int offsetY, bool corner) const
 {
-    int height = arraysize(kShadowCorner);
-    int width = arraysize(kShadowCorner[0]);
+    int height = corner ? arraysize(kShadowCorner) : arraysize(kShadowBorder);
+    int width = corner ? arraysize(kShadowCorner[0]) : arraysize(kShadowBorder[0]);
+
+    if (rotation % 2 == 1)
+    {
+        int tmp = width;
+        width = height;
+        height = tmp;
+    }
+
+    BYTE *pvBits;
+    HBITMAP bitmap = CreateBitmap(width, height, (void **)&pvBits);
+
+    BYTE r = GetRValue(color_);
+    BYTE g = GetGValue(color_);
+    BYTE b = GetBValue(color_);
+
+    for (int x = 0; x < width; ++x)
+    {
+        for (int y = 0; y < height; ++y)
+        {
+            BYTE alpha = GetAlpha(x, y, width, height, rotation, offsetX, offsetY, corner);
+
+            int pos = y * width * 4  + x * 4;
+
+            pvBits[pos]     = (b * alpha) >> 8;
+            pvBits[pos + 1] = (g * alpha) >> 8;
+            pvBits[pos + 2] = (r * alpha) >> 8;
+            pvBits[pos + 3] = alpha;
+        }
+    }
+
+    return bitmap;
+}
+
+BYTE DropShadowBitmaps::GetAlpha(int x, int y, int width, int height,
+    int rotation, int offsetX, int offsetY, bool corner) const
+{
+    BYTE alpha = 0;
     int borderSize = arraysize(kShadowBorder);
 
-    if (rotation % 2 == 1)
-    {
-        int tmp = width;
-        width = height;
-        height = tmp;
-    }
-
-    BYTE *pvBits;
-    HBITMAP bitmap = CreateBitmap(width, height, (void **)&pvBits);
-
     int xPos = 0;
     int yPos = 0;
-    int xSingal = -1;
-    int ySingal = -1;
-    BYTE r = GetRValue(color_);
-    BYTE g = GetGValue(color_);
-    BYTE b = GetBValue(color_);
+    int signX = 1;
+    int signY = 1;
 
-    for (int x = 0; x < width; ++x)
-    {
-        for (int y = 0; y < height; ++y)
-        {
-            GetAlpha(x, y, width, height, rotation, &xPos, &yPos, &xSingal, &ySingal);
-
-            BYTE alpha = 0;
-
-            if (xPos < offsetX || yPos < offsetY)
-                alpha = 0;
-            else if (xPos >= borderSize && yPos >= borderSize)
-                alpha = 0;
-            else {
-                xPos += offsetX * xSingal;
-                yPos += offsetY * ySingal;
-
-                alpha = kShadowCorner[yPos][xPos];
-            }
-
-            int pos = y * width * 4  + x * 4;
-
-            pvBits[pos]     = (b * alpha) >> 8;
-            pvBits[pos + 1] = (g * alpha) >> 8;
-            pvBits[pos + 2] = (r * alpha) >> 8;
-            pvBits[pos + 3] = alpha;
-        }
-    }
-
-    return bitmap;
-}
-
-HBITMAP DropShadowBitmaps::BuildBorder(int rotation, int offsetX, int offsetY) const
-{
-    int height = arraysize(kShadowBorder);
-    int width = arraysize(kShadowBorder[0]);
-
-    if (rotation % 2 == 1)
-    {
-        int tmp = width;
-        width = height;
-        height = tmp;
-    }
-
-    BYTE *pvBits;
-    HBITMAP bitmap = CreateBitmap(width, height, (void **)&pvBits);
-
-    int xPos = 0;
-    int yPos = 0;
-    int xSingal = -1;
-    int ySingal = -1;
-    BYTE r = GetRValue(color_);
-    BYTE g = GetGValue(color_);
-    BYTE b = GetBValue(color_);
-
-    for (int x = 0; x < width; ++x)
-    {
-        for (int y = 0; y < height; ++y)
-        {
-            GetAlpha(x, y, width, height, rotation, &xPos, &yPos, &xSingal, &ySingal);
-
-            BYTE alpha = 0;
-
-            xPos += offsetX * xSingal;
-            yPos += offsetY * ySingal;
-
-            if (xPos >= 0 && yPos >= 0 &&
-                xPos < arraysize(kShadowBorder[0]) && yPos < arraysize(kShadowBorder))
-            {
-                alpha = kShadowBorder[yPos][xPos];
-            }
-
-            int pos = y * width * 4  + x * 4;
-
-            pvBits[pos]     = (b * alpha) >> 8;
-            pvBits[pos + 1] = (g * alpha) >> 8;
-            pvBits[pos + 2] = (r * alpha) >> 8;
-            pvBits[pos + 3] = alpha;
-        }
-    }
-
-    return bitmap;
-}
-
-void DropShadowBitmaps::GetAlpha(int x, int y, int width, int height, int rotation, int* xPos, int* yPos, int* singalX, int* singalY) const
-{
     int n = rotation % 4;
     switch (n)
     {
     case 0:
         {
-            *xPos = x;
-            *yPos = y;
-            *singalX = -1;
-            *singalY = -1;
+            xPos = x;
+            yPos = y;
+            signX = -1;
+            signY = -1;
         }
         break;
     case 1:
         {
-            *xPos = y;
-            *yPos = (width - 1) - x;
-            *singalX = -1;
-            *singalY = 1;
+            xPos = y;
+            yPos = (width - 1) - x;
+            signX = -1;
+            signY = 1;
         }
         break;
     case 2:
         {
-            *xPos = (width - 1) - x;
-            *yPos = (height - 1) - y;
-            *singalX = 1;
-            *singalY = 1;
+            xPos = (width - 1) - x;
+            yPos = (height - 1) - y;
+            signX = 1;
+            signY = 1;
         }
         break;
     case 3:
         {
-            *xPos = (height - 1) - y;
-            *yPos = x;
-            *singalX = 1;
-            *singalY = -1;
+            xPos = (height - 1) - y;
+            yPos = x;
+            signX = 1;
+            signY = -1;
         }
         break;
     default:
-        break;
+        return alpha;
     }
+
+    if (xPos < offsetX || yPos < offsetY)
+        alpha = 0;
+    else if (xPos >= borderSize && yPos >= borderSize)
+        alpha = 0;
+    else
+    {
+        xPos += offsetX * signX;
+        yPos += offsetY * signY;
+
+        alpha = corner ? kShadowCorner[yPos][xPos] : kShadowBorder[yPos][xPos];
+    }
+
+    return alpha;
 }
 
 void DropShadowBitmaps::DrawShadowCorner(HDC hdc, HBITMAP image, int x, int y, int width, int height) const
