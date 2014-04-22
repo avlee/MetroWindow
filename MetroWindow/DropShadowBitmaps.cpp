@@ -81,14 +81,14 @@ void DropShadowBitmaps::Initialize()
 {
     if (!initialized_)
     {
-        corner_nw_ = BuildCorner(0);
-        corner_ne_ = BuildCorner(1);
-        corner_se_ = BuildCorner(2);
-        corner_sw_ = BuildCorner(3);
-        border_n_ = BuildBorder(0);
-        border_e_ = BuildBorder(1);
-        border_s_ = BuildBorder(2);
-        border_w_ = BuildBorder(3);
+        corner_nw_ = BuildCorner(0, 2, 2);
+        corner_ne_ = BuildCorner(1, 2, 0);
+        corner_se_ = BuildCorner(2, 0, 0);
+        corner_sw_ = BuildCorner(3, 0, 2);
+        border_n_ = BuildBorder(0, 0, 2);
+        border_e_ = BuildBorder(1, 0, 0);
+        border_s_ = BuildBorder(2, 0, 0);
+        border_w_ = BuildBorder(3, 0, 2);
 
         initialized_ = true;
     }
@@ -169,10 +169,11 @@ HBITMAP DropShadowBitmaps::CreateBitmap(int width, int height, void ** ppvBits) 
     return bitmap;
 }
 
-HBITMAP DropShadowBitmaps::BuildCorner(int rotation) const
+HBITMAP DropShadowBitmaps::BuildCorner(int rotation, int offsetX, int offsetY) const
 {
     int height = arraysize(kShadowCorner);
     int width = arraysize(kShadowCorner[0]);
+    int borderSize = arraysize(kShadowBorder);
 
     if (rotation % 2 == 1)
     {
@@ -186,6 +187,8 @@ HBITMAP DropShadowBitmaps::BuildCorner(int rotation) const
 
     int xPos = 0;
     int yPos = 0;
+    int xSingal = -1;
+    int ySingal = -1;
     BYTE r = GetRValue(color_);
     BYTE g = GetGValue(color_);
     BYTE b = GetBValue(color_);
@@ -194,9 +197,21 @@ HBITMAP DropShadowBitmaps::BuildCorner(int rotation) const
     {
         for (int y = 0; y < height; ++y)
         {
-            GetAlpha(x, y, width, height, rotation, &xPos, &yPos);
+            GetAlpha(x, y, width, height, rotation, &xPos, &yPos, &xSingal, &ySingal);
 
-            BYTE alpha = kShadowCorner[yPos][xPos];
+            BYTE alpha = 0;
+
+            if (xPos < offsetX || yPos < offsetY)
+                alpha = 0;
+            else if (xPos >= borderSize && yPos >= borderSize)
+                alpha = 0;
+            else {
+                xPos += offsetX * xSingal;
+                yPos += offsetY * ySingal;
+
+                alpha = kShadowCorner[yPos][xPos];
+            }
+
             int pos = y * width * 4  + x * 4;
 
             pvBits[pos]     = (b * alpha) >> 8;
@@ -209,7 +224,7 @@ HBITMAP DropShadowBitmaps::BuildCorner(int rotation) const
     return bitmap;
 }
 
-HBITMAP DropShadowBitmaps::BuildBorder(int rotation) const
+HBITMAP DropShadowBitmaps::BuildBorder(int rotation, int offsetX, int offsetY) const
 {
     int height = arraysize(kShadowBorder);
     int width = arraysize(kShadowBorder[0]);
@@ -226,6 +241,8 @@ HBITMAP DropShadowBitmaps::BuildBorder(int rotation) const
 
     int xPos = 0;
     int yPos = 0;
+    int xSingal = -1;
+    int ySingal = -1;
     BYTE r = GetRValue(color_);
     BYTE g = GetGValue(color_);
     BYTE b = GetBValue(color_);
@@ -234,9 +251,19 @@ HBITMAP DropShadowBitmaps::BuildBorder(int rotation) const
     {
         for (int y = 0; y < height; ++y)
         {
-            GetAlpha(x, y, width, height, rotation, &xPos, &yPos);
+            GetAlpha(x, y, width, height, rotation, &xPos, &yPos, &xSingal, &ySingal);
 
-            BYTE alpha = kShadowBorder[yPos][xPos];
+            BYTE alpha = 0;
+
+            xPos += offsetX * xSingal;
+            yPos += offsetY * ySingal;
+
+            if (xPos >= 0 && yPos >= 0 &&
+                xPos < arraysize(kShadowBorder[0]) && yPos < arraysize(kShadowBorder))
+            {
+                alpha = kShadowBorder[yPos][xPos];
+            }
+
             int pos = y * width * 4  + x * 4;
 
             pvBits[pos]     = (b * alpha) >> 8;
@@ -249,31 +276,41 @@ HBITMAP DropShadowBitmaps::BuildBorder(int rotation) const
     return bitmap;
 }
 
-void DropShadowBitmaps::GetAlpha(int x, int y, int width, int height, int rotation, int* xPos, int* yPos) const
+void DropShadowBitmaps::GetAlpha(int x, int y, int width, int height, int rotation, int* xPos, int* yPos, int* singalX, int* singalY) const
 {
     int n = rotation % 4;
     switch (n)
     {
     case 0:
-        *xPos = x;
-        *yPos = y;
+        {
+            *xPos = x;
+            *yPos = y;
+            *singalX = -1;
+            *singalY = -1;
+        }
         break;
     case 1:
         {
             *xPos = y;
             *yPos = (width - 1) - x;
+            *singalX = -1;
+            *singalY = 1;
         }
         break;
     case 2:
         {
             *xPos = (width - 1) - x;
             *yPos = (height - 1) - y;
+            *singalX = 1;
+            *singalY = 1;
         }
         break;
     case 3:
         {
             *xPos = (height - 1) - y;
             *yPos = x;
+            *singalX = 1;
+            *singalY = -1;
         }
         break;
     default:
