@@ -7,6 +7,65 @@
 #include "UxThemeApi.h"
 #include <Vssym32.h>
 
+namespace
+{
+enum OSVersion {
+  VERSION_PRE_XP = 0,  // Not supported.
+  VERSION_XP,
+  VERSION_SERVER_2003, // Also includes XP Pro x64 and Server 2003 R2.
+  VERSION_VISTA,       // Also includes Windows Server 2008.
+  VERSION_WIN7,        // Also includes Windows Server 2008 R2.
+  VERSION_WIN8,        // Also includes Windows Server 2012.
+  VERSION_WIN8_1,      // Code named Windows Blue
+  VERSION_WIN_LAST,    // Indicates error condition.
+};
+
+OSVersion os_version_;
+
+OSVersion GetOSVersion()
+{
+    if (os_version_ == VERSION_PRE_XP)
+    {
+        OSVERSIONINFO version_info = { sizeof version_info };
+        ::GetVersionEx(&version_info);
+
+        if ((version_info.dwMajorVersion == 5) && (version_info.dwMinorVersion > 0))
+        {
+            // Treat XP Pro x64, Home Server, and Server 2003 R2 as Server 2003.
+            os_version_ = (version_info.dwMinorVersion == 1) ? VERSION_XP : VERSION_SERVER_2003;
+        }
+        else if (version_info.dwMajorVersion == 6)
+        {
+            switch (version_info.dwMinorVersion)
+            {
+            case 0:
+                // Treat Windows Server 2008 the same as Windows Vista.
+                os_version_ = VERSION_VISTA;
+                break;
+            case 1:
+                // Treat Windows Server 2008 R2 the same as Windows 7.
+                os_version_ = VERSION_WIN7;
+                break;
+            case 2:
+                // Treat Windows Server 2012 the same as Windows 8.
+                os_version_ = VERSION_WIN8;
+                break;
+            default:
+                os_version_ = VERSION_WIN8_1;
+                break;
+            }
+        }
+        else if (version_info.dwMajorVersion > 6)
+        {
+            os_version_ = VERSION_WIN_LAST;
+        }
+    }
+
+    return os_version_;
+}
+
+} // namespace
+
 namespace MetroWindow
 {
 
@@ -114,6 +173,14 @@ void CMetroFrame::SetMinSize(int cx, int cy)
 {
     _minSize.cx = cx;
     _minSize.cy = cy;
+}
+
+void CMetroFrame::ShowDropShadowOnXP(bool show)
+{
+    if (GetOSVersion() == VERSION_XP)
+    {
+        _showDropShadowOnXP = show;
+    }
 }
 
 void CMetroFrame::CenterWindow(HWND hWndCenter/* = NULL*/)

@@ -32,7 +32,7 @@ public:
     void SetWindowTitle(const wchar_t* title);
     void SetMinSize(int cx, int cy);
 
-    void ShowDropShadowOnXP(bool show) { _showDropShadowOnXP = show; }
+    void ShowDropShadowOnXP(bool show);
     void ClientAreaMovable(bool movable) { _clientAreaMovable = movable; }
     void UseCustomTitile(bool custom) { _useCustomTitle = custom; }
     void UseThickFrame(bool thick) { _useThickFrame = thick; }
