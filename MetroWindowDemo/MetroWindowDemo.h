@@ -4,9 +4,6 @@
 #include "MetroWindow\MetroWindow.h"
 #include "MetroWindow\MetroDialog.h"
 
-#include <vector>
-#include <sstream>
-
 using namespace MetroWindow;
 
 class CTestDialog : public CMetroDialog
@@ -40,15 +37,14 @@ public:
     CMainWindow(HINSTANCE hInstance)
         : CMetroWindow(hInstance)
         , _modelessDialog(hInstance)
+        , _modelessWindow(NULL)
     {
     }
 
     virtual ~CMainWindow(void)
     {
-        std::vector<CMetroWindow *>::const_iterator iter = _modelessWindows.begin();
-        std::vector<CMetroWindow *>::const_iterator end = _modelessWindows.end();
-        for (; iter != end; iter++)
-            delete *iter;
+        if (_modelessWindow != NULL)
+            delete _modelessWindow;
     }
 
     virtual LPCTSTR GetWindowClassName() const
@@ -102,6 +98,7 @@ public:
         {
             CTestDialog testWidnow(GetModuleInstance());
             testWidnow.SetWindowTitle(L"Modal Dialog");
+            testWidnow.ShowDropShadowOnXP(true);
             testWidnow.DoModal(IDD_DIALOG1, GetHWnd());
             bHandled = TRUE;
         }
@@ -119,17 +116,20 @@ public:
         }
         else if (wmId == IDC_BTN_TEST4)
         {
-            CMetroWindow * testWindow = new CMetroWindow(GetModuleInstance());
-            _modelessWindows.push_back(testWindow);
+            if (_modelessWindow == NULL)
+            {
+                _modelessWindow = new CMetroWindow(GetModuleInstance());
+                _modelessWindow->ShowDropShadowOnXP(true);
+            }
 
-            std::wstringstream ss;
-            ss << L"ModelLess Window " << _modelessWindows.size();
+            if (!::IsWindow(_modelessWindow->GetHWnd()))
+            {
+                std::wstring strTitle = L"ModelLess Window";
+                _modelessWindow->Create(GetHWnd(), strTitle.c_str(),
+                    WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN, 0);
+            }
 
-            std::wstring strTitle = ss.str();
-
-            testWindow->ShowDropShadowOnXP(true);
-            testWindow->Create(GetHWnd(), strTitle.c_str(), WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN, 0);
-            testWindow->ShowWindow();
+            _modelessWindow->ShowWindow();
 
             bHandled = TRUE;
         }
@@ -139,7 +139,7 @@ public:
 
 private:
     CTestDialog _modelessDialog;
-    std::vector<CMetroWindow *> _modelessWindows;
+    CMetroWindow * _modelessWindow;
 };
 
 
