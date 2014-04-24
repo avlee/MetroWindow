@@ -161,10 +161,12 @@ void CDropShadowWnd::UpdateShadow(HWND hParentWnd, DropShadowBitmaps& shadow, bo
     int width = rectParent.right - rectParent.left + shadowSize * 2;
     int height = rectParent.bottom - rectParent.top + shadowSize * 2;
 
-    HDC hMemDC = ::CreateCompatibleDC(NULL);
+    HDC hScreenDC = ::GetDC(NULL);
+    HDC hMemDC = ::CreateCompatibleDC(hScreenDC);
+    ::ReleaseDC(NULL, hScreenDC);
 
     HBITMAP hMemBmp = CreateBitmap(width, height);
-    HBITMAP hOriBmp = (HBITMAP)::SelectObject(hMemDC, hMemBmp);
+    ::SelectObject(hMemDC, hMemBmp);
 
     HDC hPaintDC = ::CreateCompatibleDC(hMemDC);
 
@@ -198,14 +200,12 @@ void CDropShadowWnd::UpdateShadow(HWND hParentWnd, DropShadowBitmaps& shadow, bo
     SIZE WndSize = {width, height};
     BLENDFUNCTION blendPixelFunction= { AC_SRC_OVER, 0, 255, AC_SRC_ALPHA };
 
-    BOOL bRet= ::UpdateLayeredWindow(hWnd_, NULL, &ptDst, &WndSize, hMemDC,
+    ::UpdateLayeredWindow(hWnd_, NULL, &ptDst, &WndSize, hMemDC,
         &ptSrc, 0, &blendPixelFunction, ULW_ALPHA);
 
-    ASSERT(bRet);
-
-    ::SelectObject(hMemDC, hOriBmp);
-    ::DeleteObject(hMemBmp);
+    // Delete the Memory DC, this will release its hold on the memory bitmap.
     ::DeleteDC(hMemDC);
+    ::DeleteObject(hMemBmp);
 }
 
 } //namespace MetroWindow
