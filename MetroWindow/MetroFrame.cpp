@@ -96,7 +96,7 @@ CMetroFrame::CMetroFrame(HINSTANCE hInstance)
     _useThickFrame = false;
     _showIconOnCaption = true;
 
-    _dropShadowWnd = NULL;
+    _dropShadow = NULL;
 
     _captionButtonMgr = new CCaptionButtonManager();
 
@@ -123,10 +123,10 @@ CMetroFrame::~CMetroFrame(void)
 
     if (_hCaptionFont) ::DeleteObject(_hCaptionFont);
 
-    if (_dropShadowWnd != NULL)
+    if (_dropShadow != NULL)
     {
-        delete _dropShadowWnd;
-        _dropShadowWnd = NULL;
+        delete _dropShadow;
+        _dropShadow = NULL;
     }
 }
 
@@ -364,12 +364,12 @@ LRESULT CMetroFrame::OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHa
 
     if (!_isDwmEnabled && _showDropShadowOnXP)
     {
-        if (_dropShadowWnd == NULL)
+        if (_dropShadow == NULL)
         {
-            _dropShadowWnd = new CDropShadowWnd();
+            _dropShadow = new CDropShadow();
         }
 
-        _dropShadowWnd->Create(_hInst, _hWnd);
+        _dropShadow->Create(_hInst, _hWnd);
     }
 
     return 0;
@@ -383,9 +383,9 @@ LRESULT CMetroFrame::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
 LRESULT CMetroFrame::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 {
-    if (_dropShadowWnd != NULL)
+    if (_dropShadow != NULL)
     {
-        _dropShadowWnd->Destroy();
+        _dropShadow->Destroy();
     }
 
     bHandled = FALSE;
@@ -409,9 +409,9 @@ LRESULT CMetroFrame::OnNcActivate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
         _isNonClientAreaActive = ncactive;
         PaintNonClientArea(NULL);
 
-        if (_dropShadowWnd != NULL)
+        if (_dropShadow != NULL)
         {
-            _dropShadowWnd->ShowShadow(_hWnd, ncactive);
+            _dropShadow->ShowShadow(_hWnd, ncactive);
         }
     }
 
@@ -816,13 +816,13 @@ LRESULT CMetroFrame::OnSize(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHand
 
 LRESULT CMetroFrame::OnWindowPosChanged(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
-    if (_dropShadowWnd != NULL)
+    if (_dropShadow != NULL)
     {
         WINDOWPOS *pwp = (WINDOWPOS *)lParam;
         if (pwp->flags & SWP_SHOWWINDOW || pwp->flags & SWP_HIDEWINDOW ||
             !(pwp->flags & SWP_NOMOVE) || !(pwp->flags & SWP_NOSIZE))
         {
-            _dropShadowWnd->ShowShadow(_hWnd, _isNonClientAreaActive);
+            _dropShadow->ShowShadow(_hWnd, _isNonClientAreaActive);
         }
     }
 
@@ -1044,7 +1044,7 @@ void CMetroFrame::DrawWindowFrame(HDC hdc, const RECT& bounds, const SIZE& borde
     int frameBorderWidth = 1;
 
     // draw frame border
-    if (!_isDwmEnabled && !isMaxisized && !_useThickFrame && _dropShadowWnd == NULL)
+    if (!_isDwmEnabled && !isMaxisized && !_useThickFrame && _dropShadow == NULL)
     {
         COLORREF borderColor = _isNonClientAreaActive ?
             _captionTheme.ActiveBorderColor() : _captionTheme.InactiveBorderColor();

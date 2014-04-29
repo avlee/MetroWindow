@@ -9,7 +9,7 @@ namespace MetroWindow
 
 class CCaptionButton; // Forward declare
 class CCaptionButtonManager;
-class CDropShadowWnd;
+class CDropShadow;
 
 class METROWINDOW_DECL CMetroFrame
 {
@@ -109,7 +109,7 @@ private:
     CCaptionButtonManager * _captionButtonMgr;
     CMetroCaptionTheme _captionTheme;
 
-    CDropShadowWnd * _dropShadowWnd;
+    CDropShadow * _dropShadow;
 
     CCaptionButton * _pressedButton;
     CCaptionButton * _hoveredButton;

@@ -109,7 +109,7 @@ void DropShadowBitmaps::DeleteBitmaps()
      initialized_ = false;
 }
 
-void DropShadowBitmaps::MakeShadow(HDC hdc, int width, int height) const
+void DropShadowBitmaps::MakeShadow(HDC hdc, int width, int height, ShadowSide side) const
 {
     int cornerSize = arraysize(kShadowCorner);
     int borderWidth = arraysize(kShadowBorder);
@@ -119,29 +119,61 @@ void DropShadowBitmaps::MakeShadow(HDC hdc, int width, int height) const
     int right = width;
     int bottom = height;
 
+    // The top and bottom borders extend over the sides of the window.
+    // The left and right borders do no. This means that we need to
+    // update the bounds to make it seem like the left and right
+    // borders do extend outside of the window.
+    if (side == Left || side == Right)
+    {
+        top -= borderWidth;
+        bottom += borderWidth;
+        height += borderWidth * 2;
+    }
+
     // Left top corner
-    DrawShadowCorner(hdc, corner_nw_, left, top, cornerSize, cornerSize);
+    if (side == Left || side == Top)
+    {
+        DrawShadowCorner(hdc, corner_nw_, left, top, cornerSize, cornerSize);
+    }
 
     // Right top corner
-    DrawShadowCorner(hdc, corner_ne_, right - cornerSize, top, cornerSize, cornerSize);
+    if (side == Right || side == Top)
+    {
+        DrawShadowCorner(hdc, corner_ne_, right - cornerSize, top, cornerSize, cornerSize);
+    }
 
     // Left bottom corner
-    DrawShadowCorner(hdc, corner_sw_, left, bottom - cornerSize, cornerSize, cornerSize);
+    if (side == Left || side == Bottom)
+    {
+        DrawShadowCorner(hdc, corner_sw_, left, bottom - cornerSize, cornerSize, cornerSize);
+    }
 
     // Right bottom corner
-    DrawShadowCorner(hdc, corner_se_, right - cornerSize, bottom - cornerSize, cornerSize, cornerSize);
+    if (side == Right || side == Bottom)
+    {
+        DrawShadowCorner(hdc, corner_se_, right - cornerSize, bottom - cornerSize, cornerSize, cornerSize);
+    }
 
-    // Top border
-    DrawShadowBorder(hdc, border_n_, left + cornerSize, top, width - cornerSize * 2, borderWidth);
-
-    // Bottom border
-    DrawShadowBorder(hdc, border_s_, left + cornerSize, bottom - borderWidth, width - cornerSize * 2, borderWidth);
-
-    // Left border
-    DrawShadowBorder(hdc, border_w_, left, top + cornerSize, borderWidth, height - cornerSize * 2);
-
-    // Right border
-    DrawShadowBorder(hdc, border_e_, right - borderWidth, top + cornerSize, borderWidth, height - cornerSize * 2);
+    if (side == Top)
+    {
+        DrawShadowBorder(hdc, border_n_, left + cornerSize, top,
+            width - cornerSize * 2, borderWidth);
+    }
+    else if (side == Bottom)
+    {
+        DrawShadowBorder(hdc, border_s_, left + cornerSize,
+            bottom - borderWidth, width - cornerSize * 2, borderWidth);
+    }
+    else if (side == Left)
+    {
+        DrawShadowBorder(hdc, border_w_, left, top + cornerSize,
+            borderWidth, height - cornerSize * 2);
+    }
+    else if (side == Right)
+    {
+        DrawShadowBorder(hdc, border_e_, right - borderWidth,
+            top + cornerSize, borderWidth, height - cornerSize * 2);
+    }
 }
 
 int DropShadowBitmaps::GetShadowSize() const

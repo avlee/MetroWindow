@@ -22,8 +22,8 @@ namespace
 
 } // namespace
 
-CDropShadowWnd::CDropShadowWnd(void)
-    : hWnd_(NULL), shadow_image_(NULL), width_(0), height_(0), active_(false)
+CDropShadowWnd::CDropShadowWnd(ShadowSide side)
+    : side_(side), hWnd_(NULL), shadow_image_(NULL), width_(0), height_(0)
 {
 }
 
@@ -34,6 +34,11 @@ CDropShadowWnd::~CDropShadowWnd(void)
     {
         ::DeleteObject(shadow_image_);
         shadow_image_ = NULL;
+    }
+
+    if (hWnd_ != NULL)
+    {
+        ::DestroyWindow(hWnd_);
     }
 }
 
@@ -93,46 +98,12 @@ void CDropShadowWnd::Destroy()
 {
     ASSERT(hWnd_ != NULL);
     ::DestroyWindow(hWnd_);
+    hWnd_ = NULL;
 }
 
-void CDropShadowWnd::ShowShadow(HWND hParentWnd, bool active)
+void CDropShadowWnd::HideShadow()
 {
-    bool force = false;
-    if (active != active_)
-    {
-        active_ = active;
-        force = true;
-    }
-
-    LONG lParentStyle = ::GetWindowLong(hParentWnd, GWL_STYLE);
-
-    if (WS_VISIBLE & lParentStyle && !(WS_MAXIMIZE & lParentStyle))
-    {
-        if (WS_MINIMIZE & lParentStyle)
-        {
-            HWND hParentOwner = ::GetWindow(hParentWnd, GW_OWNER);
-            if (hParentOwner != NULL)
-            {
-                // Show drop shadow if the parent window has owner and minimized.
-                ::ShowWindow(hWnd_, SW_SHOWNOACTIVATE);
-                UpdateShadow(hParentWnd, inactive_shadow_, force);
-            }
-            else
-            {
-                ::ShowWindow(hWnd_, SW_HIDE);
-            }
-        }
-        else
-        {
-            // Show drop shadow if parent is normal and visiable.
-            ::ShowWindow(hWnd_, SW_SHOWNOACTIVATE);
-            UpdateShadow(hParentWnd, active ? active_shadow_ : inactive_shadow_, force);
-        }
-    }
-    else
-    {
-        ::ShowWindow(hWnd_, SW_HIDE);
-    }
+    ::ShowWindow(hWnd_, SW_HIDE);
 }
 
 HBITMAP CDropShadowWnd::CreateBitmap(int width, int height)
@@ -152,14 +123,10 @@ HBITMAP CDropShadowWnd::CreateBitmap(int width, int height)
     return ::CreateDIBSection(NULL, &bmi, DIB_RGB_COLORS, (void **)&pvBits, NULL, 0);
 }
 
-void CDropShadowWnd::UpdateShadow(HWND hParentWnd, DropShadowBitmaps& shadow, bool force)
+void CDropShadowWnd::UpdateShadow(HWND hParentWnd, const DropShadowBitmaps& shadow, bool force)
 {
-    RECT rectParent;
-    ::GetWindowRect(hParentWnd, &rectParent);
-
-    int shadowSize = shadow.GetShadowSize();
-    int width = rectParent.right - rectParent.left + shadowSize * 2;
-    int height = rectParent.bottom - rectParent.top + shadowSize * 2;
+    int width = bounds_.right - bounds_.left;
+    int height = bounds_.bottom - bounds_.top;
 
     HDC hScreenDC = ::GetDC(NULL);
     HDC hMemDC = ::CreateCompatibleDC(hScreenDC);
@@ -184,7 +151,7 @@ void CDropShadowWnd::UpdateShadow(HWND hParentWnd, DropShadowBitmaps& shadow, bo
         shadow_image_ = CreateBitmap(width, height);
         ::SelectObject(hPaintDC, shadow_image_);
 
-        shadow.MakeShadow(hPaintDC, width, height);
+        shadow.MakeShadow(hPaintDC, width, height, side_);
     }
     else
     {
@@ -195,17 +162,162 @@ void CDropShadowWnd::UpdateShadow(HWND hParentWnd, DropShadowBitmaps& shadow, bo
 
     ::DeleteDC(hPaintDC);
 
-    POINT ptDst = {rectParent.left - shadowSize, rectParent.top - shadowSize};
+    POINT ptDst = {bounds_.left, bounds_.top};
     POINT ptSrc = {0, 0};
-    SIZE WndSize = {width, height};
+    SIZE wndSize = {width, height};
     BLENDFUNCTION blendPixelFunction= { AC_SRC_OVER, 0, 255, AC_SRC_ALPHA };
 
-    ::UpdateLayeredWindow(hWnd_, NULL, &ptDst, &WndSize, hMemDC,
+    ::ShowWindow(hWnd_, SW_SHOWNOACTIVATE);
+
+    ::UpdateLayeredWindow(hWnd_, NULL, &ptDst, &wndSize, hMemDC,
         &ptSrc, 0, &blendPixelFunction, ULW_ALPHA);
 
     // Delete the Memory DC, this will release its hold on the memory bitmap.
     ::DeleteDC(hMemDC);
     ::DeleteObject(hMemBmp);
+}
+
+void CDropShadowWnd::CalculateBounds(RECT rectParent, int shadowSize)
+{
+    switch (side_)
+    {
+        case Left:
+            {
+                bounds_.left = rectParent.left - shadowSize;
+                bounds_.top = rectParent.top;
+                bounds_.right = rectParent.left;
+                bounds_.bottom = rectParent.bottom;
+            }
+            break;
+
+        case Top:
+            {
+                bounds_.left = rectParent.left - shadowSize;
+                bounds_.top = rectParent.top - shadowSize;
+                bounds_.right = rectParent.right + shadowSize;
+                bounds_.bottom = rectParent.top;
+            }
+            break;
+
+        case Right:
+            {
+                bounds_.left = rectParent.right;
+                bounds_.top = rectParent.top;
+                bounds_.right = rectParent.right + shadowSize;
+                bounds_.bottom = rectParent.bottom;
+            }
+            break;
+
+        case Bottom:
+            {
+                bounds_.left = rectParent.left - shadowSize;
+                bounds_.top = rectParent.bottom;
+                bounds_.right = rectParent.right + shadowSize;
+                bounds_.bottom = rectParent.bottom + shadowSize;
+            }
+            break;
+        default:
+            {
+                bounds_.left = 0;
+                bounds_.top = 0;
+                bounds_.right = 0;
+                bounds_.bottom = 0;
+            }
+            break;
+    }
+}
+
+CDropShadow::CDropShadow(void)
+    : active_(false)
+{
+    shadow_wnds_[0] = new CDropShadowWnd(Left);
+    shadow_wnds_[1] = new CDropShadowWnd(Top);
+    shadow_wnds_[2] = new CDropShadowWnd(Right);
+    shadow_wnds_[3] = new CDropShadowWnd(Bottom);
+}
+
+CDropShadow::~CDropShadow(void)
+{
+    for (int i = 0; i < 4; ++i)
+    {
+        delete shadow_wnds_[i];
+    }
+}
+
+void CDropShadow::Create(HINSTANCE hInstance, HWND hParentWnd)
+{
+    for (int i = 0; i < 4; ++i)
+    {
+        shadow_wnds_[i]->Create(hInstance, hParentWnd);
+    }
+}
+
+void CDropShadow::Destroy()
+{
+    for (int i = 0; i < 4; ++i)
+    {
+        shadow_wnds_[i]->Destroy();
+    }
+}
+
+void CDropShadow::ShowShadow(HWND hParentWnd, bool active)
+{
+    bool force = false;
+    if (active != active_)
+    {
+        active_ = active;
+        force = true;
+    }
+
+    LONG lParentStyle = ::GetWindowLong(hParentWnd, GWL_STYLE);
+
+    if (WS_VISIBLE & lParentStyle && !(WS_MAXIMIZE & lParentStyle))
+    {
+        if (WS_MINIMIZE & lParentStyle)
+        {
+            HWND hParentOwner = ::GetWindow(hParentWnd, GW_OWNER);
+            if (hParentOwner != NULL)
+            {
+                // Show drop shadow if the parent window has owner and minimized.
+                UpdateShadow(hParentWnd, inactive_shadow_, force);
+            }
+            else
+            {
+                HideShadow();
+            }
+        }
+        else
+        {
+            // Show drop shadow if parent is normal and visiable.
+            UpdateShadow(hParentWnd, active ? active_shadow_ : inactive_shadow_, force);
+        }
+    }
+    else
+    {
+        HideShadow();
+    }
+}
+
+void CDropShadow::UpdateShadow(HWND hParentWnd, const DropShadowBitmaps& shadow, bool force)
+{
+    RECT rectParent;
+    ::GetWindowRect(hParentWnd, &rectParent);
+
+    int shadowSize = shadow.GetShadowSize();
+
+    for (int i = 0; i < 4; ++i)
+    {
+        shadow_wnds_[i]->CalculateBounds(rectParent, shadowSize);
+        shadow_wnds_[i]->UpdateShadow(hParentWnd, shadow, force);
+    }
+}
+
+void CDropShadow::HideShadow()
+{
+    for (int i = 0; i < 4; ++i)
+    {
+        shadow_wnds_[i]->HideShadow();
+    }
 }
 
 } //namespace MetroWindow

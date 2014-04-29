@@ -3,6 +3,14 @@
 namespace MetroWindow
 {
 
+enum ShadowSide
+{
+    Left,
+    Top,
+    Right,
+    Bottom
+};
+
 class DropShadowBitmaps
 {
 public:
@@ -10,7 +18,7 @@ public:
     ~DropShadowBitmaps(void);
 
     void Initialize();
-    void MakeShadow(HDC hdc, int width, int height) const;
+    void MakeShadow(HDC hdc, int width, int height, ShadowSide side) const;
 
     int GetShadowSize() const;
 
