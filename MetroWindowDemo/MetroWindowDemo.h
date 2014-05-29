@@ -66,27 +66,27 @@ public:
 
         CreateWindow(L"BUTTON", L"Show Modal Dialog - Native",
                     WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-                    80, 50, 250, 24,
+                    80, 10, 250, 24,
                     GetHWnd(), (HMENU)IDC_BTN_TEST1, GetModuleInstance(), 0);
 
         CreateWindow(L"BUTTON", L"Show Modal Dialog - Simulate",
                     WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-                    80, 100, 250, 24,
+                    80, 60, 250, 24,
                     GetHWnd(), (HMENU)IDC_BTN_TEST2, GetModuleInstance(), 0);
 
         CreateWindow(L"BUTTON", L"Show Modeless Dialog - Native",
                     WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-                    80, 150, 250, 24,
+                    80, 110, 250, 24,
                     GetHWnd(), (HMENU)IDC_BTN_TEST3, GetModuleInstance(), 0);
 
         CreateWindow(L"BUTTON", L"Show Modeless Dialog - Simulate",
                     WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-                    80, 200, 250, 24,
+                    80, 160, 250, 24,
                     GetHWnd(), (HMENU)IDC_BTN_TEST4, GetModuleInstance(), 0);
 
         CreateWindow(L"BUTTON", L"Show Message Box - Styled",
                     WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-                    80, 250, 250, 24,
+                    80, 210, 250, 24,
                     GetHWnd(), (HMENU)IDC_BTN_TEST5, GetModuleInstance(), 0);
 
         _modelessDialog.SetWindowTitle(L"Modeless Dialog");
@@ -142,6 +142,7 @@ public:
         else if (wmId == IDC_BTN_TEST5)
         {
             CMetroMessageBox msgBox(GetModuleInstance());
+            msgBox.ShowDropShadowOnXP(true);
             INT_PTR ret = msgBox.Show(*this, L"第一行,还是要长一点才能测试出效果来嘛！第一行,还是要长一点才能测试出效果来嘛！第一行,还是要长一点才能测试出效果来嘛！第一行,还是要长一点才能测试出效果来嘛！\r\n\r\n第二行", L"测试", MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2);
             //INT_PTR ret = MessageBox(*this, L"第一行,还是要长一点才能测试出效果来嘛！第一行,还是要长一点才能测试出效果来嘛！第一行,还是要长一点才能测试出效果来嘛！第一行,还是要长一点才能测试出效果来嘛！\r\n\r\n第二行", L"测试", MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2);
             if (ret == IDYES)
