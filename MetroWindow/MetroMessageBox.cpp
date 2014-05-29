@@ -38,11 +38,6 @@ private:
     std::vector<BYTE> v;
 };
 
-template <typename T, size_t N>
-char (&ArraySizeHelper(T (&array)[N]))[N];
-
-#define arraysize(array) (sizeof(ArraySizeHelper(array)))
-
 // Get the size of a struct up to and including the specified member.
 // This is necessary to set compatible struct sizes for different versions
 // of certain Windows APIs (e.g. SystemParametersInfo).

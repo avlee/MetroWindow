@@ -18,4 +18,11 @@
 #define ASSERT(expr)  _ASSERTE(expr)
 #endif
 
-// TODO: reference additional headers your program requires here
+// The arraysize(arr) macro returns the # of elements in an array arr.
+// The expression is a compile-time constant, and therefore can be
+// used in defining new arrays, for example.  If you use arraysize on
+// a pointer by mistake, you will get a compile-time error.
+template <typename T, size_t N>
+char (&ArraySizeHelperT(T (&array)[N]))[N];
+
+#define arraysize(array) (sizeof(ArraySizeHelperT(array)))
