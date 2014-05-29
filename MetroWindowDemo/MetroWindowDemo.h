@@ -3,6 +3,7 @@
 #include "resource.h"
 #include "MetroWindow\MetroWindow.h"
 #include "MetroWindow\MetroDialog.h"
+#include "MetroWindow\MetroMessageBox.h"
 
 using namespace MetroWindow;
 
@@ -83,6 +84,11 @@ public:
                     80, 200, 250, 24,
                     GetHWnd(), (HMENU)IDC_BTN_TEST4, GetModuleInstance(), 0);
 
+        CreateWindow(L"BUTTON", L"Show Message Box - Styled",
+                    WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+                    80, 250, 250, 24,
+                    GetHWnd(), (HMENU)IDC_BTN_TEST5, GetModuleInstance(), 0);
+
         _modelessDialog.SetWindowTitle(L"Modeless Dialog");
         _modelessDialog.SetCaptionColor(RGB(61, 140, 206));
         _modelessDialog.UseThickFrame(true);
@@ -132,6 +138,20 @@ public:
             _modelessWindow->ShowWindow();
 
             bHandled = TRUE;
+        }
+        else if (wmId == IDC_BTN_TEST5)
+        {
+            CMetroMessageBox msgBox(GetModuleInstance());
+            INT_PTR ret = msgBox.Show(*this, L"第一行,还是要长一点才能测试出效果来嘛！第一行,还是要长一点才能测试出效果来嘛！第一行,还是要长一点才能测试出效果来嘛！第一行,还是要长一点才能测试出效果来嘛！\r\n\r\n第二行", L"测试", MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2);
+            //INT_PTR ret = MessageBox(*this, L"第一行,还是要长一点才能测试出效果来嘛！第一行,还是要长一点才能测试出效果来嘛！第一行,还是要长一点才能测试出效果来嘛！第一行,还是要长一点才能测试出效果来嘛！\r\n\r\n第二行", L"测试", MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2);
+            if (ret == IDYES)
+            {
+                MessageBox(*this, L"你选择了YES", L"结果", MB_OK);
+            }
+            else
+            {
+                MessageBox(*this, L"你选择了NO", L"结果", MB_OK);
+            }
         }
 
         return 0;
