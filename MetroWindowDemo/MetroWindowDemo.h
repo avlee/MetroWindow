@@ -139,7 +139,16 @@ public:
         else if (wmId == IDC_BTN_TEST5)
         {
             CMetroMessageBox msgBox(GetModuleInstance());
-            msgBox.Show(*this, L"第一行\r\n\r\n第二行", L"测试", MB_YESNO | MB_ICONWARNING | MB_DEFBUTTON2);
+            INT_PTR ret = msgBox.Show(*this, L"第一行,还是要长一点才能测试出效果来嘛！第一行,还是要长一点才能测试出效果来嘛！第一行,还是要长一点才能测试出效果来嘛！第一行,还是要长一点才能测试出效果来嘛！\r\n\r\n第二行", L"测试", MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2);
+            //INT_PTR ret = MessageBox(*this, L"第一行,还是要长一点才能测试出效果来嘛！第一行,还是要长一点才能测试出效果来嘛！第一行,还是要长一点才能测试出效果来嘛！第一行,还是要长一点才能测试出效果来嘛！\r\n\r\n第二行", L"测试", MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2);
+            if (ret == IDYES)
+            {
+                MessageBox(*this, L"你选择了YES", L"结果", MB_OK);
+            }
+            else
+            {
+                MessageBox(*this, L"你选择了NO", L"结果", MB_OK);
+            }
         }
 
         return 0;
