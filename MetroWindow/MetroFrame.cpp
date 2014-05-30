@@ -875,7 +875,9 @@ void CMetroFrame::RemoveWindowBorderStyle()
         SetWindowLong(_hWnd, GWL_STYLE, dwNewStyle);
 
         SetWindowPos(_hWnd, NULL, 0, 0, 0, 0,
-            SWP_NOZORDER | SWP_NOSIZE | SWP_NOMOVE | SWP_FRAMECHANGED | SWP_NOREDRAW | SWP_NOACTIVATE);
+            SWP_FRAMECHANGED | SWP_NOACTIVATE | SWP_NOCOPYBITS |
+            SWP_NOMOVE | SWP_NOOWNERZORDER | SWP_NOREPOSITION |
+            SWP_NOSENDCHANGING | SWP_NOSIZE | SWP_NOZORDER);
     }
 
     _isSizable = WindowExtenders::IsWindowSizable(_hWnd);
