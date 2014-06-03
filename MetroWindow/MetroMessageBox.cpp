@@ -291,7 +291,7 @@ INT_PTR CMetroMessageBox::Show(HWND hWndParent, LPCTSTR lpszMessage, LPCTSTR lps
 
     RECT iconrect = { 0 };
     if (uType & MB_ICONMASK) {
-        LPTSTR lpIcon = (LPTSTR)IDI_EXCLAMATION;
+        LPTSTR lpIcon = NULL;
 
         switch (uType & MB_ICONMASK) {
         case MB_ICONEXCLAMATION:
@@ -305,6 +305,9 @@ INT_PTR CMetroMessageBox::Show(HWND hWndParent, LPCTSTR lpszMessage, LPCTSTR lps
             break;
         case MB_ICONASTERISK:
             lpIcon = (LPTSTR)IDI_ASTERISK;
+            break;
+        default:
+            lpIcon = (LPTSTR)IDI_EXCLAMATION;
             break;
         }
 
@@ -574,8 +577,10 @@ LRESULT CMetroMessageBox::OnWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
             HWND hwndIcon;
 
             hwndIcon = ::GetDlgItem(GetHWnd(), ICON_CONTROL_ID);
-            ::SetWindowLongPtr(hwndIcon, GWLP_WNDPROC, (LONG_PTR) IconProc);
-            ::SetWindowLongPtr(hwndIcon, GWLP_USERDATA, (LONG_PTR) _hIcon);
+            if (hwndIcon && ::IsWindow(hwndIcon)) {
+                ::SetWindowLongPtr(hwndIcon, GWLP_WNDPROC, (LONG_PTR) IconProc);
+                ::SetWindowLongPtr(hwndIcon, GWLP_USERDATA, (LONG_PTR) _hIcon);
+            }
         }
 
         HWND hwndChild = ::GetDlgItem(GetHWnd(), _defaultButtonId);
@@ -584,7 +589,6 @@ LRESULT CMetroMessageBox::OnWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
         return lRet;
     }
-    break;
     case WM_CTLCOLORDLG:
     case WM_CTLCOLORSTATIC:
         return (LONG_PTR)::GetStockObject(WHITE_BRUSH);

@@ -34,6 +34,7 @@ private:
     int PixelToDluY(int dluY);
     int AddButton(UINT nID, int x, int y);
     void AddItem(DWORD cType, UINT nID, RECT *pRect);
+
     static INT_PTR CALLBACK MsgBoxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 private:
