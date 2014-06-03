@@ -85,6 +85,34 @@ int GetDluBaseY(HDC hdc)
     return dluy;
 }
 
+inline wchar_t* WriteInto(std::wstring* str,
+                          size_t length_with_null)
+{
+    str->reserve(length_with_null);
+    str->resize(length_with_null - 1);
+    return &((*str)[0]);
+}
+
+bool ReplaceChars(const std::wstring& input,
+                  const wchar_t replace_chars[],
+                  const std::wstring& replace_with,
+                  std::wstring* output)
+{
+    bool removed = false;
+    size_t replace_length = replace_with.length();
+
+    *output = input;
+
+    size_t found = output->find_first_of(replace_chars);
+    while (found != std::wstring::npos) {
+        removed = true;
+        output->replace(found, 1, replace_with);
+        found = output->find_first_of(replace_chars, found + replace_length);
+    }
+
+    return removed;
+}
+
 enum {
     ButtonWidth             = 50,
     ButtonHeight            = 14,
@@ -155,6 +183,57 @@ const WCHAR * GetMessageBoxButtonText(UINT buttonId)
     }
 }
 
+BOOL SetClipboardText(LPCTSTR lpszBuffer)
+{
+    BOOL bSuccess = FALSE;
+
+    // First, open the clipboard. OpenClipboard() takes one
+    // parameter, the handle of the window that will temporarily
+    // be it's owner. If NULL is passed, the current process
+    // is assumed. After opening, empty the clipboard so we
+    // can put our text on it.
+    if (::OpenClipboard(NULL)) {
+        ::EmptyClipboard();
+
+        // Get the size of the string in the buffer that was
+        // passed into the function, so we know how much global
+        // memory to allocate for the string.
+        size_t nSize = _tcslen(lpszBuffer);
+
+        // Allocate the memory for the string.
+        HGLOBAL hGlobal = ::GlobalAlloc(GMEM_ZEROINIT, (nSize+1)*sizeof(TCHAR));
+
+        // If we got any error during the memory allocation,
+        // we have been returned a NULL handle.
+        if (hGlobal) {
+            // Now we have a global memory handle to the text
+            // stored on the clipboard. We have to lock this global
+            // handle so that we have access to it.
+            LPTSTR lpszData = (LPTSTR) ::GlobalLock(hGlobal);
+
+            if (lpszData) {
+                // Now, copy the text from the buffer into the allocated
+                // global memory pointer
+                _tcscpy(lpszData, lpszBuffer);
+
+                // Now, simply unlock the global memory pointer,
+                // set the clipboard data type and pointer,
+                // and close the clipboard.
+                ::GlobalUnlock(hGlobal);
+#ifdef _UNICODE
+                ::SetClipboardData(CF_UNICODETEXT, hGlobal);
+#else
+                ::SetClipboardData(CF_TEXT, hGlobal);
+#endif
+                bSuccess = TRUE;
+            }
+        }
+        ::CloseClipboard();
+    }
+
+    return bSuccess;
+}
+
 LONG CALLBACK IconProc(HWND hwnd, UINT message, WPARAM, LPARAM)
 {
     if (message == WM_PAINT) {
@@ -171,7 +250,8 @@ LONG CALLBACK IconProc(HWND hwnd, UINT message, WPARAM, LPARAM)
 CMetroMessageBox::CMetroMessageBox(HINSTANCE hInstance)
     : CMetroFrame(hInstance), _hIcon(NULL), _hFont(NULL),
       _rightJustifyButtons(false), _disableClose(false), _buttonWidth(0), _buttonHeight(0),
-      _buttonCount(0), _defaultButton(1), _defaultButtonId(0), _baseUnitX(1), _baseUnitY(1)
+      _buttonCount(0), _defaultButton(1), _defaultButtonId(0), _baseUnitX(1), _baseUnitY(1),
+      _returnValue(IDCANCEL), _ended(false)
 {
     for (int i = 0; i < 5; ++i) {
         DialogItemTemplate item = { 0 };
@@ -282,7 +362,7 @@ INT_PTR CMetroMessageBox::Show(HWND hWndParent, LPCTSTR lpszMessage, LPCTSTR lps
     _dlgTempl.y = 0;
     _dlgTempl.cdit = 0;
 
-    _dlgTempl.style = WS_CAPTION | WS_SYSMENU | DS_SETFONT | DS_MODALFRAME | DS_CENTER;
+    _dlgTempl.style = WS_CAPTION | WS_VISIBLE | WS_SYSMENU | DS_SETFONT | DS_MODALFRAME | DS_CENTER;
     if (uType & MB_SYSTEMMODAL) {
         _dlgTempl.style |= DS_SYSMODAL;
     }
@@ -486,10 +566,59 @@ INT_PTR CMetroMessageBox::Show(HWND hWndParent, LPCTSTR lpszMessage, LPCTSTR lps
     }
 
     // Show the message dialog.
-    INT_PTR result = ::DialogBoxIndirectParam(GetModuleInstance(), tmp.Template(),
-                     hWndParent, &CMetroMessageBox::MsgBoxProc, (LPARAM)this);
+    HWND hDlg = ::CreateDialogIndirectParam(GetModuleInstance(), tmp.Template(),
+        hWndParent, &CMetroMessageBox::MsgBoxProc, (LPARAM)this);
+	_ASSERTE(hDlg);
 
-    return result;
+	if (hDlg)
+	{
+		// disable owner - this is a modal dialog
+		::EnableWindow(hWndParent, FALSE);
+
+		MSG msg;
+		memset(&msg, 0, sizeof(msg));
+
+		// message loop for dialog
+        // TODO: Using global message loop to filter the message?
+
+		while (!_ended)
+		{
+			if (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+			{
+				if (msg.message == WM_QUIT)
+				{
+					break;
+				}
+				if (msg.message == WM_KEYDOWN)
+				{
+					// returns TRUE if Ctrl-C processed
+					if (OnKeyDown(hDlg, msg.wParam, msg.lParam))
+						continue;
+				}
+				if (!::IsDialogMessage(hDlg, &msg))
+				{
+					::TranslateMessage(&msg);
+					::DispatchMessage(&msg);
+				}
+			}
+			else if (!_ended)
+			{
+				::WaitMessage();	// suspend thread until new message arrives
+			}
+		}
+
+		if (msg.message == WM_QUIT)
+		{
+			PostQuitMessage((int)msg.wParam);
+		}
+
+		// re-enable owner
+		if (::IsWindow(hWndParent))
+			::EnableWindow(hWndParent, TRUE);
+		::DestroyWindow(hDlg);
+	}
+
+    return _returnValue;
 }
 
 // Dialog units to pixels conversion.
@@ -587,6 +716,8 @@ LRESULT CMetroMessageBox::OnWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
         if (hwndChild && ::IsWindow(hwndChild))
             ::SetFocus(hwndChild);
 
+        ::SetForegroundWindow(GetHWnd());
+
         return lRet;
     }
     case WM_CTLCOLORDLG:
@@ -596,12 +727,78 @@ LRESULT CMetroMessageBox::OnWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
         if (wParam == IDCLOSE) {
             return TRUE;
         } else {
-            EndDialog(_hWnd, wParam);
+            _ended = true;
+            _returnValue = wParam;
             return FALSE;
         }
     default:
         return CMetroFrame::OnWndProc(uMsg, wParam, lParam);
     }
+}
+
+BOOL CMetroMessageBox::OnKeyDown(HWND hWnd, WPARAM wParam, LPARAM lParam)
+{
+    BOOL rc = FALSE;
+
+    // convert virtual key code
+    TCHAR ch = (TCHAR) wParam;
+
+    // if the most significant bit is set, the key is down
+    BOOL bCtrlIsDown = 	GetAsyncKeyState(VK_CONTROL) < 0;
+
+    if (bCtrlIsDown && (ch == _T('C'))) {
+        rc = TRUE;
+
+        // user hit Ctrl-C -- copy contents to clipboard
+        if (::IsWindow(hWnd)) {
+            WCHAR *pszDivider = L"---------------------------\r\n";
+            std::wstring text;
+            text.append(pszDivider);
+
+            std::wstring title;
+            size_t len_with_null = GetWindowTextLength(hWnd) + 1;
+            GetWindowText(hWnd, WriteInto(&title, len_with_null), len_with_null);
+
+            text.append(title);
+            text.append(L"\r\n");
+            text.append(pszDivider);
+
+            HWND hMsgHwnd = ::GetDlgItem(hWnd, MESSAGE_CONTROL_ID);
+            if (::IsWindow(hMsgHwnd)) {
+                std::wstring message;
+                len_with_null = GetWindowTextLength(hMsgHwnd) + 1;
+                GetWindowText(hMsgHwnd, WriteInto(&message, len_with_null), len_with_null);
+                text.append(message);
+                text.append(L"\r\n");
+                text.append(pszDivider);
+            }
+
+            WCHAR szClassName[MAX_PATH];
+            HWND hwndChild = ::GetWindow(hWnd, GW_CHILD);
+            while (hwndChild) {
+                if (::IsWindow(hwndChild)) {
+                    ::GetClassName(hwndChild, szClassName, sizeof(szClassName) - 2);
+                    if (_tcsicmp(szClassName, _T("Button")) == 0) {
+                        std::wstring buttonText;
+                        len_with_null = GetWindowTextLength(hwndChild) + 1;
+                        GetWindowText(hwndChild, WriteInto(&buttonText, len_with_null), len_with_null);
+
+                        ReplaceChars(buttonText, L"&", std::wstring(), &buttonText);
+
+                        text.append(buttonText);
+                        text.append(L"   ");
+                    }
+                }
+                hwndChild = ::GetWindow(hwndChild, GW_HWNDNEXT);
+            }
+
+            text.append(L"\r\n");
+            text.append(pszDivider);
+
+            SetClipboardText(text.c_str());
+        }
+    }
+    return rc;
 }
 
 INT_PTR CALLBACK CMetroMessageBox::MsgBoxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)

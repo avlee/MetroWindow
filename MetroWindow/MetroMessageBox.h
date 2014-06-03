@@ -35,6 +35,7 @@ private:
     int AddButton(UINT nID, int x, int y);
     void AddItem(DWORD cType, UINT nID, RECT *pRect);
 
+    BOOL OnKeyDown(HWND hWnd, WPARAM wParam, LPARAM lParam);
     static INT_PTR CALLBACK MsgBoxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 private:
@@ -49,6 +50,8 @@ private:
     UINT _defaultButtonId;
     int _baseUnitX;
     int _baseUnitY;
+    UINT_PTR _returnValue;
+    bool _ended;
     DLGTEMPLATE _dlgTempl;
     DialogItemTemplate _items[5];
 };
