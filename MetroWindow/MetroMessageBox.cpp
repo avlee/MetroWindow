@@ -177,9 +177,8 @@ CMetroMessageBox::CMetroMessageBox(HINSTANCE hInstance)
         DialogItemTemplate item = { 0 };
         _items[i] = item;
     }
-
-    SetCaptionColor(RGB(255, 106, 0));
-    UseThickFrame(true);
+    
+    ClientAreaMovable(true);
 }
 
 
