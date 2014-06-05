@@ -7,12 +7,12 @@ namespace MetroWindow
 {
 
 CCaptionButton::CCaptionButton(LONG hitTest, CMetroCaptionTheme& theme)
-	: _theme(theme), _hitTest(hitTest), _image(NULL)
+	: theme_(theme), hit_test_(hitTest), image_(NULL)
 {
-    _pressed = false;
-    _hovered = false;
-    _enabled = true;
-    _visible = true;
+    pressed_ = false;
+    hovered_ = false;
+    enabled_ = true;
+    visible_ = true;
 }
 
 
@@ -24,25 +24,25 @@ void CCaptionButton::Draw(HDC hdc)
 {
     if (!Visible()) return;
 
-    HBITMAP image = _image;
+    HBITMAP image = image_;
     CRect srcRect(0, 0, 14, 14);
 
-    if (_pressed)
+    if (pressed_)
     {
-        FillSolidRect(hdc, &_bounds, _theme.ButtonPressColor());
+        FillSolidRect(hdc, &bounds_, theme_.ButtonPressColor());
         srcRect.OffsetRect(28, 0);
     }
-    else if (_hovered)
+    else if (hovered_)
     {
-        FillSolidRect(hdc, &_bounds, _theme.ButtonHoverColor());
+        FillSolidRect(hdc, &bounds_, theme_.ButtonHoverColor());
         srcRect.OffsetRect(14, 0);
     }
 
     if (image != NULL)
     {
         CRect destRect;
-        destRect.top = _bounds.top + (Height() - srcRect.Height()) / 2;
-        destRect.left = _bounds.left + (Width() - srcRect.Width()) / 2 + 1;
+        destRect.top = bounds_.top + (Height() - srcRect.Height()) / 2;
+        destRect.left = bounds_.left + (Width() - srcRect.Width()) / 2 + 1;
         destRect.Width(srcRect.Width());
         destRect.Height(srcRect.Height());
 
@@ -70,17 +70,17 @@ void CCaptionButton::FillSolidRect(HDC hdc, LPCRECT lpRect, COLORREF clr)
 }
 
 CCaptionButtonManager::CCaptionButtonManager()
-    : _minButton(NULL), _maxButton(NULL)
+    : min_button_(NULL), max_button_(NULL)
 {
 }
 
 CCaptionButtonManager::~CCaptionButtonManager()
 {
-    _minButton = NULL;
-    _maxButton = NULL;
+    min_button_ = NULL;
+    max_button_ = NULL;
 
-    std::vector<CCaptionButton *>::const_iterator iter = _captionButtons.begin();
-    std::vector<CCaptionButton *>::const_iterator end = _captionButtons.end();
+    std::vector<CCaptionButton *>::const_iterator iter = caption_buttons_.begin();
+    std::vector<CCaptionButton *>::const_iterator end = caption_buttons_.end();
     for (; iter != end; ++iter)
         delete *iter;
 }
@@ -88,46 +88,46 @@ CCaptionButtonManager::~CCaptionButtonManager()
 void CCaptionButtonManager::UpdateCaptionButtons(HWND hWnd, CMetroCaptionTheme& captionTheme, bool dwmEnabled)
 {
     // create buttons
-    if (_captionButtons.size() == 0)
+    if (caption_buttons_.size() == 0)
     {
         CCaptionButton * closeButton = new CCaptionButton(HTCLOSE, captionTheme);
-        _captionButtons.push_back(closeButton);
+        caption_buttons_.push_back(closeButton);
 
         closeButton->Image(captionTheme.CloseButton());
 
         if (WindowExtenders::IsDrawMaximizeBox(hWnd))
         {
-            _maxButton = new CCaptionButton(HTMAXBUTTON, captionTheme);
-            _captionButtons.push_back(_maxButton);
+            max_button_ = new CCaptionButton(HTMAXBUTTON, captionTheme);
+            caption_buttons_.push_back(max_button_);
 
-            _maxButton->Image(::IsZoomed(hWnd) ?
+            max_button_->Image(::IsZoomed(hWnd) ?
                 captionTheme.RestoreButton() : captionTheme.MaximizeButton());
         }
 
         if (WindowExtenders::IsDrawMinimizeBox(hWnd))
         {
-            _minButton = new CCaptionButton(HTMINBUTTON, captionTheme);
-            _captionButtons.push_back(_minButton);
+            min_button_ = new CCaptionButton(HTMINBUTTON, captionTheme);
+            caption_buttons_.push_back(min_button_);
 
-            _minButton->Image(::IsIconic(hWnd) ?
+            min_button_->Image(::IsIconic(hWnd) ?
                 captionTheme.RestoreButton() : captionTheme.MinimizeButton());
         }
 
         // add command handlers
-        //foreach (CaptionButton button in _captionButtons)
+        //foreach (CaptionButton button in caption_buttons_)
         //    button.PropertyChanged += OnCommandButtonPropertyChanged;
     }
     else
     {
-        if (_minButton != NULL)
+        if (min_button_ != NULL)
         {
-            _minButton->Image(::IsIconic(hWnd) ?
+            min_button_->Image(::IsIconic(hWnd) ?
                 captionTheme.RestoreButton() : captionTheme.MinimizeButton());
         }
 
-        if (_maxButton != NULL)
+        if (max_button_ != NULL)
         {
-            _maxButton->Image(::IsZoomed(hWnd) ?
+            max_button_->Image(::IsZoomed(hWnd) ?
                 captionTheme.RestoreButton() : captionTheme.MaximizeButton());
         }
     }
@@ -153,7 +153,7 @@ void CCaptionButtonManager::UpdateCaptionButtons(HWND hWnd, CMetroCaptionTheme& 
     }
 
     std::vector<CCaptionButton *>::iterator btnIter;
-    for (btnIter = _captionButtons.begin(); btnIter != _captionButtons.end(); btnIter++)
+    for (btnIter = caption_buttons_.begin(); btnIter != caption_buttons_.end(); btnIter++)
     {
         CCaptionButton* button = *btnIter;
         if (button != NULL && button->Visible())
@@ -169,7 +169,7 @@ int CCaptionButtonManager::Draw(HDC hdc)
     int width = 0;
 
     std::vector<CCaptionButton *>::iterator btnIter;
-    for (btnIter = _captionButtons.begin(); btnIter != _captionButtons.end(); btnIter++)
+    for (btnIter = caption_buttons_.begin(); btnIter != caption_buttons_.end(); btnIter++)
     {
         CCaptionButton* button = *btnIter;
         if (button != NULL)
@@ -187,7 +187,7 @@ CCaptionButton * CCaptionButtonManager::CommandButtonFromPoint(POINT point)
     CCaptionButton * foundButton = NULL;
 
     std::vector<CCaptionButton *>::iterator btnIter;
-    for (btnIter = _captionButtons.begin(); btnIter != _captionButtons.end(); btnIter++)
+    for (btnIter = caption_buttons_.begin(); btnIter != caption_buttons_.end(); btnIter++)
     {
         CCaptionButton* button = *btnIter;
         if (button != NULL && button->Visible() && ::PtInRect(&button->Bounds(), point))
@@ -204,7 +204,7 @@ CCaptionButton * CCaptionButtonManager::CommandButtonByHitTest(LONG hitTest)
     CCaptionButton * foundButton = NULL;
 
     std::vector<CCaptionButton *>::iterator btnIter;
-    for (btnIter = _captionButtons.begin(); btnIter != _captionButtons.end(); btnIter++)
+    for (btnIter = caption_buttons_.begin(); btnIter != caption_buttons_.end(); btnIter++)
     {
         CCaptionButton* button = *btnIter;
         if (button != NULL && button->Visible() && button->HitTest() == hitTest)

@@ -81,7 +81,7 @@ int GetDluBaseY(HDC hdc)
 {
     TEXTMETRIC tm;
     GetTextMetrics(hdc, &tm);
-    int dluy = std::max<int>(1, tm.tmHeight);;
+    int dluy = std::max<int>(1, tm.tmHeight);
     return dluy;
 }
 
@@ -169,13 +169,13 @@ LONG CALLBACK IconProc(HWND hwnd, UINT message, WPARAM, LPARAM)
 }
 
 CMetroMessageBox::CMetroMessageBox(HINSTANCE hInstance)
-    : CMetroFrame(hInstance), _hIcon(NULL), _hFont(NULL),
-      _rightJustifyButtons(false), _disableClose(false), _buttonWidth(0), _buttonHeight(0),
-      _buttonCount(0), _defaultButton(1), _defaultButtonId(0), _baseUnitX(1), _baseUnitY(1)
+    : CMetroFrame(hInstance), message_box_icon_(NULL), font_(NULL),
+      right_justify_buttons_(false), disable_close_(false), button_width_(0), button_height_(0),
+      button_count_(0), default_button_(1), default_button_id_(0), base_unit_x_(1), base_unit_y_(1)
 {
     for (int i = 0; i < 5; ++i) {
         DialogItemTemplate item = { 0 };
-        _items[i] = item;
+        dialog_items_[i] = item;
     }
     
     ClientAreaMovable(true);
@@ -184,12 +184,12 @@ CMetroMessageBox::CMetroMessageBox(HINSTANCE hInstance)
 
 CMetroMessageBox::~CMetroMessageBox(void)
 {
-    if (_hIcon)
-        DestroyIcon(_hIcon);
-    _hIcon = 0;
+    if (message_box_icon_)
+        DestroyIcon(message_box_icon_);
+    message_box_icon_ = 0;
 
-    if (_hFont)
-        ::DeleteObject(_hFont);
+    if (font_)
+        ::DeleteObject(font_);
 }
 
 INT_PTR CMetroMessageBox::Show(HWND hWndParent, LPCTSTR lpszMessage, LPCTSTR lpszCaption, UINT uType)
@@ -197,25 +197,25 @@ INT_PTR CMetroMessageBox::Show(HWND hWndParent, LPCTSTR lpszMessage, LPCTSTR lps
     if (lpszMessage == NULL) lpszMessage = L"";
     if (lpszCaption == NULL) lpszCaption = L"Error";
 
-    _buttonCount = 0;
-    _disableClose = false;
+    button_count_ = 0;
+    disable_close_ = false;
 
     // set default button
     switch (uType & MB_DEFMASK) {
     case MB_DEFBUTTON1 :
-        _defaultButton = 1;
+        default_button_ = 1;
         break;
     case MB_DEFBUTTON2 :
-        _defaultButton = 2;
+        default_button_ = 2;
         break;
     case MB_DEFBUTTON3 :
-        _defaultButton = 3;
+        default_button_ = 3;
         break;
     case MB_DEFBUTTON4 :
-        _defaultButton = 4;
+        default_button_ = 4;
         break;
     default:
-        _defaultButton = 1;
+        default_button_ = 1;
         break;
     }
 
@@ -235,15 +235,15 @@ INT_PTR CMetroMessageBox::Show(HWND hWndParent, LPCTSTR lpszMessage, LPCTSTR lps
     {
         HDC hdc = ::CreateDC(_T("DISPLAY"), NULL, NULL, NULL);
 
-        _hFont = ::CreateFontIndirect(&ncm.lfMessageFont);
-        HFONT hOldFont = (HFONT)::SelectObject(hdc, _hFont);
+        font_ = ::CreateFontIndirect(&ncm.lfMessageFont);
+        HFONT hOldFont = (HFONT)::SelectObject(hdc, font_);
 
-        _baseUnitX = GetDluBaseX(hdc);
-        _baseUnitY = GetDluBaseY(hdc);
+        base_unit_x_ = GetDluBaseX(hdc);
+        base_unit_y_ = GetDluBaseY(hdc);
 
         // translate dialog units to pixels
-        _buttonWidth  = MulDiv(ButtonWidth, _baseUnitX, 4);
-        _buttonHeight = MulDiv(ButtonHeight, _baseUnitY, 8);
+        button_width_  = MulDiv(ButtonWidth, base_unit_x_, 4);
+        button_height_ = MulDiv(ButtonHeight, base_unit_y_, 8);
 
         // Get bounds of message text
         ::DrawText(hdc, lpszMessage, -1, &msgRect,
@@ -277,16 +277,16 @@ INT_PTR CMetroMessageBox::Show(HWND hWndParent, LPCTSTR lpszMessage, LPCTSTR lps
     if ((mbrect.bottom - mbrect.top) < MinimalHeight)
         mbrect.bottom = MinimalHeight;
 
-    _dlgTempl.x = 0;
-    _dlgTempl.y = 0;
-    _dlgTempl.cdit = 0;
+    dialog_templ_.x = 0;
+    dialog_templ_.y = 0;
+    dialog_templ_.cdit = 0;
 
-    _dlgTempl.style = WS_CAPTION | WS_SYSMENU | DS_SETFONT | DS_MODALFRAME | DS_CENTER;
+    dialog_templ_.style = WS_CAPTION | WS_SYSMENU | DS_SETFONT | DS_MODALFRAME | DS_CENTER;
     if (uType & MB_SYSTEMMODAL) {
-        _dlgTempl.style |= DS_SYSMODAL;
+        dialog_templ_.style |= DS_SYSMODAL;
     }
 
-    _dlgTempl.dwExtendedStyle = 0;
+    dialog_templ_.dwExtendedStyle = 0;
 
     RECT iconrect = { 0 };
     if (uType & MB_ICONMASK) {
@@ -311,10 +311,10 @@ INT_PTR CMetroMessageBox::Show(HWND hWndParent, LPCTSTR lpszMessage, LPCTSTR lps
         }
 
         if (lpIcon)
-            _hIcon = ::LoadIcon(NULL, lpIcon);
+            message_box_icon_ = ::LoadIcon(NULL, lpIcon);
     }
 
-    if (_hIcon) {
+    if (message_box_icon_) {
         int cxIcon = GetSystemMetrics(SM_CXICON);
         int cyIcon = GetSystemMetrics(SM_CYICON);
 
@@ -358,13 +358,13 @@ INT_PTR CMetroMessageBox::Show(HWND hWndParent, LPCTSTR lpszMessage, LPCTSTR lps
     y = (msgRect.bottom > iconrect.bottom) ? msgRect.bottom : iconrect.bottom;
     y += SpacingHeight;
 
-    if (_hIcon)
+    if (message_box_icon_)
         y += 9;
 
-    int nTotalButtonWidth = _buttonWidth * cItems + (ButtonSpacing * (cItems-1));
+    int nTotalButtonWidth = button_width_ * cItems + (ButtonSpacing * (cItems-1));
 
     RECT buttonRow;
-    SetRect(&buttonRow, 0, y, nTotalButtonWidth, y + _buttonHeight);
+    SetRect(&buttonRow, 0, y, nTotalButtonWidth, y + button_height_);
 
     mbrect.bottom = buttonRow.bottom + BottomMargin;
 
@@ -378,7 +378,7 @@ INT_PTR CMetroMessageBox::Show(HWND hWndParent, LPCTSTR lpszMessage, LPCTSTR lps
     x = ((mbrect.right - mbrect.left) - bw) / 2;
     y = buttonRow.top;
 
-    if (_rightJustifyButtons) {
+    if (right_justify_buttons_) {
         x = mbrect.right - nTotalButtonWidth - 2 * SpacingWidth;
     }
 
@@ -400,7 +400,7 @@ INT_PTR CMetroMessageBox::Show(HWND hWndParent, LPCTSTR lpszMessage, LPCTSTR lps
     case MB_YESNO:
         x += AddButton(IDYES, x, y);
         x += AddButton(IDNO, x, y);
-        _disableClose = true;
+        disable_close_ = true;
         break;
 
     case MB_YESNOCANCEL:
@@ -413,7 +413,7 @@ INT_PTR CMetroMessageBox::Show(HWND hWndParent, LPCTSTR lpszMessage, LPCTSTR lps
         x += AddButton(IDABORT, x, y);
         x += AddButton(IDRETRY, x, y);
         x += AddButton(IDIGNORE, x, y);
-        _disableClose = true;
+        disable_close_ = true;
         break;
 
     case MB_CANCELTRYCONTINUE:
@@ -433,22 +433,22 @@ INT_PTR CMetroMessageBox::Show(HWND hWndParent, LPCTSTR lpszMessage, LPCTSTR lps
     if (mbrect.right < (buttonRow.right + (2 * SpacingWidth)))
         mbrect.right = buttonRow.right + (2 * SpacingWidth);
 
-    _dlgTempl.x = 0;
-    _dlgTempl.y = 0;
-    _dlgTempl.cx = (short)PixelToDluX(mbrect.right - mbrect.left);
-    _dlgTempl.cy = (short)PixelToDluY(mbrect.bottom - mbrect.top);
+    dialog_templ_.x = 0;
+    dialog_templ_.y = 0;
+    dialog_templ_.cx = (short)PixelToDluX(mbrect.right - mbrect.left);
+    dialog_templ_.cy = (short)PixelToDluY(mbrect.bottom - mbrect.top);
 
     DialogTemplateT tmp;
     tmp.Write<WORD>(1); // dialog version
     tmp.Write<WORD>(0xFFFF); // extended dialog template
     tmp.Write<DWORD>(0); // help ID
-    tmp.Write<DWORD>(_dlgTempl.dwExtendedStyle); // extended style
-    tmp.Write<DWORD>(_dlgTempl.style);
-    tmp.Write<WORD>(_dlgTempl.cdit); // number of controls
-    tmp.Write<WORD>(_dlgTempl.x); // X
-    tmp.Write<WORD>(_dlgTempl.y); // Y
-    tmp.Write<WORD>(_dlgTempl.cx); // width
-    tmp.Write<WORD>(_dlgTempl.cy); // height
+    tmp.Write<DWORD>(dialog_templ_.dwExtendedStyle); // extended style
+    tmp.Write<DWORD>(dialog_templ_.style);
+    tmp.Write<WORD>(dialog_templ_.cdit); // number of controls
+    tmp.Write<WORD>(dialog_templ_.x); // X
+    tmp.Write<WORD>(dialog_templ_.y); // Y
+    tmp.Write<WORD>(dialog_templ_.cx); // width
+    tmp.Write<WORD>(dialog_templ_.cy); // height
     tmp.WriteString(L""); // no menu
     tmp.WriteString(L""); // default dialog class
     tmp.WriteString(lpszCaption); // title
@@ -460,8 +460,8 @@ INT_PTR CMetroMessageBox::Show(HWND hWndParent, LPCTSTR lpszMessage, LPCTSTR lps
     tmp.Write<BYTE>(ncm.lfMessageFont.lfCharSet); // CharSet
     tmp.WriteString(ncm.lfMessageFont.lfFaceName);
 
-    for (int i = 0; i < _dlgTempl.cdit; ++i) {
-        DialogItemTemplate * dlgItem = &_items[i];
+    for (int i = 0; i < dialog_templ_.cdit; ++i) {
+        DialogItemTemplate * dlgItem = &dialog_items_[i];
 
         tmp.AlignToDword();
         tmp.Write<DWORD>(0); // help id
@@ -495,28 +495,28 @@ INT_PTR CMetroMessageBox::Show(HWND hWndParent, LPCTSTR lpszMessage, LPCTSTR lps
 // See http://support.microsoft.com/kb/145994 for details.
 int CMetroMessageBox::PixelToDluX(int dluX)
 {
-    return dluX * 4 / _baseUnitX;
+    return dluX * 4 / base_unit_x_;
 }
 
 int CMetroMessageBox::PixelToDluY(int dluY)
 {
-    return dluY * 8 / _baseUnitY;
+    return dluY * 8 / base_unit_y_;
 }
 
 int CMetroMessageBox::AddButton(UINT nID, int x, int y)
 {
     RECT rect;
-    SetRect(&rect, x, y, x + _buttonWidth, y + _buttonHeight);
+    SetRect(&rect, x, y, x + button_width_, y + button_height_);
 
     AddItem(DIALOG_ITEM_BUTTON, nID, &rect);
-    return _buttonWidth + ButtonSpacing;
+    return button_width_ + ButtonSpacing;
 }
 
 void CMetroMessageBox::AddItem(DWORD cType, UINT nID, RECT *pRect)
 {
-    if (_dlgTempl.cdit < 5) {
+    if (dialog_templ_.cdit < 5) {
 
-        DialogItemTemplate * dlgItem = &_items[_dlgTempl.cdit];
+        DialogItemTemplate * dlgItem = &dialog_items_[dialog_templ_.cdit];
 
         dlgItem->x = (short)PixelToDluX(pRect->left);
         dlgItem->y = (short)PixelToDluY(pRect->top);
@@ -529,11 +529,11 @@ void CMetroMessageBox::AddItem(DWORD cType, UINT nID, RECT *pRect)
 
         switch (cType) {
         case DIALOG_ITEM_BUTTON:
-            _buttonCount++;
+            button_count_++;
             dlgItem->style = WS_VISIBLE | WS_CHILD | WS_TABSTOP;
-            if (_buttonCount == _defaultButton) {
+            if (button_count_ == default_button_) {
                 dlgItem->style |= BS_DEFPUSHBUTTON;
-                _defaultButtonId = nID;
+                default_button_id_ = nID;
             } else {
                 dlgItem->style |= BS_PUSHBUTTON;
             }
@@ -547,7 +547,7 @@ void CMetroMessageBox::AddItem(DWORD cType, UINT nID, RECT *pRect)
             _ASSERTE(FALSE); // should never get here
         }
 
-        _dlgTempl.cdit++;
+        dialog_templ_.cdit++;
     }
 }
 
@@ -566,23 +566,23 @@ LRESULT CMetroMessageBox::OnWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
         LRESULT lRet = CMetroFrame::OnCreate(uMsg, wParam, lParam, bHandled);
 
         // Disable close button just like real MessageBox
-        if (_disableClose) {
+        if (disable_close_) {
             ::RemoveMenu(GetSystemMenu(GetHWnd(), FALSE), SC_CLOSE, MF_BYCOMMAND);
 
             // TODO disable the close button.
         }
 
-        if (_hIcon) {
+        if (message_box_icon_) {
             HWND hwndIcon;
 
             hwndIcon = ::GetDlgItem(GetHWnd(), ICON_CONTROL_ID);
             if (hwndIcon && ::IsWindow(hwndIcon)) {
                 ::SetWindowLongPtr(hwndIcon, GWLP_WNDPROC, (LONG_PTR) IconProc);
-                ::SetWindowLongPtr(hwndIcon, GWLP_USERDATA, (LONG_PTR) _hIcon);
+                ::SetWindowLongPtr(hwndIcon, GWLP_USERDATA, (LONG_PTR) message_box_icon_);
             }
         }
 
-        HWND hwndChild = ::GetDlgItem(GetHWnd(), _defaultButtonId);
+        HWND hwndChild = ::GetDlgItem(GetHWnd(), default_button_id_);
         if (hwndChild && ::IsWindow(hwndChild))
             ::SetFocus(hwndChild);
 
@@ -595,7 +595,7 @@ LRESULT CMetroMessageBox::OnWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
         if (wParam == IDCLOSE) {
             return TRUE;
         } else {
-            EndDialog(_hWnd, wParam);
+            EndDialog(hWnd_, wParam);
             return FALSE;
         }
     default:
@@ -611,13 +611,13 @@ INT_PTR CALLBACK CMetroMessageBox::MsgBoxProc(HWND hWnd, UINT uMsg, WPARAM wPara
         // get the pointer to the window from lpCreateParams
         ::SetWindowLongPtr(hWnd, GWLP_USERDATA, lParam);
         pThis = (CMetroMessageBox*)lParam;
-        pThis->_hWnd = hWnd;
+        pThis->hWnd_ = hWnd;
     } else {
         pThis = (CMetroMessageBox *)GetWindowLongPtr(hWnd, GWLP_USERDATA);
         if (uMsg == WM_NCDESTROY && pThis != NULL) {
             LRESULT lRes = ::DefWindowProc(hWnd, uMsg, wParam, lParam);
-            ::SetWindowLongPtr(pThis->_hWnd, GWLP_USERDATA, 0L);
-            pThis->_hWnd = NULL;
+            ::SetWindowLongPtr(pThis->hWnd_, GWLP_USERDATA, 0L);
+            pThis->hWnd_ = NULL;
             return lRes;
         }
     }

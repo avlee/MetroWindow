@@ -26,7 +26,7 @@ protected:
     static INT_PTR CALLBACK __DlgFunc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 private:
-    bool _bModal;
+    bool is_modal_;
 };
 
 } // namespace MetroWindow

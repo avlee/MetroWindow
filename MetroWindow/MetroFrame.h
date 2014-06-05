@@ -17,25 +17,25 @@ public:
     CMetroFrame(HINSTANCE hInstance);
     virtual ~CMetroFrame(void);
 
-    HWND GetHWnd() const { return _hWnd; }
-	operator HWND() const { return _hWnd; }
+    HWND GetHWnd() const { return hWnd_; }
+	operator HWND() const { return hWnd_; }
 
-	HINSTANCE GetModuleInstance() const { return _hInst; }
+	HINSTANCE GetModuleInstance() const { return hInst_; }
 
-    void SetBackgroundColor(COLORREF bgColor) { _bgColor = bgColor; }
-    void SetCaptionColor(COLORREF captionColor) { _captionTheme.SetCaptionColor(captionColor); }
+    void SetBackgroundColor(COLORREF bgColor) { background_color_ = bgColor; }
+    void SetCaptionColor(COLORREF captionColor) { caption_theme_.SetCaptionColor(captionColor); }
     void SetIcon(UINT nIconRes, UINT nSmallIconRes = 0);
 
-    HICON GetIcon() const { return _hIcon; }
-    HICON GetSmallIcon() const { return _hSmallIcon; }
+    HICON GetIcon() const { return hIcon_; }
+    HICON GetSmallIcon() const { return hIcon_small_; }
 
     void SetWindowTitle(const wchar_t* title);
     void SetMinSize(int cx, int cy);
 
     void ShowDropShadowOnXP(bool show);
-    void ClientAreaMovable(bool movable) { _clientAreaMovable = movable; }
-    void UseCustomTitile(bool custom) { _useCustomTitle = custom; }
-    void UseThickFrame(bool thick) { _useThickFrame = thick; }
+    void ClientAreaMovable(bool movable) { client_area_movable_ = movable; }
+    void UseCustomTitile(bool custom) { use_custom_title_ = custom; }
+    void UseThickFrame(bool thick) { use_thick_frame_ = thick; }
 
     void CenterWindow(HWND hWndCenter = NULL);
 
@@ -77,42 +77,42 @@ private:
     void ShowSystemMenu(POINT point);
 
 protected:
-    HINSTANCE _hInst;
-    HWND _hWnd;
-    HICON _hIcon;
-    HICON _hSmallIcon;
-    wchar_t _title[256];
+    HINSTANCE hInst_;
+    HWND hWnd_;
+    HICON hIcon_;
+    HICON hIcon_small_;
+    wchar_t title_[256];
 
 private:
-    HFONT _hCaptionFont;
-    COLORREF _bgColor;
-    SIZE _minSize;
+    HFONT caption_font_;
+    COLORREF background_color_;
+    SIZE min_size_;
 
-    bool _showDropShadowOnXP;
-    bool _isDwmEnabled;
-    bool _isUxThemeSupported;
-    bool _traceNCMouse;
-    bool _isNonClientAreaActive;
-    bool _isSizing;
-    bool _isSizable;
-    bool _prepareFullScreen;
-    bool _isFullScreen;
-    int _captionHeight;
+    bool show_drop_shadow_on_xp_;
+    bool is_dwm_enabled_;
+    bool is_uxtheme_supported_;
+    bool trace_nc_mouse_;
+    bool is_non_client_area_active_;
+    bool is_sizing_;
+    bool is_sizable_;
+    bool prepare_fullscreen_;
+    bool is_fullscreen_;
+    int caption_height_;
 
-    bool _useCustomTitle;
-    bool _clientAreaMovable;
-    bool _useThickFrame;
-    bool _showIconOnCaption;
+    bool use_custom_title_;
+    bool client_area_movable_;
+    bool use_thick_frame_;
+    bool show_icon_on_caption_;
 
-    TRACKMOUSEEVENT _trackMouseEvent;
+    TRACKMOUSEEVENT track_mouse_event_;
 
-    CCaptionButtonManager * _captionButtonMgr;
-    CMetroCaptionTheme _captionTheme;
+    CCaptionButtonManager * caption_button_manager_;
+    CMetroCaptionTheme caption_theme_;
 
-    CDropShadow * _dropShadow;
+    CDropShadow * drop_shadow_;
 
-    CCaptionButton * _pressedButton;
-    CCaptionButton * _hoveredButton;
+    CCaptionButton * pressed_button_;
+    CCaptionButton * hovered_button_;
 };
 
 } //namespace MetroWindow
