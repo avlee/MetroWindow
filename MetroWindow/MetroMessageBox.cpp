@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "MetroMessageBox.h"
 #include <vector>
-#include <tchar.h>
 
 namespace MetroWindow
 {
@@ -233,7 +232,7 @@ INT_PTR CMetroMessageBox::Show(HWND hWndParent, LPCTSTR lpszMessage, LPCTSTR lps
     SetRect(&msgRect, 0, 0, nMaxWidth, nMaxWidth);
 
     {
-        HDC hdc = ::CreateDC(_T("DISPLAY"), NULL, NULL, NULL);
+        HDC hdc = ::CreateDC(L"DISPLAY", NULL, NULL, NULL);
 
         font_ = ::CreateFontIndirect(&ncm.lfMessageFont);
         HFONT hOldFont = (HFONT)::SelectObject(hdc, font_);
