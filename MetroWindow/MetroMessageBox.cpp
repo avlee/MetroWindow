@@ -2,6 +2,10 @@
 #include "MetroMessageBox.h"
 #include <vector>
 
+#if defined(_SYSINFOAPI_H_) && defined(NOT_BUILD_WINDOWS_DEPRECATE) && (_WIN32_WINNT >= 0x0501)
+#include <VersionHelpers.h>
+#endif
+
 namespace MetroWindow
 {
 
@@ -49,9 +53,13 @@ private:
 
 bool IsWindowsVistaOrLater()
 {
+#ifdef _versionhelpers_H_INCLUDED_
+	return ::IsWindowsVistaOrGreater();
+#else // !_versionhelpers_H_INCLUDED_
     OSVERSIONINFO version_info = { sizeof version_info };
-    ::GetVersionEx(&version_info);
-    return (version_info.dwMajorVersion > 5);
+    BOOL bRet = ::GetVersionEx(&version_info);
+    return ((bRet != FALSE) && (version_info.dwMajorVersion >= 6));
+#endif
 }
 
 bool GetNonClientMetrics(NONCLIENTMETRICS* metrics)
