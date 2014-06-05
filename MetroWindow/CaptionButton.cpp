@@ -7,7 +7,7 @@ namespace MetroWindow
 {
 
 CCaptionButton::CCaptionButton(LONG hitTest, CMetroCaptionTheme& theme)
-	: theme_(theme), hit_test_(hitTest), image_(NULL)
+    : theme_(theme), hit_test_(hitTest), image_(NULL)
 {
     pressed_ = false;
     hovered_ = false;
@@ -54,7 +54,7 @@ void CCaptionButton::Draw(HDC hdc)
             hdcBmpMem, srcRect.left, srcRect.top, srcRect.Width(), srcRect.Height(), bf);
 
         ::SelectObject(hdcBmpMem, hbmOldBmp);
-	    ::DeleteDC(hdcBmpMem);
+        ::DeleteDC(hdcBmpMem);
     }
 }
 

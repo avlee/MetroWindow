@@ -124,11 +124,11 @@ INT_PTR CALLBACK CMetroDialog::__DlgFunc(HWND hwndDlg, UINT uMsg, WPARAM wParam,
         pThis = (CMetroDialog *)GetWindowLongPtr(hwndDlg, GWLP_USERDATA);
         if (uMsg == WM_NCDESTROY && pThis != NULL)
         {
-			LRESULT lRes = ::DefWindowProc(hwndDlg, uMsg, wParam, lParam);
-			::SetWindowLongPtr(pThis->hWnd_, GWLP_USERDATA, 0L);
-			pThis->hWnd_ = NULL;
-			return lRes;
-		}
+            LRESULT lRes = ::DefWindowProc(hwndDlg, uMsg, wParam, lParam);
+            ::SetWindowLongPtr(pThis->hWnd_, GWLP_USERDATA, 0L);
+            pThis->hWnd_ = NULL;
+            return lRes;
+        }
     }
 
     // if we have the pointer, go to the message handler of the window

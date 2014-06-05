@@ -54,7 +54,7 @@ private:
 bool IsWindowsVistaOrLater()
 {
 #ifdef _versionhelpers_H_INCLUDED_
-	return ::IsWindowsVistaOrGreater();
+    return ::IsWindowsVistaOrGreater();
 #else // !_versionhelpers_H_INCLUDED_
     OSVERSIONINFO version_info = { sizeof version_info };
     BOOL bRet = ::GetVersionEx(&version_info);

@@ -133,27 +133,27 @@ CMetroFrame::~CMetroFrame(void)
 void CMetroFrame::SetIcon(UINT nIconRes, UINT nSmallIconRes)
 {
     if (hIcon_ != NULL) ::DestroyIcon(hIcon_);
-	hIcon_ = (HICON)::LoadImage(
-		hInst_, MAKEINTRESOURCE(nIconRes), IMAGE_ICON,
-		::GetSystemMetrics(SM_CXICON), ::GetSystemMetrics(SM_CYICON),
-		LR_DEFAULTCOLOR);
-	ASSERT(hIcon_);
+    hIcon_ = (HICON)::LoadImage(
+        hInst_, MAKEINTRESOURCE(nIconRes), IMAGE_ICON,
+        ::GetSystemMetrics(SM_CXICON), ::GetSystemMetrics(SM_CYICON),
+        LR_DEFAULTCOLOR);
+    ASSERT(hIcon_);
     if (hWnd_ != NULL)
     {
-	    ::SendMessage(hWnd_, WM_SETICON, (WPARAM) TRUE, (LPARAM) hIcon_);
+        ::SendMessage(hWnd_, WM_SETICON, (WPARAM) TRUE, (LPARAM) hIcon_);
     }
 
     if (hIcon_small_ != NULL) ::DestroyIcon(hIcon_small_);
 
     UINT nIconSmRes = (nSmallIconRes > 0) ? nSmallIconRes : nIconRes;
-	hIcon_small_ = (HICON)::LoadImage(
-		hInst_, MAKEINTRESOURCE(nIconSmRes), IMAGE_ICON,
-		::GetSystemMetrics(SM_CXSMICON), ::GetSystemMetrics(SM_CYSMICON),
-		LR_DEFAULTCOLOR);
-	ASSERT(hIcon_small_);
+    hIcon_small_ = (HICON)::LoadImage(
+        hInst_, MAKEINTRESOURCE(nIconSmRes), IMAGE_ICON,
+        ::GetSystemMetrics(SM_CXSMICON), ::GetSystemMetrics(SM_CYSMICON),
+        LR_DEFAULTCOLOR);
+    ASSERT(hIcon_small_);
     if (hWnd_ != NULL)
     {
-	    ::SendMessage(hWnd_, WM_SETICON, (WPARAM) FALSE, (LPARAM) hIcon_small_);
+        ::SendMessage(hWnd_, WM_SETICON, (WPARAM) FALSE, (LPARAM) hIcon_small_);
     }
 }
 
@@ -1176,8 +1176,8 @@ void CMetroFrame::DrawCaptionTitle(HDC hdc, LPWSTR title, RECT bounds, COLORREF 
         lf.lfPitchAndFamily = DEFAULT_PITCH | FF_DONTCARE;
         wcscpy_s(lf.lfFaceName, L"Segoe UI");
 
-		caption_font_ = ::CreateFontIndirect(&lf);
-	}
+        caption_font_ = ::CreateFontIndirect(&lf);
+    }
 
     HFONT hOldFont = NULL;
     if (caption_font_)

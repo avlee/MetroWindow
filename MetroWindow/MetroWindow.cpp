@@ -68,11 +68,11 @@ void CMetroWindow::ShowDialog(HWND hWndParent)
     MSG msg;
 
     while (loop && ::GetMessage(&msg, NULL, 0, 0))
-	{
+    {
         if (msg.message == WM_CLOSE) loop = false;
-		::TranslateMessage(&msg);
-		::DispatchMessage(&msg);
-	}
+        ::TranslateMessage(&msg);
+        ::DispatchMessage(&msg);
+    }
 
     ::EnableWindow(hWndParent, TRUE);
     ::SetForegroundWindow(hWndParent);

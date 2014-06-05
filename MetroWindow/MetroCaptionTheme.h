@@ -19,15 +19,15 @@ class METROWINDOW_DECL CMetroCaptionTheme
 {
 public:
     CMetroCaptionTheme();
-	explicit CMetroCaptionTheme(COLORREF color);
-	~CMetroCaptionTheme(void);
+    explicit CMetroCaptionTheme(COLORREF color);
+    ~CMetroCaptionTheme(void);
 
-	void Reset(COLORREF captionColor);
+    void Reset(COLORREF captionColor);
     static void LoadBitmapFromResource(HINSTANCE hInstance);
     static void FreeResources();
 
-	COLORREF GetCaptionColor() { return caption_color_; }
-	void SetCaptionColor(COLORREF captionColor);
+    COLORREF GetCaptionColor() { return caption_color_; }
+    void SetCaptionColor(COLORREF captionColor);
 
     COLORREF ActiveBorderColor() { return border_active_color_; }
 
@@ -45,9 +45,9 @@ public:
     HBITMAP SizeGrap() { return size_grap_image_; }
 
 private:
-	COLORREF ChangeColorBrightness(COLORREF color, float factor);
-	COLORREF ChangeColorBrightness(COLORREF color, float factor, int alpha);
-	COLORREF BlendColors(COLORREF baseColor, COLORREF overColor, int alpha);
+    COLORREF ChangeColorBrightness(COLORREF color, float factor);
+    COLORREF ChangeColorBrightness(COLORREF color, float factor, int alpha);
+    COLORREF BlendColors(COLORREF baseColor, COLORREF overColor, int alpha);
 
 private:
     static HBITMAP background_image_;
@@ -58,7 +58,7 @@ private:
     static HBITMAP close_button_image_;
     static HBITMAP size_grap_image_;
 
-	ThemeColorStyle color_style_;
+    ThemeColorStyle color_style_;
 
     COLORREF caption_color_;
     COLORREF caption_inactive_color_;

@@ -18,9 +18,9 @@ public:
     virtual ~CMetroFrame(void);
 
     HWND GetHWnd() const { return hWnd_; }
-	operator HWND() const { return hWnd_; }
+    operator HWND() const { return hWnd_; }
 
-	HINSTANCE GetModuleInstance() const { return hInst_; }
+    HINSTANCE GetModuleInstance() const { return hInst_; }
 
     void SetBackgroundColor(COLORREF bgColor) { background_color_ = bgColor; }
     void SetCaptionColor(COLORREF captionColor) { caption_theme_.SetCaptionColor(captionColor); }
