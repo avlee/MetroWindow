@@ -182,11 +182,25 @@ int CCaptionButtonManager::Draw(HDC hdc)
     return width;
 }
 
+void CCaptionButtonManager::EnableButton(LONG hitTest, bool enable)
+{
+    std::vector<CCaptionButton *>::iterator btnIter;
+    for (btnIter = caption_buttons_.begin(); btnIter != caption_buttons_.end(); btnIter++)
+    {
+        CCaptionButton* button = *btnIter;
+        if (button->HitTest() == hitTest)
+        {
+            button->Enabled(enable);
+            break;
+        }
+    }
+}
+
 CCaptionButton * CCaptionButtonManager::CommandButtonFromPoint(POINT point)
 {
     CCaptionButton * foundButton = NULL;
 
-    std::vector<CCaptionButton *>::iterator btnIter;
+    std::vector<CCaptionButton *>::const_iterator btnIter;
     for (btnIter = caption_buttons_.begin(); btnIter != caption_buttons_.end(); btnIter++)
     {
         CCaptionButton* button = *btnIter;
@@ -203,11 +217,11 @@ CCaptionButton * CCaptionButtonManager::CommandButtonByHitTest(LONG hitTest)
 {
     CCaptionButton * foundButton = NULL;
 
-    std::vector<CCaptionButton *>::iterator btnIter;
+    std::vector<CCaptionButton *>::const_iterator btnIter;
     for (btnIter = caption_buttons_.begin(); btnIter != caption_buttons_.end(); btnIter++)
     {
         CCaptionButton* button = *btnIter;
-        if (button != NULL && button->Visible() && button->HitTest() == hitTest)
+        if (button != NULL && button->Visible() && button->Enabled() && button->HitTest() == hitTest)
         {
             foundButton = *btnIter;
         }

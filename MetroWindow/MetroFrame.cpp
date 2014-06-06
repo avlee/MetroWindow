@@ -95,6 +95,7 @@ CMetroFrame::CMetroFrame(HINSTANCE hInstance)
     client_area_movable_ = false;
     use_thick_frame_ = false;
     show_icon_on_caption_ = true;
+    close_button_enabled_ = true;
 
     drop_shadow_ = NULL;
 
@@ -180,6 +181,21 @@ void CMetroFrame::ShowDropShadowOnXP(bool show)
     if (GetOSVersion() == VERSION_XP)
     {
         show_drop_shadow_on_xp_ = show;
+    }
+}
+
+void CMetroFrame::EnableCloseButton(bool enable)
+{
+    if (close_button_enabled_ != enable)
+    {
+        close_button_enabled_ = enable;
+
+        if (caption_button_manager_)
+        {
+            caption_button_manager_->EnableButton(HTCLOSE, enable);
+
+            PaintNonClientArea(NULL);
+        }
     }
 }
 
@@ -359,6 +375,7 @@ LRESULT CMetroFrame::OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHa
 
     RemoveWindowBorderStyle();
     caption_button_manager_->UpdateCaptionButtons(hWnd_, caption_theme_, is_dwm_enabled_);
+    caption_button_manager_->EnableButton(HTCLOSE, close_button_enabled_);
 
     ::DisableProcessWindowsGhosting();
 
@@ -495,7 +512,7 @@ LRESULT CMetroFrame::OnNcHitTest(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
         // on Button?
         CPoint pt(point.x - rectScreen.left, point.y - rectScreen.top);
         CCaptionButton * sysButton = caption_button_manager_->CommandButtonFromPoint(pt);
-        if (sysButton != NULL && sysButton->Enabled())
+        if (sysButton != NULL)
         {
             bHandled = TRUE;
             return sysButton->HitTest();

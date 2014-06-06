@@ -37,6 +37,7 @@ public:
     void UseCustomTitile(bool custom) { use_custom_title_ = custom; }
     void UseThickFrame(bool thick) { use_thick_frame_ = thick; }
 
+    void EnableCloseButton(bool enable);
     void CenterWindow(HWND hWndCenter = NULL);
 
 protected:
@@ -103,6 +104,7 @@ private:
     bool client_area_movable_;
     bool use_thick_frame_;
     bool show_icon_on_caption_;
+    bool close_button_enabled_;
 
     TRACKMOUSEEVENT track_mouse_event_;
 

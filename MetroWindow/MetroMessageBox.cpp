@@ -576,7 +576,7 @@ LRESULT CMetroMessageBox::OnWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
         if (disable_close_) {
             ::RemoveMenu(GetSystemMenu(GetHWnd(), FALSE), SC_CLOSE, MF_BYCOMMAND);
 
-            // TODO disable the close button.
+            EnableCloseButton(false);
         }
 
         if (message_box_icon_) {

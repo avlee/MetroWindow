@@ -56,6 +56,7 @@ public:
     void UpdateCaptionButtons(HWND hWnd, CMetroCaptionTheme& captionTheme, bool dwmEnabled);
 
     int Draw(HDC hdc);
+    void EnableButton(LONG hitTest, bool enable);
 
     CCaptionButton * CommandButtonFromPoint(POINT point);
     CCaptionButton * CommandButtonByHitTest(LONG hitTest);
