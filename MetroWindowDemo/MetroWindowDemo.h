@@ -142,6 +142,8 @@ public:
         else if (wmId == IDC_BTN_TEST5)
         {
             CMetroMessageBox msgBox(GetModuleInstance());
+            msgBox.SetCaptionColor(RGB(255, 106, 0));
+            msgBox.UseThickFrame(true);
             msgBox.ShowDropShadowOnXP(true);
             INT_PTR ret = msgBox.Show(*this, L"第一行,还是要长一点才能测试出效果来嘛！第一行,还是要长一点才能测试出效果来嘛！第一行,还是要长一点才能测试出效果来嘛！第一行,还是要长一点才能测试出效果来嘛！\r\n\r\n第二行", L"测试", MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2);
             //INT_PTR ret = MessageBox(*this, L"第一行,还是要长一点才能测试出效果来嘛！第一行,还是要长一点才能测试出效果来嘛！第一行,还是要长一点才能测试出效果来嘛！第一行,还是要长一点才能测试出效果来嘛！\r\n\r\n第二行", L"测试", MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2);

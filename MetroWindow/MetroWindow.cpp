@@ -37,22 +37,22 @@ HWND CMetroWindow::Create(
 {
     if (!RegisterWindowClass()) return NULL;
 
-    _hWnd = ::CreateWindowEx(dwExStyle, GetWindowClassName(), pstrName, dwStyle,
+    hWnd_ = ::CreateWindowEx(dwExStyle, GetWindowClassName(), pstrName, dwStyle,
         x, y, cx, cy, hwndParent, hMenu, GetModuleInstance(), this);
 
-    ASSERT(_hWnd!=NULL);
-    return _hWnd;
+    ASSERT(hWnd_!=NULL);
+    return hWnd_;
 }
 
 void CMetroWindow::ShowWindow(bool bShow /*= true*/, bool bTakeFocus /*= true*/)
 {
-    ASSERT(::IsWindow(_hWnd));
-    if (::IsWindow(_hWnd))
+    ASSERT(::IsWindow(hWnd_));
+    if (::IsWindow(hWnd_))
     {
-        ::ShowWindow(_hWnd, bShow ? (bTakeFocus ? SW_SHOWNORMAL : SW_SHOWNOACTIVATE) : SW_HIDE);
+        ::ShowWindow(hWnd_, bShow ? (bTakeFocus ? SW_SHOWNORMAL : SW_SHOWNOACTIVATE) : SW_HIDE);
         if (bTakeFocus)
         {
-            ::SetFocus(_hWnd);
+            ::SetFocus(hWnd_);
         }
     }
 }
@@ -68,11 +68,11 @@ void CMetroWindow::ShowDialog(HWND hWndParent)
     MSG msg;
 
     while (loop && ::GetMessage(&msg, NULL, 0, 0))
-	{
+    {
         if (msg.message == WM_CLOSE) loop = false;
-		::TranslateMessage(&msg);
-		::DispatchMessage(&msg);
-	}
+        ::TranslateMessage(&msg);
+        ::DispatchMessage(&msg);
+    }
 
     ::EnableWindow(hWndParent, TRUE);
     ::SetForegroundWindow(hWndParent);
@@ -86,8 +86,8 @@ bool CMetroWindow::RegisterWindowClass()
     wcex.style          = GetClassStyle();
     wcex.cbClsExtra     = 0;
     wcex.cbWndExtra     = 0;
-    wcex.hIcon          = _hIcon;
-    wcex.hIconSm        = _hSmallIcon;
+    wcex.hIcon          = hIcon_;
+    wcex.hIconSm        = hIcon_small_;
     wcex.lpfnWndProc    = CMetroWindow::__WndProc;
     wcex.hInstance      = GetModuleInstance();
     wcex.hCursor        = ::LoadCursor(NULL, IDC_ARROW);
@@ -109,7 +109,7 @@ LRESULT CALLBACK CMetroWindow::__WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LP
     {
         LPCREATESTRUCT lpcs = reinterpret_cast<LPCREATESTRUCT>(lParam);
         pThis = static_cast<CMetroWindow*>(lpcs->lpCreateParams);
-        pThis->_hWnd = hWnd;
+        pThis->hWnd_ = hWnd;
         ::SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LPARAM>(pThis));
     }
     else
@@ -118,8 +118,8 @@ LRESULT CALLBACK CMetroWindow::__WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LP
         if (uMsg == WM_NCDESTROY && pThis != NULL)
         {
             LRESULT lRes = ::DefWindowProc(hWnd, uMsg, wParam, lParam);
-            ::SetWindowLongPtr(pThis->_hWnd, GWLP_USERDATA, 0L);
-            pThis->_hWnd = NULL;
+            ::SetWindowLongPtr(pThis->hWnd_, GWLP_USERDATA, 0L);
+            pThis->hWnd_ = NULL;
             return lRes;
         }
     }

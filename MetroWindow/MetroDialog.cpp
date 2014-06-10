@@ -5,22 +5,22 @@ namespace MetroWindow
 {
 
 CMetroDialog::CMetroDialog(HINSTANCE hInstance)
-    : CMetroFrame(hInstance), _bModal(false)
+    : CMetroFrame(hInstance), is_modal_(false)
 {
 }
 
 
 CMetroDialog::~CMetroDialog(void)
 {
-    if (!_bModal && ::IsWindow(_hWnd))
+    if (!is_modal_ && ::IsWindow(hWnd_))
     {
-        ::DestroyWindow(_hWnd);
+        ::DestroyWindow(hWnd_);
     }
 }
 
 INT_PTR CMetroDialog::DoModal(int resId, HWND hWndParent)
 {
-    _bModal = true;
+    is_modal_ = true;
 
     INT_PTR result = ::DialogBoxParam(GetModuleInstance(), MAKEINTRESOURCE(resId), hWndParent,
                                       &CMetroDialog::__DlgFunc, (LPARAM)this);
@@ -32,37 +32,37 @@ INT_PTR CMetroDialog::DoModal(int resId, HWND hWndParent)
 
 void CMetroDialog::ShowModeless(int resID, HWND hWndParent)
 {
-    if (!::IsWindow(_hWnd)) {
-        _bModal = false;
-        _hWnd = ::CreateDialogParam(GetModuleInstance(), MAKEINTRESOURCE(resID), hWndParent,
+    if (!::IsWindow(hWnd_)) {
+        is_modal_ = false;
+        hWnd_ = ::CreateDialogParam(GetModuleInstance(), MAKEINTRESOURCE(resID), hWndParent,
                                     &CMetroDialog::__DlgFunc, (LPARAM)this);
     } else {
         OnShowModeless();
     }
 
-    ::ShowWindow(_hWnd, SW_SHOW);
-    ::SetFocus(_hWnd);
+    ::ShowWindow(hWnd_, SW_SHOW);
+    ::SetFocus(hWnd_);
 }
 
 BOOL CMetroDialog::EndDialog()
 {
-    ASSERT(::IsWindow(_hWnd));
+    ASSERT(::IsWindow(hWnd_));
 
-    return ::EndDialog(_hWnd, IDOK);
+    return ::EndDialog(hWnd_, IDOK);
 }
 
 BOOL CMetroDialog::DestroyWindow()
 {
-    ASSERT(::IsWindow(_hWnd));
+    ASSERT(::IsWindow(hWnd_));
 
-    return ::DestroyWindow(_hWnd);
+    return ::DestroyWindow(hWnd_);
 }
 
 void CMetroDialog::OnInitDialog()
 {
-    if (wcslen(_title) > 0)
+    if (wcslen(title_) > 0)
     {
-        ::SetWindowTextW(_hWnd, _title);
+        ::SetWindowTextW(hWnd_, title_);
     }
 
     CenterWindow();
@@ -74,7 +74,7 @@ void CMetroDialog::OnShowModeless()
 
 LRESULT CMetroDialog::OnClose(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
-    if (_bModal)
+    if (is_modal_)
         EndDialog();
     else
         DestroyWindow();
@@ -119,16 +119,16 @@ INT_PTR CALLBACK CMetroDialog::__DlgFunc(HWND hwndDlg, UINT uMsg, WPARAM wParam,
         // get the pointer to the window from lpCreateParams
         ::SetWindowLongPtr(hwndDlg, GWLP_USERDATA, lParam);
         pThis = (CMetroDialog*)lParam;
-        pThis->_hWnd = hwndDlg;
+        pThis->hWnd_ = hwndDlg;
     } else {
         pThis = (CMetroDialog *)GetWindowLongPtr(hwndDlg, GWLP_USERDATA);
         if (uMsg == WM_NCDESTROY && pThis != NULL)
         {
-			LRESULT lRes = ::DefWindowProc(hwndDlg, uMsg, wParam, lParam);
-			::SetWindowLongPtr(pThis->_hWnd, GWLP_USERDATA, 0L);
-			pThis->_hWnd = NULL;
-			return lRes;
-		}
+            LRESULT lRes = ::DefWindowProc(hwndDlg, uMsg, wParam, lParam);
+            ::SetWindowLongPtr(pThis->hWnd_, GWLP_USERDATA, 0L);
+            pThis->hWnd_ = NULL;
+            return lRes;
+        }
     }
 
     // if we have the pointer, go to the message handler of the window

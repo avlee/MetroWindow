@@ -38,11 +38,11 @@ namespace UxThemeApi
 class CBufferedPaint
 {
 public:
-    CBufferedPaint() : _hPaintBuffer(NULL)
+    CBufferedPaint() : paint_buffer_(NULL)
     {
-        memset(&_paintParams, 0, sizeof(BP_PAINTPARAMS));
-        _paintParams.cbSize = sizeof(BP_PAINTPARAMS);
-        _paintParams.dwFlags = BPPF_NONCLIENT;
+        memset(&paint_params_, 0, sizeof(BP_PAINTPARAMS));
+        paint_params_.cbSize = sizeof(BP_PAINTPARAMS);
+        paint_params_.dwFlags = BPPF_NONCLIENT;
     }
 
     ~CBufferedPaint()
@@ -52,26 +52,26 @@ public:
 
     bool BeginPaint(HDC hdcTarget, const RECT* prcTarget, HDC* phdcPaint)
     {
-        _hPaintBuffer = UxThemeApi::BeginBufferedPaint(hdcTarget, prcTarget,
-            BPBF_TOPDOWNDIB, &_paintParams, phdcPaint);
+        paint_buffer_ = UxThemeApi::BeginBufferedPaint(hdcTarget, prcTarget,
+            BPBF_TOPDOWNDIB, &paint_params_, phdcPaint);
 
-        return (_hPaintBuffer != NULL && phdcPaint != NULL);
+        return (paint_buffer_ != NULL && phdcPaint != NULL);
     }
 
     void EndPaint()
     {
-        if(_hPaintBuffer != NULL)
+        if(paint_buffer_ != NULL)
         {
             // SetAlpha with specifies entire buffer
-            UxThemeApi::BufferedPaintSetAlpha(_hPaintBuffer, NULL, 255);
-            UxThemeApi::EndBufferedPaint(_hPaintBuffer, TRUE);
-            _hPaintBuffer = NULL;
+            UxThemeApi::BufferedPaintSetAlpha(paint_buffer_, NULL, 255);
+            UxThemeApi::EndBufferedPaint(paint_buffer_, TRUE);
+            paint_buffer_ = NULL;
         }
     }
 
 private:
-    HPAINTBUFFER _hPaintBuffer;
-    BP_PAINTPARAMS _paintParams;
+    HPAINTBUFFER paint_buffer_;
+    BP_PAINTPARAMS paint_params_;
 };
 
 } //namespace MetroWindow

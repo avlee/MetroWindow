@@ -32,36 +32,36 @@ namespace DwmApi
         DWMWA_LAST
     } DWMWINDOWATTRIBUTE;
 
-    HMODULE _hDwmDLL;
-    fnDwmIsCompositionEnabled _pfnDwmIsCompositionEnabled;
-    fnDwmSetWindowAttribute _pfnDwmSetWindowAttribute;
-    fnDwmDefWindowProc _pfnDwmDefWindowProc;
-    fnDwmExtendFrameIntoClientArea _pfnDwmExtendFrameIntoClientArea;
+    HMODULE dwm_dll_;
+    fnDwmIsCompositionEnabled pfnDwmIsCompositionEnabled;
+    fnDwmSetWindowAttribute pfnDwmSetWindowAttribute;
+    fnDwmDefWindowProc pfnDwmDefWindowProc;
+    fnDwmExtendFrameIntoClientArea pfnDwmExtendFrameIntoClientArea;
 
     void LoadDwmApi()
     {
-        HMODULE _hDwmDLL = NULL;
-        _pfnDwmIsCompositionEnabled = NULL;
-        _pfnDwmSetWindowAttribute = NULL;
-        _pfnDwmDefWindowProc = NULL;
-        _pfnDwmExtendFrameIntoClientArea = NULL;
+        dwm_dll_ = NULL;
+        pfnDwmIsCompositionEnabled = NULL;
+        pfnDwmSetWindowAttribute = NULL;
+        pfnDwmDefWindowProc = NULL;
+        pfnDwmExtendFrameIntoClientArea = NULL;
 
         if (WindowExtenders::IsVista())
         {
-            _hDwmDLL = ::LoadLibraryW(L"dwmapi.dll");
-            if (_hDwmDLL != NULL)
+            dwm_dll_ = ::LoadLibraryW(L"dwmapi.dll");
+            if (dwm_dll_ != NULL)
             {
-                _pfnDwmIsCompositionEnabled = reinterpret_cast<fnDwmIsCompositionEnabled>(::GetProcAddress(
-                    _hDwmDLL, "DwmIsCompositionEnabled"));
+                pfnDwmIsCompositionEnabled = reinterpret_cast<fnDwmIsCompositionEnabled>(::GetProcAddress(
+                    dwm_dll_, "DwmIsCompositionEnabled"));
 
-                _pfnDwmSetWindowAttribute = reinterpret_cast<fnDwmSetWindowAttribute>(::GetProcAddress(
-                    _hDwmDLL, "DwmSetWindowAttribute"));
+                pfnDwmSetWindowAttribute = reinterpret_cast<fnDwmSetWindowAttribute>(::GetProcAddress(
+                    dwm_dll_, "DwmSetWindowAttribute"));
 
-                _pfnDwmDefWindowProc = reinterpret_cast<fnDwmDefWindowProc>(::GetProcAddress(
-                    _hDwmDLL, "DwmDefWindowProc"));
+                pfnDwmDefWindowProc = reinterpret_cast<fnDwmDefWindowProc>(::GetProcAddress(
+                    dwm_dll_, "DwmDefWindowProc"));
 
-                _pfnDwmExtendFrameIntoClientArea = reinterpret_cast<fnDwmExtendFrameIntoClientArea>(::GetProcAddress(
-                    _hDwmDLL, "DwmExtendFrameIntoClientArea"));
+                pfnDwmExtendFrameIntoClientArea = reinterpret_cast<fnDwmExtendFrameIntoClientArea>(::GetProcAddress(
+                    dwm_dll_, "DwmExtendFrameIntoClientArea"));
 
 
             }
@@ -70,24 +70,24 @@ namespace DwmApi
 
     void UnloadDwmApi(void)
     {
-        _pfnDwmIsCompositionEnabled = NULL;
-        _pfnDwmSetWindowAttribute = NULL;
-        _pfnDwmDefWindowProc = NULL;
-        _pfnDwmExtendFrameIntoClientArea = NULL;
+        pfnDwmIsCompositionEnabled = NULL;
+        pfnDwmSetWindowAttribute = NULL;
+        pfnDwmDefWindowProc = NULL;
+        pfnDwmExtendFrameIntoClientArea = NULL;
 
-        if (_hDwmDLL != NULL)
+        if (dwm_dll_ != NULL)
         {
-            ::FreeLibrary(_hDwmDLL);
-            _hDwmDLL = NULL;
+            ::FreeLibrary(dwm_dll_);
+            dwm_dll_ = NULL;
         }
     }
 
     bool IsDwmEnabled()
     {
-        if (_pfnDwmIsCompositionEnabled != NULL)
+        if (pfnDwmIsCompositionEnabled != NULL)
         {
             BOOL bEnabled = FALSE;
-            HRESULT hr = _pfnDwmIsCompositionEnabled(&bEnabled);
+            HRESULT hr = pfnDwmIsCompositionEnabled(&bEnabled);
             if (SUCCEEDED(hr) && bEnabled)
             {
                 return true;
@@ -99,12 +99,12 @@ namespace DwmApi
 
     bool DwmAllowNcPaint(HWND hwnd)
     {
-        if (_pfnDwmSetWindowAttribute != NULL)
+        if (pfnDwmSetWindowAttribute != NULL)
         {
             BOOL bEnable = TRUE;
 
             // Enable non-client area rendering on the window.
-            HRESULT hr = _pfnDwmSetWindowAttribute(hwnd,
+            HRESULT hr = pfnDwmSetWindowAttribute(hwnd,
                 DWMWA_ALLOW_NCPAINT, &bEnable, sizeof(bEnable));
             if (SUCCEEDED(hr))
             {
@@ -118,9 +118,9 @@ namespace DwmApi
     BOOL DwmDefWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, LRESULT *plResult)
     {
         BOOL bRet = FALSE;
-        if (_pfnDwmDefWindowProc != NULL)
+        if (pfnDwmDefWindowProc != NULL)
         {
-            bRet = _pfnDwmDefWindowProc(hwnd, msg, wParam, lParam, plResult);
+            bRet = pfnDwmDefWindowProc(hwnd, msg, wParam, lParam, plResult);
         }
 
         return bRet;
@@ -128,10 +128,10 @@ namespace DwmApi
 
     HRESULT DwmExtendFrameIntoClientArea(HWND hWnd)
     {
-        if (_pfnDwmExtendFrameIntoClientArea != NULL)
+        if (pfnDwmExtendFrameIntoClientArea != NULL)
         {
             MARGINS margins = { 0 };
-            return _pfnDwmExtendFrameIntoClientArea(hWnd, &margins);
+            return pfnDwmExtendFrameIntoClientArea(hWnd, &margins);
         }
 
         return E_NOTIMPL;

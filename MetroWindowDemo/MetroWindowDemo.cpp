@@ -16,37 +16,37 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
                      LPTSTR    lpCmdLine,
                      int       nCmdShow)
 {
-	UNREFERENCED_PARAMETER(hPrevInstance);
-	UNREFERENCED_PARAMETER(lpCmdLine);
+    UNREFERENCED_PARAMETER(hPrevInstance);
+    UNREFERENCED_PARAMETER(lpCmdLine);
 
- 	// TODO: Place code here.
-	MSG msg;
-	HACCEL hAccelTable;
+    // TODO: Place code here.
+    MSG msg;
+    HACCEL hAccelTable;
 
-	// Initialize global strings
-	LoadString(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
-	LoadString(hInstance, IDC_METROWINDOWDEMO, szWindowClass, MAX_LOADSTRING);
+    // Initialize global strings
+    LoadString(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
+    LoadString(hInstance, IDC_METROWINDOWDEMO, szWindowClass, MAX_LOADSTRING);
 
-	CMainWindow mainWindow(hInstance);
+    CMainWindow mainWindow(hInstance);
     mainWindow.SetIcon(IDI_METROWINDOWDEMO, IDI_SMALL);
     mainWindow.ClientAreaMovable(true);
     mainWindow.ShowDropShadowOnXP(true);
     mainWindow.Create(NULL, szTitle, WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN, NULL);
 
-	hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_METROWINDOWDEMO));
+    hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_METROWINDOWDEMO));
 
     mainWindow.ShowWindow();
 
-	// Main message loop:
-	while (GetMessage(&msg, NULL, 0, 0))
-	{
-		if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
-		{
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-		}
-	}
+    // Main message loop:
+    while (GetMessage(&msg, NULL, 0, 0))
+    {
+        if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
+        {
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
+        }
+    }
 
-	return (int) msg.wParam;
+    return (int) msg.wParam;
 }
 

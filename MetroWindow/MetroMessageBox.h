@@ -39,21 +39,21 @@ private:
     static INT_PTR CALLBACK MsgBoxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 private:
-    HICON _hIcon;
-    HFONT _hFont;
-    bool _rightJustifyButtons;
-    bool _disableClose;
-    int _buttonWidth;
-    int _buttonHeight;
-    int _buttonCount;
-    int _defaultButton;
-    UINT _defaultButtonId;
-    int _baseUnitX;
-    int _baseUnitY;
-    UINT_PTR _returnValue;
-    bool _ended;
-    DLGTEMPLATE _dlgTempl;
-    DialogItemTemplate _items[5];
+    HICON message_box_icon_;
+    HFONT font_;
+    bool right_justify_buttons_;
+    bool disable_close_;
+    int button_width_;
+    int button_height_;
+    int button_count_;
+    int default_button_;
+    UINT default_button_id_;
+    bool ended_;
+    INT_PTR return_value_;
+    int base_unit_x_;
+    int base_unit_y_;
+    DLGTEMPLATE dialog_templ_;
+    DialogItemTemplate dialog_items_[5];
 };
 
 } // namespace MetroWindow
