@@ -37,6 +37,8 @@ private:
 
     static INT_PTR CALLBACK MsgBoxProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
+    LRESULT DrawMetroButton(LPDRAWITEMSTRUCT lpDIS);
+
 private:
     HICON message_box_icon_;
     HFONT font_;

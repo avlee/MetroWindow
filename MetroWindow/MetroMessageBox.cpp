@@ -537,7 +537,7 @@ void CMetroMessageBox::AddItem(DWORD cType, UINT nID, RECT *pRect)
         switch (cType) {
         case DIALOG_ITEM_BUTTON:
             button_count_++;
-            dlgItem->style = WS_VISIBLE | WS_CHILD | WS_TABSTOP;
+            dlgItem->style = WS_VISIBLE | WS_CHILD | WS_TABSTOP | BS_OWNERDRAW;
             if (button_count_ == default_button_) {
                 dlgItem->style |= BS_DEFPUSHBUTTON;
                 default_button_id_ = nID;
@@ -605,6 +605,8 @@ LRESULT CMetroMessageBox::OnWndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
             EndDialog(hWnd_, wParam);
             return FALSE;
         }
+    case WM_DRAWITEM:
+        return DrawMetroButton((LPDRAWITEMSTRUCT) lParam);
     default:
         return CMetroFrame::OnWndProc(uMsg, wParam, lParam);
     }
@@ -637,6 +639,74 @@ INT_PTR CALLBACK CMetroMessageBox::MsgBoxProc(HWND hWnd, UINT uMsg, WPARAM wPara
     } else {
         return 0;
     }
+}
+
+LRESULT CMetroMessageBox::DrawMetroButton(LPDRAWITEMSTRUCT lpDIS)
+{
+    HDC dc = lpDIS->hDC;
+
+    BOOL bIsPressed  = (lpDIS->itemState & ODS_SELECTED);
+    BOOL bIsFocused  = (lpDIS->itemState & ODS_FOCUS);
+    BOOL bIsDisabled = (lpDIS->itemState & ODS_DISABLED);
+
+    RECT itemRect = lpDIS->rcItem;
+
+    SetBkMode(dc, TRANSPARENT);
+    if (bIsFocused) {
+        HBRUSH br = CreateSolidBrush(RGB(0, 174, 219));
+        FrameRect(dc, &itemRect, br);
+        InflateRect(&itemRect, -1, -1);
+        DeleteObject(br);
+    }
+
+    COLORREF crBroder = bIsFocused ?
+        (bIsPressed ? RGB(0, 144, 189) : RGB(0, 174, 219)) : RGB(153, 153, 153);
+
+    HBRUSH brBroder = CreateSolidBrush(crBroder);
+    FrameRect(dc, &itemRect, brBroder);
+    InflateRect(&itemRect, -1, -1);
+    DeleteObject(brBroder);
+
+    COLORREF crColor = bIsFocused ? RGB(235, 235, 235) : RGB(255, 255, 255);
+    HBRUSH brBackground = CreateSolidBrush(crColor);
+    FillRect(dc, &itemRect, brBackground);
+    DeleteObject(brBackground);
+
+    WCHAR title[32];
+    int titleLen = ::GetWindowTextW(lpDIS->hwndItem, title, 32);
+    if (titleLen > 0) {
+        RECT captionRect = lpDIS->rcItem;
+
+        if (bIsPressed) OffsetRect(&captionRect, 1, 1);
+
+        RECT centerRect = captionRect;
+        DrawTextW(dc, title, -1, &captionRect, DT_WORDBREAK | DT_CALCRECT | DT_CENTER);
+
+        LONG captionRectWidth = captionRect.right - captionRect.left;
+        LONG captionRectHeight = captionRect.bottom - captionRect.top;
+        LONG centerRectWidth = centerRect.right - centerRect.left;
+        LONG centerRectHeight = centerRect.bottom - centerRect.top;
+
+        OffsetRect(&captionRect, (centerRectWidth - captionRectWidth)/2, 
+            (centerRectHeight - captionRectHeight)/2);
+
+        SetBkMode(dc, TRANSPARENT);
+
+        if (bIsDisabled) {
+            OffsetRect(&captionRect, 1, 1);
+            SetTextColor(dc, ::GetSysColor(COLOR_3DHILIGHT));
+            DrawTextW(dc, title, -1, &captionRect, DT_WORDBREAK | DT_CENTER);
+            OffsetRect(&captionRect, -1, -1);
+            SetTextColor(dc, ::GetSysColor(COLOR_3DSHADOW));
+            DrawTextW(dc, title, -1, &captionRect, DT_WORDBREAK | DT_CENTER);
+        } else {
+            SetTextColor(dc, ::GetSysColor(COLOR_BTNTEXT));
+            SetBkColor(dc, crColor);
+            DrawTextW(dc, title, -1, &captionRect, DT_WORDBREAK | DT_CENTER);
+        }
+    }
+
+    return TRUE;
 }
 
 } // namespace MetroWindow
